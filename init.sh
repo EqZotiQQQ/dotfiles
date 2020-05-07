@@ -27,11 +27,12 @@ sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu
 function nvim {
     sudo apt install -y neovim
     curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-    chmod u+x nvim.appimage
-	rm /usr/bin/nvim
-	rm /usr/bin/vim
-	cp nvim.appimage /usr/bin/nvim
-    cp /usr/bin/nvim /usr/bin/vim
+    sudo chmod 777 nvim.appimage
+    sudo rm /usr/bin/nvim
+    sudo rm /usr/bin/vim
+    sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
+    sudo cp /usr/bin/nvim /usr/bin/vim
+    sudo rm $DOTFILES_DIR/nvim.appimage
 
     mkdir $HOME/.config/nvim
     ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
@@ -42,10 +43,10 @@ function nvim {
 }
 
 function git {
-    it config --global merge.tool vimdiff
-    it config --global user.name "Mikhail Fedyakov"
-    it config --global user.email mf_52@mail.ru
-    it config --global core.editor "vim"
+    git config --global merge.tool vimdiff
+    git config --global user.name "Mikhail Fedyakov"
+    git config --global user.email mf_52@mail.ru
+    git config --global core.editor "vim"
 }
 
 function awesome_install {
