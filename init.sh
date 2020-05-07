@@ -49,20 +49,22 @@ function git {
     git config --global core.editor "vim"
 }
 
+
+***
+
+	
+***
 function awesome_install {
 
     ####################################
-    # Awesome WM 
+    # AwesomeWM
     ####################################
-
-    sudo apt install -y awesome
-    sudo apt install -y lightdm
-
-    #sudo apt install -y feh   # wallpaper
-    if [ -d "$HOME/.config" ]; then 
-        mkdir "$HOME/.config"
-    fi
-    ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
+	
+	sudo apt install -y awesome-extra feh #lightdm
+	
+	mkdir $HOME/.config/awesome
+	cp /etc/xdg/awesome $HOME/.config/awesome
+	ln -sf /$DOTFILES_DIR/.config/awesome/rc.lua $HOME/.config/awesome/rc.lua
 
     ####################################
     # Kitty
@@ -93,12 +95,6 @@ function awesome_install {
     cd .fonts 
     fc-cache -fv 
     cd ~
-
-    # End Kitty
-    #if [ -d "$HOME/.config/awesome" ]; then
-	#    rm $HOME/.config/awesome/rc.lua
-    #    ln -sf $DOTFILES_DIR/.config/awesome/rc.lua $HOME/.config/awesome/rc.lua
-    #fi
 }
 
 function update_symlinks {
@@ -144,7 +140,7 @@ function python {
 }
 
 # set Java
-sudo apt install -y default-jdk
+# sudo apt install -y default-jdk
 
 nvim
 awesome_install
