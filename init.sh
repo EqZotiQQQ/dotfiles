@@ -26,10 +26,10 @@ sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu
 ########################################
 function nvim {
     sudo apt install -y neovim
-    curl -LO /usr/bin/nvim https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-    cp /usr/bin/nvim /usr/bin/vim
+    curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
     chmod u+x nvim.appimage
-    ./nvim.appimage
+	mv nvim.appimage /usr/bin/nvim
+    cp /usr/bin/nvim /usr/bin/vim
 
     mkdir $HOME/.config/nvim
     ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
