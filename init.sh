@@ -28,7 +28,9 @@ function nvim {
     sudo apt install -y neovim
     curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
     chmod u+x nvim.appimage
-	mv nvim.appimage /usr/bin/nvim
+	rm /usr/bin/nvim
+	rm /usr/bin/vim
+	cp nvim.appimage /usr/bin/nvim
     cp /usr/bin/nvim /usr/bin/vim
 
     mkdir $HOME/.config/nvim
