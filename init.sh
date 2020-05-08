@@ -19,7 +19,10 @@ do
 done
 
 sudo apt upgrade -y
-sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu
+sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu libx11-dev libxcomposite-dev libxdamage-dev libxrender-dev\
+        libxrandr-dev libxinerama-dev libconfig-dev dbus libdbus-1-dev libdbus-glib-1-2 libdbus-glib-1-dev apt-file libglx-dev libgl-dev\
+        libdrm-dev asciidoc-base
+sudo apt-file update
 
 ########################################
 # NEOVIM
@@ -60,6 +63,7 @@ function awesome_install {
     mkdir $HOME/.config/awesome
     cp /etc/xdg/awesome $HOME/.config/awesome
     ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
+    ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
 
     ####################################
     # Kitty
@@ -134,6 +138,15 @@ function python {
     #pip3 install -U scikit-learn
 }
 
+#its under testings. If it wont work do it by ur hands
+function compton {
+    mkdir -p $HOME/git/other
+    git clone https://github.com/tryone144/compton.git $HOME/git/other
+    make -C $HOME/git/other
+    make docks -C $HOME/git/other
+    make install -C $HOME/git/other
+}
+
 # set Java
 # sudo apt install -y default-jdk
 
@@ -142,6 +155,7 @@ nvim
 awesome_install
 python
 update_symlinks
+compton
 
 if [ $ZSH = yes ]; then
     zsh_install
