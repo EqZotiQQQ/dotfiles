@@ -51,6 +51,7 @@ function git {
     git config --global user.name "Mikhail Fedyakov"
     git config --global user.email mf_52@mail.ru
     git config --global core.editor "vim"
+    # git config credential.helper store
 }
 
 
