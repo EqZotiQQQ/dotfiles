@@ -586,5 +586,5 @@ awful.spawn.with_shell("~/.config/awesome/autorun.sh")
 --
 --
 -- {{{ Wallpaper
-beautiful.wallpaper = awful.util.get_configuration_dir() .. "~/Pictures/LoneWolf.png"
+beautiful.wallpaper = awful.util.get_configuration_dir() .. "~/Pictures/Wallpaper/LoneWolf.png"
 -- }}}

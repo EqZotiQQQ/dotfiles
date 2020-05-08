@@ -25,14 +25,15 @@ sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu
 # NEOVIM
 ########################################
 function nvim {
-    sudo apt install -y neovim
-    curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-    sudo chmod 777 nvim.appimage
-    sudo rm /usr/bin/nvim
-    sudo rm /usr/bin/vim
-    sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
-    sudo cp /usr/bin/nvim /usr/bin/vim
-    sudo rm $DOTFILES_DIR/nvim.appimage
+###### use it with Ubuntu < 20.
+#    sudo apt install -y neovim
+#    curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+#    sudo chmod 777 nvim.appimage
+#    sudo rm /usr/bin/nvim
+#    sudo rm /usr/bin/vim
+#    sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
+#    sudo cp /usr/bin/nvim /usr/bin/vim
+#    sudo rm $DOTFILES_DIR/nvim.appimage
 
     mkdir $HOME/.config/nvim
     ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
@@ -50,21 +51,15 @@ function git {
 }
 
 
-***
-
-	
-***
 function awesome_install {
 
     ####################################
     # AwesomeWM
     ####################################
-	
-	sudo apt install -y awesome-extra feh #lightdm
-	
-	mkdir $HOME/.config/awesome
-	cp /etc/xdg/awesome $HOME/.config/awesome
-	ln -sf /$DOTFILES_DIR/.config/awesome/rc.lua $HOME/.config/awesome/rc.lua
+    sudo apt install -y awesome-extra feh #lightdm
+    mkdir $HOME/.config/awesome
+    cp /etc/xdg/awesome $HOME/.config/awesome
+    ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
 
     ####################################
     # Kitty
@@ -142,6 +137,7 @@ function python {
 # set Java
 # sudo apt install -y default-jdk
 
+git
 nvim
 awesome_install
 python
