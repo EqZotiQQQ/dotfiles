@@ -19,9 +19,10 @@ do
 done
 
 sudo apt upgrade -y
-sudo apt install -y curl htop openssh-server gcc make cmake clang git repo ncdu libx11-dev libxcomposite-dev libxdamage-dev libxrender-dev\
+sudo apt install curl htop openssh-server gcc make cmake clang git repo ncdu libx11-dev libxcomposite-dev libxdamage-dev libxrender-dev\
         libxrandr-dev libxinerama-dev libconfig-dev dbus libdbus-1-dev libdbus-glib-1-2 libdbus-glib-1-dev apt-file libglx-dev libgl-dev\
-        libdrm-dev asciidoc-base
+        libdrm-dev asciidoc-base libcairo2-dev libxcb-composite0-dev libxcb-randr0-dev xcb-proto libxcb-util0-dev libxcb1-dev\
+        python3-xcbgen libxcb-icccm4-dev libxcb-ewmh-dev libxcb-image0-dev python-xcbge
 sudo apt-file update
 
 ########################################
@@ -143,11 +144,22 @@ function python {
 function compton {
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/other
-    make -C $HOME/git/other
-    make docks -C $HOME/git/other
-    make install -C $HOME/git/other
+    make -C $HOME/git/other/compton
+    make docks -C $HOME/git/other/compton
+    make install -C $HOME/git/other/compton
+    #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144/
 }
 
+function polybar {
+    mkdir -p $HOME/git/other
+    git clone https://github.com/polybar/polybar.git $HOME/git/other
+    mkdir $HOME/git/other/polybar/build
+    cd $HOME/git/other/polybar/build
+    cmake ..
+    make -j4
+    sudo make install
+    # https://github.com/polybar/polybar/wiki/Compiling
+}
 # set Java
 # sudo apt install -y default-jdk
 
@@ -157,6 +169,7 @@ awesome_install
 python
 update_symlinks
 compton
+polybar
 
 if [ $ZSH = yes ]; then
     zsh_install
