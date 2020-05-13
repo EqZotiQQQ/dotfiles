@@ -169,7 +169,7 @@ awesome_install
 python
 update_symlinks
 compton
-polybar
+#polybar
 
 if [ $ZSH = yes ]; then
     zsh_install
