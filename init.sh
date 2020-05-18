@@ -122,10 +122,6 @@ function zsh_install {
     chsh -s $(which zsh)
 }
 
-#curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-#source $HOME/.cargo/env
-#cargo install exa
-
 # set Python 
 function python {
     sudo apt install -y python3
@@ -148,18 +144,9 @@ function compton {
     make docks -C $HOME/git/other/compton
     make install -C $HOME/git/other/compton
     #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144/
+    ln -sf $DOTFILES_DIR/.config/compton.conf $HOME/.config/compton.conf
 }
 
-function polybar {
-    mkdir -p $HOME/git/other
-    git clone https://github.com/polybar/polybar.git $HOME/git/other
-    mkdir $HOME/git/other/polybar/build
-    cd $HOME/git/other/polybar/build
-    cmake ..
-    make -j4
-    sudo make install
-    # https://github.com/polybar/polybar/wiki/Compiling
-}
 # set Java
 # sudo apt install -y default-jdk
 
@@ -169,7 +156,6 @@ awesome_install
 python
 update_symlinks
 compton
-#polybar
 
 if [ $ZSH = yes ]; then
     zsh_install
