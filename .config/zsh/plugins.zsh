@@ -12,6 +12,7 @@ zinit ice lucid wait"0" atload"_zsh_autosuggest_start"
 
 zinit light "zsh-users/zsh-autosuggestions"
 zinit light "romkatv/powerlevel10k"
+zinit light "ael-code/zsh-colored-man-pages"
 
 POWERLEVEL9K_MODE='awesome-fontconfig'
 
