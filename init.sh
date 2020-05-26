@@ -134,6 +134,9 @@ function python {
     #sudo pip3 install numpy
     #sudo pip3 install pandas
     #pip3 install -U scikit-learn
+
+    # pip3 install cantools
+    # pip3 install xmlrunner
 }
 
 #its under testings. If it wont work do it by ur hands
