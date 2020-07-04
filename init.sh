@@ -97,12 +97,16 @@ function cava() {
 
 #its under testings. If it wont work do it by ur hands
 function compton() {
+    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev \
+        libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev \
+        asciidoc
     echo "###### isntalling compton #######"
     mkdir -p $HOME/git/other
-    git clone https://github.com/tryone144/compton.git $HOME/git/other
-    make -C $HOME/git/other/compton
-    make docks -C $HOME/git/other/compton
-    make install -C $HOME/git/other/compton
+    git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
+    cd $HOME/git/tools/compton
+    make
+    make docks
+    make install
     #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
     vm_check=$(is_vm)
     if [ $vm_check = 1 ]; then
