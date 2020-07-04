@@ -1,6 +1,6 @@
+#!/bin/bash
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-sudo apt update
-
+echo "dotfiles dir is: $DOTFILES_DIR"
 while [ $# -gt 0 ] 
 do
     key="$1"
@@ -13,12 +13,28 @@ do
             COMPTON=yes
             shift
             ;;
+        -d|--debug)
+            DEBUG=yes
+            shift
+            ;;
         *)
     esac
 done
 
-function zsh_install {
+function is_vm() {
+   # sudo apt install dmidecode
+    host=`sudo dmidecode -s system-manufacturer`
+    if [ "$host" = "innotek GmbH" ]
+    then
+        echo "1"
+    else
+        echo "0"
+    fi
+}
+
+function zsh_install() {
     echo "###### installing zsh #######"
+    sudo apt update
     sudo apt install -y zsh
     mkdir $HOME/.config/zsh
     ln -sf $DOTFILES_DIR/.config/zsh/compl.d $HOME/.config/zsh/compl.d
@@ -33,27 +49,48 @@ function zsh_install {
 }
 
 #its under testings. If it wont work do it by ur hands
-function compton {
+function compton() {
     echo "###### isntalling compton #######"
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/other
     make -C $HOME/git/other/compton
     make docks -C $HOME/git/other/compton
     make install -C $HOME/git/other/compton
-    #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144/
-    ln -sf $DOTFILES_DIR/.config/compton.conf $HOME/.config/compton.conf
+    #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
+    vm_check=$(is_vm)
+    if [ $vm_check = 1 ]; then
+        ln -sf $DOTFILES_DIR/.config/compton_vm.conf $HOME/.config/compton.conf
+    else
+        ln -sf $DOTFILES_DIR/.config/compton_real.conf $HOME/.config/compton.conf
+    fi
     echo "###### compton installed ########"
     exit 0
 }
 
-if [ $ZSH = yes ]; then
+function debug() {
+    echo "debug begin"
+    val=$(is_vm)
+    if [ $val = 1 ]; then
+        echo "VM"
+    else 
+        echo "Real hardware"
+    fi
+    exit 0
+}
+
+if [ "$ZSH" = "yes" ]; then
     zsh_install
 fi
 
-if [ $COMPTON = yes ]; then 
+if [ "$COMPTON" = "yes" ]; then 
     compton
 fi
 
+if [ "$DEBUG" = "yes" ]; then
+    debug
+fi
+
+sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl htop openssh-server gcc make cmake clang 
 
@@ -87,26 +124,25 @@ ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
 
 echo "###### installing kitty ... ######"
 # under testing 
-sudo apt install -y kitty
 
-#cd ~
-#curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+cd ~
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 
-#if [ ! -d "$HOME/.local/bin" ]; then
-#    mkdir -p "$HOME/.local/bin"
-#fi
+if [ ! -d "$HOME/.local/bin" ]; then
+    mkdir -p "$HOME/.local/bin"
+fi
 
-#if [ ! -d "$HOME/.local/lib" ]; then 
-#    mkdir -p "$HOME/.local/lib"
-#fi
+if [ ! -d "$HOME/.local/lib" ]; then 
+    mkdir -p "$HOME/.local/lib"
+fi
 
-#cp -rf $HOME/.local/kitty.app/share/* $HOME/.local/share/
-#cp -rf $HOME/.local/kitty.app/bin/* $HOME/.local/bin/
-#cp -rf $HOME/.local/kitty.app/lib/* $HOME/.local/lib/
+cp -rf $HOME/.local/kitty.app/share/* $HOME/.local/share/
+cp -rf $HOME/.local/kitty.app/bin/* $HOME/.local/bin/
+cp -rf $HOME/.local/kitty.app/lib/* $HOME/.local/lib/
 
-#export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.local/bin
 
-#ln -sf $DOTFILES_DIR/.config/kitty/kitty.conf $HOME/.config/kitty/kitty.conf
+ln -sf $DOTFILES_DIR/.config/kitty/kitty.conf $HOME/.config/kitty/kitty.conf
 
 echo "###### setting fonts for Kitty term ######"
 cd ~

@@ -116,6 +116,3 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if hash exa; then 
-    alias ls=exa
-fi
