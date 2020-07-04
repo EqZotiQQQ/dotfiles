@@ -48,6 +48,36 @@ function zsh_install() {
     exit 0
 }
 
+function cava() {
+    sudo apt install lua5.3
+    sudo apt install liblua5.3-dev
+    #https://github.com/karlstav/cava
+    sudo apt install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev
+    export CPPFLAGS=-I/usr/include/iniparser
+    mkdir -p $HOME/git/tools
+    git clone https://github.com/karlstav/cava.git $HOME/git/tools
+    cd $HOME/git/tools/cava/
+    ./autogen.sh
+    ./configure
+    make
+    make install
+    cd $HOME/git/tools
+    echo `pwd`
+    echo `ls`
+    #https://luarocks.org/
+    wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz
+    tar zxpf luarocks-3.3.1.tar.gz
+    cd luarocks-3.3.1
+    ./configure && make && sudo make install
+    sudo luarocks install luasocket
+   #https://github.com/luaposix/luaposix 
+    git clone https://github.com/luaposix/luaposix.git $HOME/git/tools
+    cd luaposix
+    luarocks install luaposix
+    exit 0
+
+}
+
 #its under testings. If it wont work do it by ur hands
 function compton() {
     echo "###### isntalling compton #######"
@@ -87,7 +117,7 @@ if [ "$COMPTON" = "yes" ]; then
 fi
 
 if [ "$DEBUG" = "yes" ]; then
-    debug
+    cava
 fi
 
 sudo apt update

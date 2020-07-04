@@ -6,6 +6,8 @@ require("awful.autofocus")
 local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
+beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
+local cosy = require("cosy")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
@@ -25,7 +27,7 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 -- Autorun programs
 autorun = true
 autorunApps = 
-{ 
+{
     "compton"
 }
 if autorun then
@@ -59,8 +61,8 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
-
+--beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+--beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
@@ -212,6 +214,15 @@ end
 screen.connect_signal("property::geometry", set_wallpaper)
 
 awful.screen.connect_for_each_screen(function(s)
+        
+    s.cava = cosy.widget.desktop.cava(
+        s,
+        {
+            size = 45,
+            position = "top",
+            update_time = 0.05
+        })
+
     -- Wallpaper
     set_wallpaper(s)
 
@@ -235,7 +246,7 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    s.mywibox = awful.wibar({ position = "top", bg = beautiful.bg_normal .. "a0" , screen = s})
 
     -- Add widgets to the wibox
     s.mywibox:setup {
