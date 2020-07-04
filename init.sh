@@ -49,11 +49,8 @@ function zsh_install() {
 }
 
 function cava() {
-    sudo apt install make
-    #sudo apt install lua5.3
-    #sudo apt install liblua5.3-dev
 #https://github.com/karlstav/cava
-    #sudo apt install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev
+    sudo apt install lua5.3 liblua5.3-dev libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev make
     export CPPFLAGS=-I/usr/include/iniparser
     mkdir -p $HOME/git/tools
     git clone https://github.com/karlstav/cava.git $HOME/git/tools/cava
@@ -63,43 +60,26 @@ function cava() {
     make
     make install
     cd $HOME/git/tools
-    echo `pwd`
-    echo "#######################"
-    echo `ls`
-    echo "#######################"
 #https://luarocks.org/
     wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz
     tar zxpf luarocks-3.3.1.tar.gz
-    echo `ls`
     cd luarocks-3.3.1
-    echo `pwd`
-    echo "###############################"
-    echo "make"
     ./configure
-    echo 1
     make
-    echo 2
     sudo make install
-    echo "make done #######################"
     sudo luarocks install luasocket
-    echo "luarock installed #######################"
 #https://github.com/luaposix/luaposix
     cd $HOME/git/tools
     git clone https://github.com/luaposix/luaposix.git $HOME/git/tools/luaposix
     cd luaposix
-    echo "install luaposix #######################"
-    echo $pwd
     sudo luarocks install luaposix
-    echo done
     exit 0
 
 }
 
 #its under testings. If it wont work do it by ur hands
 function compton() {
-    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev \
-        libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev \
-        asciidoc
+    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc
     echo "###### isntalling compton #######"
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
