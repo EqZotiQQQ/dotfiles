@@ -57,8 +57,6 @@ function cava() {
     cd $HOME/git/tools/cava/
     ./autogen.sh
     ./configure
-    make
-    make install
     cd $HOME/git/tools
 #https://luarocks.org/
     wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz
@@ -73,20 +71,23 @@ function cava() {
     git clone https://github.com/luaposix/luaposix.git $HOME/git/tools/luaposix
     cd luaposix
     sudo luarocks install luaposix
+    cd $HOME/git/tools/cava
+    sudo make
+    sudo make install
     exit 0
 
 }
 
 #its under testings. If it wont work do it by ur hands
 function compton() {
-    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc
+    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
     echo "###### isntalling compton #######"
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
     cd $HOME/git/tools/compton
-    make
-    make docks
-    make install
+    sudo make
+    sudo make docks
+    sudo make install
     #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
     vm_check=$(is_vm)
     if [ $vm_check = 1 ]; then
@@ -100,12 +101,7 @@ function compton() {
 
 function debug() {
     echo "debug begin"
-    val=$(is_vm)
-    if [ $val = 1 ]; then
-        echo "VM"
-    else 
-        echo "Real hardware"
-    fi
+    cava
     exit 0
 }
 
@@ -191,4 +187,4 @@ ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 
 sudo apt install -y python3
 sudo apt install -y python3-pip
-sudo apt install -y default-jdk
+#sudo apt install -y default-jdk
