@@ -148,6 +148,7 @@ echo "###### installing awesome ... #######"
 sudo apt install -y awesome-extra feh #lightdm
 mkdir $HOME/.config/awesome
 cp /etc/xdg/awesome $HOME/.config/awesome
+rm -rf $HOME/.config/awesome
 ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
 ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
 
