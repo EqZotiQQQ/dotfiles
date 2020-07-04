@@ -49,13 +49,14 @@ function zsh_install() {
 }
 
 function cava() {
-    sudo apt install lua5.3
-    sudo apt install liblua5.3-dev
-    #https://github.com/karlstav/cava
-    sudo apt install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev
+    sudo apt install make
+    #sudo apt install lua5.3
+    #sudo apt install liblua5.3-dev
+#https://github.com/karlstav/cava
+    #sudo apt install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev
     export CPPFLAGS=-I/usr/include/iniparser
     mkdir -p $HOME/git/tools
-    git clone https://github.com/karlstav/cava.git $HOME/git/tools
+    git clone https://github.com/karlstav/cava.git $HOME/git/tools/cava
     cd $HOME/git/tools/cava/
     ./autogen.sh
     ./configure
@@ -63,17 +64,33 @@ function cava() {
     make install
     cd $HOME/git/tools
     echo `pwd`
+    echo "#######################"
     echo `ls`
-    #https://luarocks.org/
+    echo "#######################"
+#https://luarocks.org/
     wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz
     tar zxpf luarocks-3.3.1.tar.gz
+    echo `ls`
     cd luarocks-3.3.1
-    ./configure && make && sudo make install
+    echo `pwd`
+    echo "###############################"
+    echo "make"
+    ./configure
+    echo 1
+    make
+    echo 2
+    sudo make install
+    echo "make done #######################"
     sudo luarocks install luasocket
-   #https://github.com/luaposix/luaposix 
-    git clone https://github.com/luaposix/luaposix.git $HOME/git/tools
+    echo "luarock installed #######################"
+#https://github.com/luaposix/luaposix
+    cd $HOME/git/tools
+    git clone https://github.com/luaposix/luaposix.git $HOME/git/tools/luaposix
     cd luaposix
-    luarocks install luaposix
+    echo "install luaposix #######################"
+    echo $pwd
+    sudo luarocks install luaposix
+    echo done
     exit 0
 
 }
