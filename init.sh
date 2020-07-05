@@ -37,12 +37,12 @@ function zsh_install() {
     sudo apt update
     sudo apt install -y zsh
     mkdir $HOME/.config/zsh
-    ln -sf $DOTFILES_DIR/home/.config/zsh/compl.d $HOME/.config/zsh/compl.d
-    ln -sf $DOTFILES_DIR/home/.config/zsh/plugins.zsh $HOME/.config/zsh/plugins.zsh
-    ln -sf $DOTFILES_DIR/home/.config/zsh/settings $HOME/.config/zsh/settings
-    ln -sf $DOTFILES_DIR/home/.config/zsh/.zprofile $HOME/.config/zsh/.zprofile
-    ln -sf $DOTFILES_DIR/home/.config/zsh/.zshrc $HOME/.config/zsh/.zshrc
-    ln -sf $DOTFILES_DIR/home/.zshenv $HOME/.zshenv
+    ln -sf $DOTFILES_DIR/.config/zsh/compl.d $HOME/.config/zsh/compl.d
+    ln -sf $DOTFILES_DIR/.config/zsh/plugins.zsh $HOME/.config/zsh/plugins.zsh
+    ln -sf $DOTFILES_DIR/.config/zsh/settings $HOME/.config/zsh/settings
+    ln -sf $DOTFILES_DIR/.config/zsh/.zprofile $HOME/.config/zsh/.zprofile
+    ln -sf $DOTFILES_DIR/.config/zsh/.zshrc $HOME/.config/zsh/.zshrc
+    ln -sf $DOTFILES_DIR/.zshenv $HOME/.zshenv
     chsh -s $(which zsh)
     echo "###### installation done #######"
     exit 0
@@ -92,9 +92,9 @@ function compton() {
     #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
     vm_check=$(is_vm)
     if [ $vm_check = 1 ]; then
-        ln -sf $DOTFILES_DIR/home/.config/compton_vm.conf $HOME/.config/compton.conf
+        ln -sf $DOTFILES_DIR/.config/compton_vm.conf $HOME/.config/compton.conf
     else
-        ln -sf $DOTFILES_DIR/home/.config/compton_real.conf $HOME/.config/compton.conf
+        ln -sf $DOTFILES_DIR/.config/compton_real.conf $HOME/.config/compton.conf
     fi
     echo "###### compton installed ########"
     exit 0
@@ -149,11 +149,11 @@ sudo apt install -y curl htop openssh-server gcc make cmake clang
 echo "###### installing neovim ... ######"
 sudo apt install nvim
 mkdir $HOME/.config/nvim
-ln -sf $DOTFILES_DIR/home/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
-ln -sf $DOTFILES_DIR/home/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
-ln -sf $DOTFILES_DIR/home/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
-ln -sf $DOTFILES_DIR/home/.config/nvim/init.vim $HOME/.config/nvim/init.vim
-ln -sf $DOTFILES_DIR/home/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
+ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
+ln -sf $DOTFILES_DIR/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
+ln -sf $DOTFILES_DIR/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
+ln -sf $DOTFILES_DIR/.config/nvim/init.vim $HOME/.config/nvim/init.vim
+ln -sf $DOTFILES_DIR/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
 echo "###### installation done #######"
 
 echo "###### installing git... #######"
@@ -168,8 +168,8 @@ echo "###### installation done #######"
 
 echo "###### installing awesome ... #######"
 sudo apt install -y awesome-extra feh #lightdm
-ln -sf /$DOTFILES_DIR/home/.config/awesome $HOME/.config/awesome
-ln -sf /$DOTFILES_DIR/home/.xinitrc $HOME/.xinitrc
+ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
+ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
 
 
 echo "###### installing kitty ... ######"
@@ -192,20 +192,21 @@ cp -rf $HOME/.local/kitty.app/lib/* $HOME/.local/lib/
 
 export PATH=$PATH:$HOME/.local/bin
 
-ln -sf $DOTFILES_DIR/home/.config/kitty/kitty.conf $HOME/.config/kitty/kitty.conf
+ln -sf $DOTFILES_DIR/.config/kitty/kitty.conf $HOME/.config/kitty/kitty.conf
 
 echo "###### setting fonts for Kitty term ######"
 cd ~
-ln -sf $DOTFILES_DIR/home/.fonts $HOME/.fonts 
+ln -sf $DOTFILES_DIR/.fonts $HOME/.fonts 
 cd .fonts 
 fc-cache -fv 
 cd ~
 echo "####### AwesomeWM and Kitty term installed"
 
-ln -sf $DOTFILES_DIR/Wallpaper $HOME/Pictures
-ln -sf $DOTFILES_DIR/home/.profile $HOME/.profile
-ln -sf $DOTFILES_DIR/home/.bashrc $HOME/.bashrc
-ln -sf $DOTFILES_DIR/home/.bash_profile $HOME/.bash_profile
+rm -rf $HOME/Pictures
+ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
+ln -sf $DOTFILES_DIR/.profile $HOME/.profile
+ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
+ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 
 sudo apt install -y python3
 sudo apt install -y python3-pip
