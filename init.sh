@@ -15,14 +15,14 @@ do
             ;;
         -d|--debug)
             DEBUG=yes
-            shift
+            echo "----- debug -----"
+	    shift
             ;;
         *)
     esac
 done
 
 function is_vm() {
-   # sudo apt install dmidecode
     host=`sudo dmidecode -s system-manufacturer`
     if [ "$host" = "innotek GmbH" ]
     then
@@ -50,6 +50,7 @@ function zsh_install() {
 
 function cava() {
 #https://github.com/karlstav/cava
+    echo "###### installing cava #######"
     sudo apt install lua5.3 liblua5.3-dev libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake libiniparser-dev make
     export CPPFLAGS=-I/usr/include/iniparser
     mkdir -p $HOME/git/tools
@@ -80,8 +81,8 @@ function cava() {
 
 #its under testings. If it wont work do it by ur hands
 function compton() {
+    echo "###### installing compton #######"
     sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
-    echo "###### isntalling compton #######"
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
     cd $HOME/git/tools/compton
@@ -99,24 +100,33 @@ function compton() {
     exit 0
 }
 
+DOT_OLD="$HOME/dotfiles_old"
+
 function rec_links() {
-    for file in $( ls -a $1)
-    do
-        if [ $file = '..' ] || [ $file = '.' ] || [ $file = '.git' ]; then
+	# $1 - dir from 
+	# $2 - dir to
+	if [ ! -d $DOT_OLD ]; then 
+		mkdir -p $DOT_OLD
+	fi
+        for file in $( ls -a $1)
+        do
+	    if [ $file = '..' ] || [ $file = '.' ] || [ $file = '.git' ]; then
             continue
         fi
-        if [ -f "$1/$file" ]; then
-            mkdir -p $2   #where to copy files, prob shoud rm of mv it before 
-            ln -sf "$1/$file" "$2/file"            
+        if [ -f "$1/$file" ]; then 
+	    rm "$2/$file"
+            ln -sf "$1/$file" "$2/$file"     
         else
-            rec_links "$1/$file"
+	    rm -rf "$2/$file"
+	    mkdir -p "$2/$file"
+            rec_links "$1/$file" "$2/$file"
         fi
     done
 }
 
 function debug() {
     echo "debug begin"
-    rec_links 
+    rec_links "$DOTFILES_DIR/home" "$HOME" 
     exit 0
 }
 
@@ -129,7 +139,7 @@ if [ "$COMPTON" = "yes" ]; then
 fi
 
 if [ "$DEBUG" = "yes" ]; then
-    cava
+    debug
 fi
 
 sudo apt update
