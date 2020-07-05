@@ -99,9 +99,24 @@ function compton() {
     exit 0
 }
 
+function rec_links() {
+    for file in $( ls -a $1)
+    do
+        if [ $file = '..' ] || [ $file = '.' ] || [ $file = '.git' ]; then
+            continue
+        fi
+        if [ -f "$1/$file" ]; then
+            mkdir -p $2   #where to copy files, prob shoud rm of mv it before 
+            ln -sf "$1/$file" "$2/file"            
+        else
+            rec_links "$1/$file"
+        fi
+    done
+}
+
 function debug() {
     echo "debug begin"
-    cava
+    rec_links 
     exit 0
 }
 
