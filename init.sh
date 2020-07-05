@@ -1,6 +1,5 @@
 #!/bin/bash
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "dotfiles dir is: $DOTFILES_DIR"
 while [ $# -gt 0 ] 
 do
     key="$1"
@@ -16,7 +15,7 @@ do
         -d|--debug)
             DEBUG=yes
             echo "----- debug -----"
-	    shift
+            shift
             ;;
         *)
     esac
@@ -82,7 +81,7 @@ function cava() {
 #its under testings. If it wont work do it by ur hands
 function compton() {
     echo "###### installing compton #######"
-    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
+    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev > $HOME/logs/compton_libs.log
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
     cd $HOME/git/tools/compton
@@ -97,28 +96,29 @@ function compton() {
         ln -sf $DOTFILES_DIR/.config/compton_real.conf $HOME/.config/compton.conf
     fi
     echo "###### compton installed ########"
+    cava
     exit 0
 }
 
 DOT_OLD="$HOME/dotfiles_old"
 
 function rec_links() {
-	# $1 - dir from 
-	# $2 - dir to
-	if [ ! -d $DOT_OLD ]; then 
-		mkdir -p $DOT_OLD
-	fi
-        for file in $( ls -a $1)
-        do
-	    if [ $file = '..' ] || [ $file = '.' ] || [ $file = '.git' ]; then
+     $1 - dir from 
+    # $2 - dir to
+    if [ ! -d $DOT_OLD ]; then 
+        mkdir -p $DOT_OLD
+    fi
+    for file in $( ls -a $1)
+    do
+        if [ $file = '..' ] || [ $file = '.' ] || [ $file = '.git' ]; then
             continue
         fi
         if [ -f "$1/$file" ]; then 
-	    rm "$2/$file"
-            ln -sf "$1/$file" "$2/$file"     
+            rm "$2/$file"
+            ln -sf "$1/$file" "$2/$file"
         else
-	    rm -rf "$2/$file"
-	    mkdir -p "$2/$file"
+        rm -rf "$2/$file"
+        mkdir -p "$2/$file"
             rec_links "$1/$file" "$2/$file"
         fi
     done
@@ -126,7 +126,7 @@ function rec_links() {
 
 function debug() {
     echo "debug begin"
-    rec_links "$DOTFILES_DIR/home" "$HOME" 
+#    rec_links "$DOTFILES_DIR/home" "$HOME" 
     exit 0
 }
 
@@ -167,14 +167,12 @@ echo "###### installation done #######"
 
 
 echo "###### installing awesome ... #######"
-sudo apt install -y awesome-extra feh #lightdm
+sudo apt install -y awesome-extra feh
 ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
 ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
 
 
 echo "###### installing kitty ... ######"
-# under testing 
-
 cd ~
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 
@@ -201,6 +199,8 @@ cd .fonts
 fc-cache -fv 
 cd ~
 echo "####### AwesomeWM and Kitty term installed"
+
+compton
 
 rm -rf $HOME/Pictures
 ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
