@@ -1,5 +1,4 @@
-feh --bg-scale $HOME/Pictures/artwork-digital-art-anime-girls-video-games-wallpaper-preview.jpg
-run-unique skypeforlinux
+feh --bg-scale "$HOME/Pictures/artwork-digital-art-anime-girls-video-games-wallpaper-preview.jpg"
 
 export LC_ALL=C
 

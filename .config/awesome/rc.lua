@@ -19,7 +19,6 @@ require("awful.hotkeys_popup.keys")
 -- Load Debian menu entries
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
-
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -592,8 +591,7 @@ client.connect_signal("request::titlebars", function(c)
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
-client.connect_signal("mouse::enter", function(c)
-    if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
+client.connect_signal("mouse::enter", function(c)    if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
         and awful.client.focus.filter(c) then
         client.focus = c
     end
@@ -611,5 +609,5 @@ awful.spawn.with_shell("~/.config/awesome/autorun.sh")
 --
 --
 -- {{{ Wallpaper
-beautiful.wallpaper = awful.util.get_configuration_dir() .. "~/Pictures/Wallpaper/LoneWolf.png"
+--- beautiful.wallpaper = awful.util.get_configuration_dir() .. "~/Pictures/LoneWolf.png"
 -- }}}
