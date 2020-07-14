@@ -100,10 +100,9 @@ function compton() {
     exit 0
 }
 
-DOT_OLD="$HOME/dotfiles_old"
 
 function rec_links() {
-     $1 - dir from 
+    # $1 - dir from 
     # $2 - dir to
     if [ ! -d $DOT_OLD ]; then 
         mkdir -p $DOT_OLD
@@ -200,8 +199,6 @@ fc-cache -fv
 cd ~
 echo "####### AwesomeWM and Kitty term installed"
 
-compton
-
 rm -rf $HOME/Pictures
 ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
 ln -sf $DOTFILES_DIR/.profile $HOME/.profile
@@ -211,3 +208,6 @@ ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 sudo apt install -y python3
 sudo apt install -y python3-pip
 #sudo apt install -y default-jdk
+
+compton
+zsh_install
