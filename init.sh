@@ -81,7 +81,7 @@ function cava() {
 #its under testings. If it wont work do it by ur hands
 function compton() {
     echo "###### installing compton #######"
-    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev > $HOME/logs/compton_libs.log
+    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
     mkdir -p $HOME/git/other
     git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
     cd $HOME/git/tools/compton

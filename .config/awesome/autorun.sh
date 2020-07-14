@@ -1,4 +1,4 @@
-feh --bg-scale "$HOME/Pictures/artwork-digital-art-anime-girls-video-games-wallpaper-preview.jpg"
+feh --bg-scale "$HOME/Pictures/alena-aenami-witcher-1k.jpg"
 
 export LC_ALL=C
 

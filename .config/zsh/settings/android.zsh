@@ -1,3 +1,4 @@
 alias env=". build/envsetup.sh"
-alias l10="lunch 10"
-alias andgo="cd android; env; l10;"
+alias lcar="lunch aosp_car_x86_64-userdebug"
+alias aqgo="cd androidq; env; lcar;"
+alias apgo="cd androidp; env; lcar;"
