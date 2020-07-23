@@ -31,6 +31,16 @@ function is_vm() {
     fi
 }
 
+function get_ubuntu_version() {
+    version=`cat /etc/lsb-release`
+    version=$(echo $version| cut -d'=' -f 5)
+    if [ "$version" = "\"Ubuntu 20.04 LTS\"" ]; then
+        echo "20"
+    else 
+        echo "18"
+    fi
+}
+
 function zsh_install() {
     echo "###### installing zsh #######"
     sudo apt update
@@ -145,15 +155,37 @@ sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl htop openssh-server gcc make cmake clang 
 
-echo "###### installing neovim ... ######"
-sudo apt install nvim
-mkdir $HOME/.config/nvim
-ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
-ln -sf $DOTFILES_DIR/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
-ln -sf $DOTFILES_DIR/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
-ln -sf $DOTFILES_DIR/.config/nvim/init.vim $HOME/.config/nvim/init.vim
-ln -sf $DOTFILES_DIR/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
-echo "###### installation done #######"
+install_neovim() {
+    echo "###### installing neovim ... ######"
+    ubuntu_version=$(get_ubuntu_version)
+    udo apt install -y neovim
+    if [ "$ubuntu_version" = 18 ]; then 
+        echo "Ubuntu 18 found!"
+        curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+        sudo chmod 777 nvim.appimage
+        sudo rm /usr/bin/nvim
+        sudo rm /usr/bin/vim
+        sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
+        sudo cp /usr/bin/nvim /usr/bin/vim
+        sudo rm $DOTFILES_DIR/nvim.appimage
+    else 
+        echo "Ubuntu 20 found!"
+    fi
+    # TODO: Rework following lines. No need to gen it if u have no ubuntu
+    mkdir $HOME/.config/nvim
+    ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
+    ln -sf $DOTFILES_DIR/.config/nvim/init.vim $HOME/.config/nvim/init.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
+    echo "###### installation done #######"
+    exit 0
+}
+
+install_neovim
+
+
+
 
 echo "###### installing git... #######"
 sudo apt install -y git
