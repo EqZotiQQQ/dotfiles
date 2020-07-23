@@ -54,7 +54,6 @@ function zsh_install() {
     ln -sf $DOTFILES_DIR/.zshenv $HOME/.zshenv
     chsh -s $(which zsh)
     echo "###### installation done #######"
-    exit 0
 }
 
 function cava() {
@@ -84,8 +83,6 @@ function cava() {
     cd $HOME/git/tools/cava
     sudo make
     sudo make install
-    exit 0
-
 }
 
 #its under testings. If it wont work do it by ur hands
@@ -107,11 +104,11 @@ function compton() {
     fi
     echo "###### compton installed ########"
     cava
-    exit 0
 }
 
 
 function rec_links() {
+    # TODO: make copying smart again
     # $1 - dir from 
     # $2 - dir to
     if [ ! -d $DOT_OLD ]; then 
@@ -133,9 +130,36 @@ function rec_links() {
     done
 }
 
+install_neovim() {
+    echo "###### installing neovim ... ######"
+    ubuntu_version=$(get_ubuntu_version)
+    udo apt install -y neovim
+    if [ "$ubuntu_version" = 18 ]; then
+        echo "Ubuntu 18 found!"
+        curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+        sudo chmod 777 nvim.appimage
+        sudo rm /usr/bin/nvim
+        sudo rm /usr/bin/vim
+        sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
+        sudo cp /usr/bin/nvim /usr/bin/vim
+        sudo rm $DOTFILES_DIR/nvim.appimage
+    else
+        echo "Ubuntu 20 found!"
+    fi
+    # TODO: Rework following lines. No need to gen it if u have no ubuntu
+    mkdir $HOME/.config/nvim
+    ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
+    ln -sf $DOTFILES_DIR/.config/nvim/init.vim $HOME/.config/nvim/init.vim
+    ln -sf $DOTFILES_DIR/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
+    echo "###### installation done #######"
+}
+
+
 function debug() {
     echo "debug begin"
-#    rec_links "$DOTFILES_DIR/home" "$HOME" 
+    
     exit 0
 }
 
@@ -155,43 +179,13 @@ sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl htop openssh-server gcc make cmake clang 
 
-install_neovim() {
-    echo "###### installing neovim ... ######"
-    ubuntu_version=$(get_ubuntu_version)
-    udo apt install -y neovim
-    if [ "$ubuntu_version" = 18 ]; then 
-        echo "Ubuntu 18 found!"
-        curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-        sudo chmod 777 nvim.appimage
-        sudo rm /usr/bin/nvim
-        sudo rm /usr/bin/vim
-        sudo cp $DOTFILES_DIR/nvim.appimage /usr/bin/nvim
-        sudo cp /usr/bin/nvim /usr/bin/vim
-        sudo rm $DOTFILES_DIR/nvim.appimage
-    else 
-        echo "Ubuntu 20 found!"
-    fi
-    # TODO: Rework following lines. No need to gen it if u have no ubuntu
-    mkdir $HOME/.config/nvim
-    ln -sf $DOTFILES_DIR/.config/nvim/autocmd.vim $HOME/.config/nvim/autocmd.vim
-    ln -sf $DOTFILES_DIR/.config/nvim/bindings.vim $HOME/.config/nvim/bindings.vim
-    ln -sf $DOTFILES_DIR/.config/nvim/coc-settings.json $HOME/.config/nvim/coc-settings.json
-    ln -sf $DOTFILES_DIR/.config/nvim/init.vim $HOME/.config/nvim/init.vim
-    ln -sf $DOTFILES_DIR/.config/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
-    echo "###### installation done #######"
-    exit 0
-}
-
 install_neovim
-
-
-
 
 echo "###### installing git... #######"
 sudo apt install -y git
 git config --global merge.tool vimdiff
-git config --global user.name "Mikhail Fedyakov"
-git config --global user.email mf_52@mail.ru
+#git config --global user.name "Mikhail Fedyakov"
+#git config --global user.email mf_52@mail.ru
 git config --global core.editor "vim"
 # git config credential.helper store
 echo "###### installation done #######"
@@ -237,8 +231,8 @@ ln -sf $DOTFILES_DIR/.profile $HOME/.profile
 ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
 ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 
-sudo apt install -y python3
-sudo apt install -y python3-pip
+#sudo apt install -y python3
+#sudo apt install -y python3-pip
 #sudo apt install -y default-jdk
 
 compton
