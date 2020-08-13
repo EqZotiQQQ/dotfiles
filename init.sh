@@ -1,5 +1,7 @@
 #!/bin/bash
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo $DOTFILES_DIR
+exit()
 while [ $# -gt 0 ] 
 do
     key="$1"
@@ -231,9 +233,8 @@ ln -sf $DOTFILES_DIR/.profile $HOME/.profile
 ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
 ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 
-#sudo apt install -y python3
-#sudo apt install -y python3-pip
-#sudo apt install -y default-jdk
+sudo apt install -y python python3 python3-pip default-jdk
+pip3 install numpy scipy opencv-python
 
 compton
 zsh_install
