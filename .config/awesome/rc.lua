@@ -7,7 +7,7 @@ local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
-local cosy = require("cosy")
+-- local cosy = require("cosy")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
@@ -204,13 +204,13 @@ screen.connect_signal("property::geometry", set_wallpaper)
 
 awful.screen.connect_for_each_screen(function(s)
         
-    s.cava = cosy.widget.desktop.cava(
-        s,
-        {
-            size = 45,
-            position = "top",
-            update_time = 0.05
-        })
+   -- s.cava = cosy.widget.desktop.cava(
+   --     s,
+   --     {
+--        size = 45,
+   --         position = "top",
+   --         update_time = 0.05
+   --     })
 
     -- Wallpaper
     set_wallpaper(s)
