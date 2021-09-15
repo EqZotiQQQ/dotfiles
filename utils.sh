@@ -1,3 +1,6 @@
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 function package_installed() {
     STATUS=$(dpkg-query -W --showformat='${Status}\n' $1|grep "install ok installed")
     if [ "$STATUS" = "" ]; then
@@ -25,3 +28,14 @@ function get_ubuntu_version() {
         echo "18"
     fi
 }
+
+# $1 - path to object
+# $2 - path of where to create symlink
+# $item - each element in directory
+function update_sym_links() {
+    for item in $1/*; do
+        echo "$item -> $2"
+        ln -sf "$item" "$2/"
+    done
+}
+
