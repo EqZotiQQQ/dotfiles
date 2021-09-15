@@ -1,7 +1,8 @@
 #!/bin/bash
 DOTFILES_DIR="$( cd "$( dirname "$0" )" && pwd )"
+echo "Dot dir location: $DOTFILES_DIR"
 
-echo $DOTFILES_DIR
+. ./utils.sh --source-only
 
 while [ $# -gt 0 ]
 do
@@ -17,46 +18,13 @@ do
             ;;
         -d|--debug)
             DEBUG=yes
-            echo "----- debug -----"
             shift
             ;;
         *)
     esac
 done
 
-function is_vm() {
-    host=`sudo dmidecode -s system-manufacturer`
-    if [ "$host" = "innotek GmbH" ]
-    then
-        echo "1"
-    else
-        echo "0"
-    fi
-}
 
-function get_ubuntu_version() {
-    version=`cat /etc/lsb-release`
-    version=$(echo $version| cut -d'=' -f 5)
-    if [ "$version" = "\"Ubuntu 20.04 LTS\"" ]; then
-        echo "20"
-    else
-        echo "18"
-    fi
-}
-
-function zsh_install() {
-    echo "###### installing zsh #######"
-    sudo apt update
-    sudo apt install -y zsh
-    mkdir $HOME/.config/zsh
-    ln -sf $DOTFILES_DIR/.config/zsh/compl.d $HOME/.config/zsh/compl.d
-    ln -sf $DOTFILES_DIR/.config/zsh/plugins.zsh $HOME/.config/zsh/plugins.zsh
-    ln -sf $DOTFILES_DIR/.config/zsh/settings $HOME/.config/zsh/settings
-    ln -sf $DOTFILES_DIR/.config/zsh/.zprofile $HOME/.config/zsh/.zprofile
-    ln -sf $DOTFILES_DIR/.zshenv $HOME/
-    chsh -s $(which zsh)
-    ln -sf $DOTFILEcavastallation done #######"
-}
 
 function cava() {
 #https://github.com/karlstav/cava
@@ -85,7 +53,7 @@ function cava() {
     sudo make install
 }
 
-#its under testings. If it wont work do it by ur hands
+#its under testing. If it wont work do it by ur hands
 function compton() {
     echo "###### installing compton #######"
     sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
@@ -106,6 +74,28 @@ function compton() {
     cava
 }
 
+
+function debug() {
+    echo "debug begin"
+
+    exit 0
+}
+
+function configure_git() {
+    git config --global merge.tool vimdiff
+    git config --global user.name "Mikhail Fedyakov"
+    git config --global user.email mf_52@mail.ru
+    git config --global core.editor "vim"
+}
+
+function unustall() {
+    # TODO remove all items, that were installed by this script
+}
+
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y curl htop openssh-server gcc make cmake clang 
+
 function install_neovim() {
     echo "###### installing neovim ... ######"
     ubuntu_version=$(get_ubuntu_version)
@@ -119,74 +109,45 @@ function install_neovim() {
     echo "###### installation done #######"
 }
 
-function debug() {
-    echo "debug begin"
-
-    exit 0
-}
-
-function configure_git() {
-    echo "###### installing git... #######"
-    #sudo apt install -y git
-    git config --global merge.tool vimdiff
-    #git config --global user.name "Mikhail Fedyakov"
-    #git config --global user.email mf_52@mail.ru
-    git config --global core.editor "vim"
-    git config credential.helper store
-    echo "###### installation done #######"
+function install_zsh() {
+    sudo apt install -y zsh
+    mkdir -p $HOME/.config/zsh
+    ln -sf $DOTFILES_DIR/.config/zsh/compl.d $HOME/.config/zsh/compl.d
+    ln -sf $DOTFILES_DIR/.config/zsh/plugins.zsh $HOME/.config/zsh/plugins.zsh
+    ln -sf $DOTFILES_DIR/.config/zsh/settings $HOME/.config/zsh/settings
+    ln -sf $DOTFILES_DIR/.config/zsh/.zprofile $HOME/.config/zsh/.zprofile
+    ln -sf $DOTFILES_DIR/.zshenv $HOME/
+    chsh -s $(which zsh)
 }
 
 function install_kitty() {
-    echo "###### installing kitty ... ######"
-    cd ~
-    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-
-    if [ ! -d "$HOME/.local/bin" ]; then
-        mkdir -p "$HOME/.local/bin"
-    fi
-
-    if [ ! -d "$HOME/.local/lib" ]; then 
-        mkdir -p "$HOME/.local/lib"
-    fi
-
-    cp -rf $HOME/.local/kitty.app/share/* $HOME/.local/share/
-    cp -rf $HOME/.local/kitty.app/bin/* $HOME/.local/bin/
-    cp -rf $HOME/.local/kitty.app/lib/* $HOME/.local/lib/
-
-    export PATH=$PATH:$HOME/.local/bin
-
+    sudo apt install kitty
     ln -sf $DOTFILES_DIR/.config/kitty/kitty.conf $HOME/.config/kitty/kitty.conf
-
-    echo "###### setting fonts for Kitty term ######"
-    cd ~
     ln -sf $DOTFILES_DIR/.fonts $HOME/.fonts 
     cd .fonts
     fc-cache -fv
-    cd ~
-    echo "###### kitty installed... #######"
 }
 
-function install_awesome() {
-    echo "###### installing awesome ... #######"
+function install_awesome-extra() {
     sudo apt install -y awesome-extra feh
     ln -sf /$DOTFILES_DIR/.config/awesome $HOME/.config/awesome
     ln -sf /$DOTFILES_DIR/.xinitrc $HOME/.xinitrc
-    echo "###### awesome installed... #######"
 }
 
-function unustall() {
-    # TODO remove all items, that were installed by this script
-}
+apps=("neovim" "zsh" "vim" "awesome-extra")
 
+for app in "${apps[@]}"; do
+    cd ~
+    status=$(package_installed $app)
+    echo "status = $status"
+    if [ "$status" = "$app installed" ]; then
+        echo "Package $app already installed"
+    else
+        echo "Install $app"
+        install_$app
+    fi
+done
 
-#sudo apt update
-#sudo apt upgrade -y
-#sudo apt install -y curl htop openssh-server gcc make cmake clang 
-
-# install_awesome
-# zsh_install
-# install_neovim
-# install_kitty
 
 if [ "$COMPTON" = "yes" ]; then
     compton
@@ -197,11 +158,11 @@ if [ "$DEBUG" = "yes" ]; then
 fi
 
 
-#rm -rf $HOME/Pictures
-#ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
-#ln -sf $DOTFILES_DIR/.profile $HOME/.profile
-#ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
-#ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
+rm -rf $HOME/Pictures
+ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
+ln -sf $DOTFILES_DIR/.profile $HOME/.profile
+ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
+ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
 
 # sudo apt install -y python python3 python3-pip default-jdk
 # pip3 install numpy scipy opencv-python
