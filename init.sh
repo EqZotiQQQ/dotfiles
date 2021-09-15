@@ -95,7 +95,8 @@ function install_kitty() {
     fc-cache -fv
 }
 
-function update_symlinks() {
+function update_symlinks() (
+  shopt -s dotglob
   for item in $DOTFILES_DIR/.config/*; do 
     folder_name=$(echo $item | cut -d'/' -f 7)
     printf "${RED}Creating symlinks for $folder_name${NC}\n"
@@ -103,6 +104,7 @@ function update_symlinks() {
     mkdir "$HOME/.config/$folder_name"
     update_sym_links $item $HOME/.config/$folder_name
   done
+  rm $HOME/Pictures
   ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
   ln -sf $DOTFILES_DIR/.profile $HOME/.profile
   ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
@@ -110,11 +112,11 @@ function update_symlinks() {
   ln -sf $DOTFILES_DIR/.config/awesome $HOME/.config/awesome
   ln -sf $DOTFILES_DIR/.xinitrc $HOME/.xinitrc
   ln -sf $DOTFILES_DIR/.zshenv $HOME/
-  exit
-}
+)
 
 if [[ $SYMLINK = yes ]]; then
     update_symlinks
+     exit
 fi
 
 sudo apt update
@@ -154,3 +156,5 @@ rm -rf $HOME/Pictures
 # compton
 
 update_symlinks
+
+sudo snap install telegram-desktop
