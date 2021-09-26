@@ -29,13 +29,42 @@ function get_ubuntu_version() {
     fi
 }
 
-# $1 - path to object
-# $2 - path of where to create symlink
-# $item - each element in directory
-function update_sym_links() {
+function update_symlinks() (
+    shopt -s dotglob
+    printf "Source:      ${RED}$1${NC}\n"
+    printf "Destination: ${GREEN}$2${NC}\n"
     for item in $1/*; do
-        echo "$item -> $2"
-        ln -sf "$item" "$2/"
+        if [[ -d "$item" ]]; then       # folder
+            folder_name=$(echo $item | rev | cut -d'/' -f 1 | rev)
+            echo "Item = $item"
+            echo "Folder name = $folder_name"
+            dist_folder="$2/$folder_name"
+            if [ ! -d $dist_folder ]; then
+                printf "Folder ${RED}$dist_folder${NC} doesnt exist!\n"
+                mkdir $dist_folder
+            else 
+                echo "Folder exists"
+            fi
+            update_symlinks $item $2/$folder_name
+        elif [[ -f "$item" ]]; then     # file
+            # echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
+            destination="$2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
+            if [ ! -f $dist_folder ]; then
+                printf ""
+                ln -sf $item $destination
+            fi
+        fi
     done
-}
+)
 
+function install_app() {
+    cd ~
+    status=$(package_installed $1)
+    echo "status = $status"
+    if [ "$status" = "$1 installed" ]; then
+        printf "${GREEN}Package $1 already installed${NC}\n"
+    else
+        printf "${RED}Install $1${NC}\n"
+        sudo apt install -y $1
+    fi
+}
