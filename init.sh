@@ -44,12 +44,12 @@ function cava() {
 #https://luarocks.org/
     wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz
     tar zxpf luarocks-3.3.1.tar.gz
-    cd luarocks-3.3.1
-    ./configure
-    makeinstall_neovimks install luasocket
-#https://github.com/luaposix/luaposix
-    cd $HOME/git/tools
-    git clone https://github.com/luaposix/luaposix.git $HOME/git/tools/luaposix
+    cd luarocks-3.3.1(
+    shopt -s dotglob
+    for item in $1; do
+        printf "${RED}$item to $1${NC}\n"
+    done
+)x.git $HOME/git/tools/luaposix
     cd luaposix
     sudo luarocks install luaposix
     cd $HOME/git/tools/cava
@@ -59,14 +59,21 @@ function cava() {
 
 #its under testing. If it wont work do it by ur hands
 function compton() {
-    sudo apt install -y libxcomposite-dev libxdamage-dev libxrender-dev libxrandr-dev libxinerama-dev libconfig-dev libdbus-1-dev libglx-dev libgl-dev libdrm-dev asciidoc libpcre3-dev
-    mkdir -p $HOME/git/other
-    git clone https://github.com/tryone144/compton.git $HOME/git/tools/compton
-    cd $HOME/git/tools/compton
-    sudo make
-    sudo make docks
-    sudo make install
-    #https://www.reddit.com/r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
+function update_symlinks() (
+  shopt -s dotglob(
+    shopt -s dotglob
+    for item in $1; do
+        printf "${RED}$item to $1${NC}\n"
+    done
+)
+  ln -sf $DOTFILES_DIR/Pictures $HOME/Pictures
+  ln -sf $DOTFILES_DIR/.profile $HOME/.profile
+  ln -sf $DOTFILES_DIR/.bashrc $HOME/.bashrc
+  ln -sf $DOTFILES_DIR/.bash_profile $HOME/.bash_profile
+  ln -sf $DOTFILES_DIR/.config/awesome $HOME/.config/awesome
+  ln -sf $DOTFILES_DIR/.xinitrc $HOME/.xinitrc
+  ln -sf $DOTFILES_DIR/.zshenv $HOME/
+)r/voidlinux/comments/capd59/how_do_i_install_compton_fork_tryone144
     vm_check=$(is_vm)
     if [ $vm_check = 1 ]; then
         ln -sf $DOTFILES_DIR/.config/compton_vm.conf $HOME/.config/compton.conf
