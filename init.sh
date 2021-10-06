@@ -74,4 +74,16 @@ for app in "${specific_apps[@]}"; do
     fi
 done
 
-#sudo snap install telegram-desktop
+sudo snap install telegram-desktop
+sudo snap install clion --classic
+sudo snap install vlc
+
+mkdir $HOME/open_source
+cd $HOME/open_source
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+
+
+update_symlinks

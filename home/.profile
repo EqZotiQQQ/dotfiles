@@ -39,6 +39,6 @@ fi
 #export PATH=${M2_HOME}/bin:${PATH}
 
 # set Cargo
-#export PATH="$HOME/.cargo/bin:$PATH"
-
+#
 export PATH="$HOME/.cargo/bin:$PATH"
+. "$HOME/.cargo/env"
