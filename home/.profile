@@ -40,5 +40,4 @@ fi
 
 # set Cargo
 #
-export PATH="$HOME/.cargo/bin:$PATH"
 . "$HOME/.cargo/env"

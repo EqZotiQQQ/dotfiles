@@ -1,5 +1,7 @@
 #!/bin/bash
+
 DOTFILES_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
 echo "Dotfiles dir location: $DOTFILES_DIR"
 
 . ./utils.sh --source-only
@@ -76,6 +78,7 @@ done
 sudo snap install telegram-desktop
 sudo snap install clion --classic
 sudo snap install vlc
+sudo snap install spotify
 
 mkdir $HOME/open_source
 cd $HOME/open_source
@@ -86,3 +89,5 @@ cd emsdk
 
 
 update_symlinks
+
+gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
