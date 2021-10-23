@@ -28,7 +28,6 @@ do
     esac
 done
 
-
 function configure_git() {
     git config --global merge.tool vimdiff
     git config --global user.name "Mikhail Fedyakov"
@@ -46,7 +45,7 @@ function configure_kitty() {
 }
 
 function update_symlinks() {
-    update_symlinks $DOTFILES_DIR/home $HOME
+    update_symlinks_impl $DOTFILES_DIR/home $HOME
 }
 
 if [[ $SYMLINK = yes ]]; then

@@ -29,7 +29,7 @@ function get_ubuntu_version() {
     fi
 }
 
-function update_symlinks() (
+function update_symlinks_impl() (
     shopt -s dotglob
     printf "Source:      ${RED}$1${NC}\n"
     printf "Destination: ${GREEN}$2${NC}\n"
@@ -45,7 +45,7 @@ function update_symlinks() (
             else 
                 echo "Folder exists"
             fi
-            update_symlinks $item $2/$folder_name
+            update_symlinks_impl $item $2/$folder_name
         elif [[ -f "$item" ]]; then     # file
             # echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
             destination="$2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
