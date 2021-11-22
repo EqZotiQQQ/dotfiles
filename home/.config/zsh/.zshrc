@@ -24,7 +24,8 @@ fi
 
 # load zinit or download if missing
 if [[ ! -a $ZINIT_HOME/bin/zinit.zsh ]]; then
-  git clone https://github.com/zdharma/zinit.git $ZINIT_HOME/bin
+#  git clone https://github.com/zdharma/zinit.git $ZINIT_HOME/bin
+    git clone https://github.com/zdharma-continuum/zinit.git $ZINIT_HOME/bin
 fi
 source $ZINIT_HOME/bin/zinit.zsh
 
