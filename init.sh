@@ -91,3 +91,5 @@ cd emsdk
 update_symlinks
 
 gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
+
+sudo apt-get install zsh-autosuggestions -y
