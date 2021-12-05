@@ -89,7 +89,7 @@ sudo snap install spotify
 
 update_symlinks
 
-function source_install_emsdk() {
+function install_from_source_emsdk() {
     # TODO: move out from this file
     mkdir $HOME/open_source
     cd $HOME/open_source
@@ -99,7 +99,7 @@ function source_install_emsdk() {
     ./emsdk activate latest
 }
 
-function source_install_poco() {
+function install_from_source_poco() {
     # TODO: same as for emsdk
     cd $HOME/open_source
     git clone -b master https://github.com/pocoproject/poco.git
@@ -111,7 +111,7 @@ function source_install_poco() {
     sudo cmake --build . --target install -j16
 }
 
-function source_install_bison() {
+function install_from_source_bison() {
     sudo apt install libboost-all-dev flex bison m4 libboost-all-dev
     wget http://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz
     tar -xvzf bison-3.7.tar.gz
@@ -121,4 +121,18 @@ function source_install_bison() {
     make
     sudo make install
     cp src/bison /usr/bin/bison 
+}
+
+
+# install some rust shit
+function install_from_source_exa() {
+    cd ~/open_source
+    git clone https://github.com/ogham/exa.git
+    cd exa
+    cargo build --release
+    cp ./target/release/exa /usr/local/bin
+    cp ./man/exa.1.md /usr/share/man/man1
+    cp ./man/exa_colors.5.md /usr/share/man/man5
+    mkdir -p /usr/local/share/zsh/site-functions
+    cp ./completions/zsh/_exa /usr/local/share/zsh/site-functions/
 }
