@@ -31,6 +31,7 @@ do
 done
 
 function configure_git() {
+    # TODO check is git configured
     git config --global merge.tool vimdiff
     git config --global user.name "Mikhail Fedyakov"
     git config --global user.email mf_52@mail.ru
@@ -59,8 +60,9 @@ sudo apt update
 sudo apt upgrade -y
 
 apps=("curl" "htop" "openssh-server" "gcc" "make"
- "cmake" "clang" "vim" "neovim" "awesome-extra" "feh"
-  "zsh" "kitty" "python3" "python3-pip" "default-jdk")
+  "cmake" "clang" "vim" "neovim" "awesome-extra" "feh"
+  "zsh" "kitty" "python3" "python3-pip" "default-jdk"
+  "tree" "zsh-autosuggestions")
 for app in "${apps[@]}"; do
     install_app $app
 done
@@ -75,11 +77,13 @@ for app in "${specific_apps[@]}"; do
     fi
 done
 
+# TODO: Think about that
 sudo snap install telegram-desktop
 sudo snap install clion --classic
 sudo snap install vlc
 sudo snap install spotify
 
+# TODO: move out from this file
 mkdir $HOME/open_source
 cd $HOME/open_source
 git clone https://github.com/emscripten-core/emsdk.git
@@ -90,6 +94,7 @@ cd emsdk
 
 update_symlinks
 
+# TODO: same as for emsdk
 gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
 
 
@@ -113,3 +118,4 @@ PATH=$PATH:/usr/local/m4
 make
 sudo make install
 cp src/bison /usr/bin/bison 
+
