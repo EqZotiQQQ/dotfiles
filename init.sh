@@ -91,3 +91,25 @@ cd emsdk
 update_symlinks
 
 gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
+
+
+cd $HOME/open_source
+git clone -b master https://github.com/pocoproject/poco.git
+cd poco
+mkdir cmake-build
+cd cmake-build
+cmake ..
+cmake --build . --config Release -j16
+sudo cmake --build . --target install -j16
+
+
+
+sudo apt install libboost-all-dev flex bison m4 libboost-all-dev
+wget http://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz
+tar -xvzf bison-3.7.tar.gz
+cd bison-3.7
+PATH=$PATH:/usr/local/m4
+./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/
+make
+sudo make install
+cp src/bison /usr/bin/bison 
