@@ -77,45 +77,48 @@ for app in "${specific_apps[@]}"; do
     fi
 done
 
+
+gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
+
 # TODO: Think about that
 sudo snap install telegram-desktop
 sudo snap install clion --classic
 sudo snap install vlc
 sudo snap install spotify
 
-# TODO: move out from this file
-mkdir $HOME/open_source
-cd $HOME/open_source
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install latest
-./emsdk activate latest
-
 
 update_symlinks
 
-# TODO: same as for emsdk
-gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
+function source_install_emsdk() {
+    # TODO: move out from this file
+    mkdir $HOME/open_source
+    cd $HOME/open_source
+    git clone https://github.com/emscripten-core/emsdk.git
+    cd emsdk
+    ./emsdk install latest
+    ./emsdk activate latest
+}
 
+function source_install_poco() {
+    # TODO: same as for emsdk
+    cd $HOME/open_source
+    git clone -b master https://github.com/pocoproject/poco.git
+    cd poco
+    mkdir cmake-build
+    cd cmake-build
+    cmake ..
+    cmake --build . --config Release -j16
+    sudo cmake --build . --target install -j16
+}
 
-cd $HOME/open_source
-git clone -b master https://github.com/pocoproject/poco.git
-cd poco
-mkdir cmake-build
-cd cmake-build
-cmake ..
-cmake --build . --config Release -j16
-sudo cmake --build . --target install -j16
-
-
-
-sudo apt install libboost-all-dev flex bison m4 libboost-all-dev
-wget http://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz
-tar -xvzf bison-3.7.tar.gz
-cd bison-3.7
-PATH=$PATH:/usr/local/m4
-./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/
-make
-sudo make install
-cp src/bison /usr/bin/bison 
-
+function source_install_bison() {
+    sudo apt install libboost-all-dev flex bison m4 libboost-all-dev
+    wget http://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz
+    tar -xvzf bison-3.7.tar.gz
+    cd bison-3.7
+    PATH=$PATH:/usr/local/m4
+    ./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/
+    make
+    sudo make install
+    cp src/bison /usr/bin/bison 
+}
