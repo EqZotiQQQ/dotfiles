@@ -1,4 +1,4 @@
-git clone https://github.com/eqzotiqqq/linuxconfig
+git clone https://github.com/eqzotiqqq/dotfiles
 cd linuxconfig
 source ./init.sh [OPTIONS]
 
