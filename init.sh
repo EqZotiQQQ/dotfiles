@@ -1,7 +1,9 @@
 #!/bin/bash
 
+CORE_NUMBER=$(grep -c processor /proc/cpuinfo)
 DOTFILES_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+echo "Your machine has $CORE_NUMBER cores. What a poor asshole :)"
 echo "Dotfiles dir location: $DOTFILES_DIR"
 
 . ./utils.sh --source-only
@@ -59,10 +61,14 @@ fi
 sudo apt update
 sudo apt upgrade -y
 
-apps=("curl" "htop" "openssh-server" "gcc" "make"
-  "cmake" "clang" "vim" "neovim" "awesome-extra" "feh"
-  "zsh" "kitty" "python3" "python3-pip" "default-jdk"
-  "tree" "zsh-autosuggestions")
+apps=(
+  "curl" "htop" "openssh-server" "gcc" "make" "zlib1g-dev"
+  "cmake" "clang" "vim" "neovim" "awesome-extra" "feh" "libssl-dev"
+  "zsh" "kitty" "python3" "python3-pip" "default-jdk" "openssl"
+  "tree" "zsh-autosuggestions" "g++" "libjsoncpp-dev" "uuid-dev"
+  "docker" "docker-compose" "bash" "lua"
+  "postgresql-server-dev-all" "libmariadbclient-dev" "libmariadbclient-dev"
+  )
 for app in "${apps[@]}"; do
     install_app $app
 done
@@ -77,7 +83,7 @@ for app in "${specific_apps[@]}"; do
     fi
 done
 
-
+# enable shift+ctrl to switch keyboard source
 gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
 
 # TODO: Think about that
@@ -86,12 +92,11 @@ sudo snap install clion --classic
 sudo snap install vlc
 sudo snap install spotify
 
-
 update_symlinks
+mkdir $HOME/open_source
 
 function install_from_source_emsdk() {
     # TODO: move out from this file
-    mkdir $HOME/open_source
     cd $HOME/open_source
     git clone https://github.com/emscripten-core/emsdk.git
     cd emsdk
@@ -106,9 +111,9 @@ function install_from_source_poco() {
     cd poco
     mkdir cmake-build
     cd cmake-build
-    cmake ..
-    cmake --build . --config Release -j16
-    sudo cmake --build . --target install -j16
+    cmake .. -j$CORE_NUMBER
+    cmake --build . --config Release -j$CORE_NUMBER
+    sudo cmake --build . --target install -j$CORE_NUMBER
 }
 
 function install_from_source_bison() {
@@ -118,15 +123,15 @@ function install_from_source_bison() {
     cd bison-3.7
     PATH=$PATH:/usr/local/m4
     ./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/
-    make
-    sudo make install
+    make -j$CORE_NUMBER
+    sudo make install -j$CORE_NUMBER
     cp src/bison /usr/bin/bison 
 }
 
 
 # install some rust shit
 function install_from_source_exa() {
-    cd ~/open_source
+    cd $HOME/open_source
     git clone https://github.com/ogham/exa.git
     cd exa
     cargo build --release
@@ -136,3 +141,21 @@ function install_from_source_exa() {
     mkdir -p /usr/local/share/zsh/site-functions
     cp ./completions/zsh/_exa /usr/local/share/zsh/site-functions/
 }
+
+function install_from_source_drogon() {
+    # https://drogon.docsforge.com/master/installation/#drogon-installation
+    cd $HOME/open_source
+    git clone https://github.com/an-tao/drogon
+    cd drogon
+    git submodule update --init
+    mkdir build
+    cd build
+    cmake ..
+    make -j$CORE_NUMBER && sudo make install -j$CORE_NUMBER
+}
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
+
+install_from_source_emsdk

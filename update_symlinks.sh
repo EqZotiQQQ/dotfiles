@@ -7,7 +7,6 @@ RED='\033[0;31m' # RED
 NC='\033[0m' # No Color
 
 function update_symlinks() (
-    echo ========
     shopt -s dotglob
     printf "Source:      ${RED}$1${NC}\n"
     printf "Destination: ${GREEN}$2${NC}\n"

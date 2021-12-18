@@ -40,10 +40,10 @@ function update_symlinks_impl() (
             echo "Folder name = $folder_name"
             dist_folder="$2/$folder_name"
             if [ ! -d $dist_folder ]; then
-                printf "Folder ${RED}$dist_folder${NC} doesnt exist!\n"
+                printf "Folder ${RED}$dist_folder${NC} doesnt exist! Creating\n"
                 mkdir $dist_folder
             else 
-                echo "Folder exists"
+                echo "Folder exists. Skip"
             fi
             update_symlinks_impl $item $2/$folder_name
         elif [[ -f "$item" ]]; then     # file
