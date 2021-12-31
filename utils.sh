@@ -1,4 +1,6 @@
-RED='\033[0;31m'
+
+GREEN='\033[0;32m' # GREEN
+RED='\033[0;31m' # RED
 NC='\033[0m' # No Color
 
 function package_installed() {
@@ -12,8 +14,7 @@ function package_installed() {
 
 function is_vm() {
     host=`sudo dmidecode -s system-manufacturer`
-    if [ "$host" = "innotek GmbH" ]
-    then
+    if [ "$host" = "innotek GmbH" ]; then
         echo "1"
     else
         echo "0"
@@ -29,7 +30,7 @@ function get_ubuntu_version() {
     fi
 }
 
-function update_symlinks_impl() (
+function update_symlinks() (
     shopt -s dotglob
     printf "Source:      ${RED}$1${NC}\n"
     printf "Destination: ${GREEN}$2${NC}\n"
@@ -40,17 +41,17 @@ function update_symlinks_impl() (
             echo "Folder name = $folder_name"
             dist_folder="$2/$folder_name"
             if [ ! -d $dist_folder ]; then
-                printf "Folder ${RED}$dist_folder${NC} doesnt exist! Creating\n"
+                # printf "Folder ${RED}$dist_folder${NC} doesnt exist! Creating.\n"
                 mkdir $dist_folder
             else 
-                echo "Folder exists. Skip"
+                echo "Folder exists"
             fi
-            update_symlinks_impl $item $2/$folder_name
+            update_symlinks $item $2/$folder_name
         elif [[ -f "$item" ]]; then     # file
-            # echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
+            echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
             destination="$2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
             if [ ! -f $dist_folder ]; then
-                printf ""
+                # printf "Symlink for file: $item -> $destination\n"
                 ln -sf $item $destination
             fi
         fi

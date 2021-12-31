@@ -17,17 +17,17 @@ function update_symlinks() (
             echo "Folder name = $folder_name"
             dist_folder="$2/$folder_name"
             if [ ! -d $dist_folder ]; then
-                printf "Folder ${RED}$dist_folder${NC} doesnt exist!\n"
+                # printf "Folder ${RED}$dist_folder${NC} doesnt exist! Creating.\n"
                 mkdir $dist_folder
             else 
                 echo "Folder exists"
             fi
             update_symlinks $item $2/$folder_name
         elif [[ -f "$item" ]]; then     # file
-            # echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
+            echo "$item -> $2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
             destination="$2/$(echo $item | rev | cut -d'/' -f 1 | rev)"
             if [ ! -f $dist_folder ]; then
-                printf ""
+                # printf "Symlink for file: $item -> $destination\n"
                 ln -sf $item $destination
             fi
         fi
