@@ -58,6 +58,9 @@ if [[ $SYMLINK = yes ]]; then
     exit
 fi
 
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+
 sudo apt update
 sudo apt upgrade -y
 
@@ -68,6 +71,7 @@ apps=(
   "tree" "zsh-autosuggestions" "g++" "libjsoncpp-dev" "uuid-dev"
   "docker" "docker-compose" "bash" "lua"
   "postgresql-server-dev-all" "libmariadbclient-dev" "libmariadbclient-dev"
+  "clang-12" "lldb-12" "lld-12" "gcc-11"
   )
 for app in "${apps[@]}"; do
     install_app $app
@@ -159,3 +163,5 @@ sudo usermod -aG docker $USER
 sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
 
 install_from_source_emsdk
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

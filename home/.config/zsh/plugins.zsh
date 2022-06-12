@@ -16,8 +16,8 @@ zinit light "ael-code/zsh-colored-man-pages"
 
 POWERLEVEL9K_MODE='awesome-fontconfig'
 
-POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-POWERLEVEL9K_RPROMPT_ON_NEWLINE=true
+POWERLEVEL9K_PROMPT_ON_NEWLINE=false
+POWERLEVEL9K_RPROMPT_ON_NEWLINE=false
 
 # vi_mode
 POWERLEVEL9K_VI_INSERT_MODE_STRING='I'
@@ -73,3 +73,11 @@ POWERLEVEL9K_TIME_FORMAT='%D{%l:%M%p}'
 
 # syntax highlightning
 zinit light "zdharma-continuum/fast-syntax-highlighting"
+
+zinit wait lucid for \
+ atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
+    zdharma-continuum/fast-syntax-highlighting \
+ blockf \
+    zsh-users/zsh-completions \
+ atload"!_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions
