@@ -97,11 +97,11 @@ sudo snap install vlc
 sudo snap install spotify
 
 update_symlinks
-mkdir $HOME/open_source
+mkdir $HOME/third_party
 
 function install_from_source_emsdk() {
     # TODO: move out from this file
-    cd $HOME/open_source
+    cd $HOME/third_party
     git clone https://github.com/emscripten-core/emsdk.git
     cd emsdk
     ./emsdk install latest
@@ -110,7 +110,7 @@ function install_from_source_emsdk() {
 
 function install_from_source_poco() {
     # TODO: same as for emsdk
-    cd $HOME/open_source
+    cd $HOME/third_party
     git clone -b master https://github.com/pocoproject/poco.git
     cd poco
     mkdir cmake-build
@@ -135,7 +135,7 @@ function install_from_source_bison() {
 
 # install some rust shit
 function install_from_source_exa() {
-    cd $HOME/open_source
+    cd $HOME/third_party
     git clone https://github.com/ogham/exa.git
     cd exa
     cargo build --release
@@ -148,7 +148,7 @@ function install_from_source_exa() {
 
 function install_from_source_drogon() {
     # https://drogon.docsforge.com/master/installation/#drogon-installation
-    cd $HOME/open_source
+    cd $HOME/third_party
     git clone https://github.com/an-tao/drogon
     cd drogon
     git submodule update --init
