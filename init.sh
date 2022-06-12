@@ -99,15 +99,6 @@ sudo snap install spotify
 update_symlinks
 mkdir $HOME/third_party
 
-function install_from_source_emsdk() {
-    # TODO: move out from this file
-    cd $HOME/third_party
-    git clone https://github.com/emscripten-core/emsdk.git
-    cd emsdk
-    ./emsdk install latest
-    ./emsdk activate latest
-}
-
 function install_from_source_poco() {
     # TODO: same as for emsdk
     cd $HOME/third_party
@@ -161,7 +152,5 @@ function install_from_source_drogon() {
 sudo groupadd docker
 sudo usermod -aG docker $USER
 sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
-
-install_from_source_emsdk
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

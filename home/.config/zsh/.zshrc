@@ -27,8 +27,8 @@ if [[ ! -a $ZINIT_HOME/bin/zinit.zsh ]]; then
 #  git clone https://github.com/zdharma/zinit.git $ZINIT_HOME/bin
     git clone https://github.com/zdharma-continuum/zinit.git $ZINIT_HOME/bin
 fi
-source $ZINIT_HOME/bin/zinit.zsh
 
+source $ZINIT_HOME/bin/zinit.zsh
 source $ZDOTDIR/plugins.zsh
 
 
@@ -36,3 +36,5 @@ source $ZDOTDIR/plugins.zsh
 for file in $ZDOTDIR/settings/*; do
   source $file
 done
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
