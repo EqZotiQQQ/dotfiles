@@ -245,6 +245,8 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+-- img_path = os.getenv("HOME") .. "/Pictures/witcher.png"
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
@@ -255,7 +257,12 @@ globalkeys = gears.table.join(
               {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
-
+    awful.key({ modkey,              }, "l",
+        function () 
+            -- awful.util.spawn(os.getenv("HOME") .. "/.config/i3lock/i3lock-multimonitor/lock " .. "-i " .. os.getenv("HOME") .. "/Pictures/witcher.png")
+            awful.util.spawn("multilockscreen -l " .. os.getenv("HOME") .. "/Pictures/witcher.png")
+        end
+    ),
     awful.key({ modkey,           }, "j",
         function ()
             awful.client.focus.byidx( 1)
@@ -580,3 +587,14 @@ end)
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+-- Autostart
+-- awful.spawn.with_shell("app --some-flags")
+awful.spawn.once("picom")
+awful.spawn.once("telegram-desktop")
+awful.spawn.once("discord")
+awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
+
+
+-- Keyboard layout
+-- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }

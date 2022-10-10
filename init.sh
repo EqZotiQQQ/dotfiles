@@ -64,18 +64,84 @@ wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
 sudo apt update
 sudo apt upgrade -y
 
-apps=(
-  "curl" "htop" "openssh-server" "gcc" "make" "zlib1g-dev"
-  "cmake" "clang" "vim" "neovim" "awesome-extra" "feh" "libssl-dev"
-  "zsh" "kitty" "python3" "python3-pip" "default-jdk" "openssl"
-  "tree" "zsh-autosuggestions" "g++" "libjsoncpp-dev" "uuid-dev"
-  "docker" "docker-compose" "bash" "lua"
-  "postgresql-server-dev-all" "libmariadbclient-dev" "libmariadbclient-dev"
-  "clang-12" "lldb-12" "lld-12" "gcc-11"
-  )
-for app in "${apps[@]}"; do
-    install_app $app
-done
+# apps=(
+#   "curl" "htop" "openssh-server" "gcc" "make" "zlib1g-dev"
+#   "cmake" "clang" "vim" "neovim" "awesome-extra" "feh" "libssl-dev"
+#   "zsh" "kitty" "python3" "python3-pip" "default-jdk" "openssl"
+#   "tree" "zsh-autosuggestions" "g++" "libjsoncpp-dev" "uuid-dev"
+#   "docker" "docker-compose" "bash" "lua"
+#   "postgresql-server-dev-all" "libmariadbclient-dev" "libmariadbclient-dev"
+#   "clang-12" "lldb-12" "lld-12" "gcc-11" "libxext-dev" "libxcb1-dev" "libxcb-damage0-dev" 
+#   "libxcb-xfixes0-dev" "libxcb-shape0-dev" "libxcb-render-util0-dev" "libxcb-render0-dev"
+#   "libxcb-randr0-dev" libxcb-composite0-dev libxcb-image0-dev libxcb-present-dev libxcb-xinerama0-dev
+#   libxcb-glx0-dev libpixman-1-dev libdbus-1-dev libconfig-dev libgl1-mesa-dev libpcre2-dev
+#   libpcre3-dev libevdev-dev uthash-dev libev-dev libx11-xcb-dev meson
+#   )
+# for app in "${apps[@]}"; do
+#     install_app $app
+# done
+
+sudo apt install -y         \
+  curl                      \
+  htop                      \
+  openssh-server            \
+  gcc                       \
+  make                      \
+  zlib1g-dev                \
+  cmake                     \
+  clang                     \
+  vim                       \
+  neovim                    \
+  awesome-extra             \
+  feh                       \
+  libssl-dev                \
+  zsh                       \
+  kitty                     \
+  python3                   \
+  python3-pip               \
+  default-jdk               \
+  openssl                   \
+  tree                      \
+  zsh-autosuggestions       \
+  g++                       \
+  libjsoncpp-dev            \
+  uuid-dev                  \
+  docker                    \
+  docker-compose            \
+  bash                      \
+  lua                       \
+  postgresql-server-dev-all \
+  libmariadbclient-dev      \
+  libmariadbclient-dev      \
+  clang-12                  \
+  lldb-12                   \
+  lld-12                    \
+  gcc-11                    \
+  libxext-dev               \
+  libxcb1-dev               \
+  libxcb-damage0-dev        \
+  libxcb-xfixes0-dev        \
+  libxcb-shape0-dev         \
+  libxcb-render-util0-dev   \
+  libxcb-render0-dev        \
+  libxcb-randr0-dev         \
+  libxcb-composite0-dev     \
+  libxcb-image0-dev         \
+  libxcb-present-dev        \
+  libxcb-xinerama0-dev      \
+  libxcb-glx0-dev           \
+  libpixman-1-dev           \
+  libdbus-1-dev             \
+  libconfig-dev             \
+  libgl1-mesa-dev           \
+  libpcre2-dev              \
+  libpcre3-dev              \
+  libevdev-dev              \
+  uthash-dev                \
+  libev-dev                 \
+  libx11-xcb-dev            \
+  meson                     \
+  linux-tools-$(uname -r)   
 
 specific_apps=("zsh" "kitty")
 for app in "${specific_apps[@]}"; do
@@ -88,13 +154,13 @@ for app in "${specific_apps[@]}"; do
 done
 
 # enable shift+ctrl to switch keyboard source
-gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
+# gsettings set org.gnome.desktop.input-sources xkb-options "['grp:ctrl_shift_toggle']"
 
 # TODO: Think about that
 sudo snap install telegram-desktop
 sudo snap install clion --classic
 sudo snap install vlc
-sudo snap install spotify
+# sudo snap install spotify
 
 update_symlinks
 mkdir $HOME/third_party
