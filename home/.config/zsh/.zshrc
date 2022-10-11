@@ -31,7 +31,6 @@ fi
 source $ZINIT_HOME/bin/zinit.zsh
 source $ZDOTDIR/plugins.zsh
 
-
 # Load basic settings
 for file in $ZDOTDIR/settings/*; do
   source $file
