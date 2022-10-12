@@ -9,9 +9,8 @@ config_default = pathlib.Path.home() / ".config"
 class AppSettings:
     reset_symlinks: bool
     install_ubuntu_apps: bool
-    script_location: pathlib.Path
-    config_destination: pathlib.Path
     config_directory: pathlib.Path
+    config_destination: pathlib.Path
 
     @staticmethod
     def add_args(parser: argparse.ArgumentParser) -> None:
@@ -20,7 +19,7 @@ class AppSettings:
             "--path",
             metavar="PATH",
             type=pathlib.Path,
-            default=pathlib.Path(__file__).parent,
+            default=pathlib.Path(__file__).parent / "home" / ".config",
             help="Path to top level config directory",
         )
         parser.add_argument(
@@ -43,8 +42,7 @@ class AppSettings:
     def from_args(args):
         return AppSettings(
             reset_symlinks=args.reset_symlinks or args.clean_install,
-            script_location=pathlib.Path(__file__).parent,
-            config_destination=config_default,
-            config_directory=args.path,
             install_ubuntu_apps=args.ubuntu_apps or args.clean_install,
+            config_directory=args.path,
+            config_destination=config_default,
         )

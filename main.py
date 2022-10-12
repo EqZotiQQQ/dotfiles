@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def recursive_update_symlinks(source: pathlib.Path, dst: pathlib.Path) -> None:
-    logging.info(f"Source: {settings.script_location}\n"
-                 f"Destination: {settings.config_destination}")
+    logging.info(f"Source: {source}\n"
+                 f"Destination: {dst}")
     for source_file in source.iterdir():
         src_name = source_file.name
         p = dst / src_name
