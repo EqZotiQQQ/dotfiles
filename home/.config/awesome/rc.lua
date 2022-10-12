@@ -30,10 +30,7 @@ local menubar = require("menubar")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
--- Load Debian menu entries
-local debian = require("debian.menu")
-local has_fdo, freedesktop = pcall(require, "freedesktop")
-
+-- keybindings
 local keybindings = require("keybindings")
 
 -- {{{ Error handling
@@ -53,7 +50,9 @@ do
     awesome.connect_signal("debug::error",
         function (err)
             -- Make sure we don't go into an endless error loop
-            if in_error then return end
+            if in_error then
+                return
+            end
             in_error = true
 
             naughty.notify({
@@ -74,8 +73,6 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 -- Set wallpapper
 beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
 
-
-
 -- This is used later as the default terminal and editor to run.
 local terminal = "kitty"
 
@@ -84,7 +81,7 @@ local terminal = "kitty"
 -- If you do not like this or do not have such a key,
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = require("mod_key")
+local modkey = require("mod_key")
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -108,40 +105,24 @@ awful.layout.layouts = {
 -- }}}
 
 -- {{{ Menu
-local myawesomemenu = require("menu")
 
-local menu_awesome = { "awesome", myawesomemenu, beautiful.awesome_icon }
-local menu_terminal = { "open terminal", terminal }
+local mymainmenu = require("menu")
 
-if has_fdo then
-    mymainmenu = freedesktop.menu.build({
-        before = { menu_awesome },
-        after =  { menu_terminal }
-    })
-else
-    mymainmenu = awful.menu({
-        items = {
-                  menu_awesome,
-                  { "Debian", debian.menu.Debian_menu.Debian },
-                  menu_terminal,
-                }
-    })
-end
-
-
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
-                                     menu = mymainmenu })
+local mylauncher = awful.widget.launcher({
+    image = beautiful.awesome_icon,
+    menu = mymainmenu
+})
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
+local mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+local mytextclock = wibox.widget.textclock()
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -268,7 +249,7 @@ root.buttons(gears.table.join(
 -- img_path = os.getenv("HOME") .. "/Pictures/witcher.png"
 
 
-clientkeys = gears.table.join(
+local clientkeys = gears.table.join(
     awful.key({ modkey,           }, "f",
         function (c)
             c.fullscreen = not c.fullscreen
@@ -308,23 +289,29 @@ clientkeys = gears.table.join(
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
             c:raise()
-        end ,
+        end,
         {description = "(un)maximize horizontally", group = "client"})
 )
 
 
-clientbuttons = gears.table.join(
-    awful.button({ }, 1, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-    end),
-    awful.button({ modkey }, 1, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-        awful.mouse.client.move(c)
-    end),
-    awful.button({ modkey }, 3, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-        awful.mouse.client.resize(c)
-    end)
+local clientbuttons = gears.table.join(
+    awful.button({ }, 1,
+        function (c)
+            c:emit_signal("request::activate", "mouse_click", {raise = true})
+        end
+    ),
+    awful.button({ modkey }, 1,
+        function (c)
+            c:emit_signal("request::activate", "mouse_click", {raise = true})
+            awful.mouse.client.move(c)
+        end
+    ),
+    awful.button({ modkey }, 3,
+        function (c)
+            c:emit_signal("request::activate", "mouse_click", {raise = true})
+            awful.mouse.client.resize(c)
+        end
+    )
 )
 
 
@@ -405,14 +392,18 @@ end)
 client.connect_signal("request::titlebars", function(c)
     -- buttons for the titlebar
     local buttons = gears.table.join(
-        awful.button({ }, 1, function()
-            c:emit_signal("request::activate", "titlebar", {raise = true})
-            awful.mouse.client.move(c)
-        end),
-        awful.button({ }, 3, function()
-            c:emit_signal("request::activate", "titlebar", {raise = true})
-            awful.mouse.client.resize(c)
-        end)
+        awful.button({ }, 1,
+            function()
+                c:emit_signal("request::activate", "titlebar", {raise = true})
+                awful.mouse.client.move(c)
+            end
+        ),
+        awful.button({ }, 3,
+            function()
+                c:emit_signal("request::activate", "titlebar", {raise = true})
+                awful.mouse.client.resize(c)
+            end
+        )
     )
 
     awful.titlebar(c) : setup {
@@ -442,21 +433,32 @@ client.connect_signal("request::titlebars", function(c)
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
-client.connect_signal("mouse::enter", function(c)
-    c:emit_signal("request::activate", "mouse_enter", {raise = false})
-end)
+client.connect_signal("mouse::enter",
+    function(c)
+        c:emit_signal("request::activate", "mouse_enter", {raise = false})
+    end
+)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+client.connect_signal("focus",
+    function(c)
+        c.border_color = beautiful.border_focus
+    end
+)
+client.connect_signal("unfocus",
+    function(c)
+        c.border_color = beautiful.border_normal
+    end
+)
 -- }}}
 
 -- Autostart
 -- awful.spawn.with_shell("app --some-flags")
--- awful.spawn.once("picom")
--- awful.spawn.once("telegram-desktop")
--- awful.spawn.once("discord")
--- awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
--- awful.spawn.once("notion-snap")
+
+awful.spawn.once("picom")
+awful.spawn.once("telegram-desktop")
+awful.spawn.once("discord")
+awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
+awful.spawn.once("notion-snap")
 
 -- Keyboard layout
 -- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }
