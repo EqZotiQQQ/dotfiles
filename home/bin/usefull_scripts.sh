@@ -1,4 +1,3 @@
-
 # When u have more then one audio device pulseaudio makes suicide
 fix_audio() {
     pulseaudio -k && sudo alsa force-reload
@@ -16,4 +15,9 @@ perf_app() {
     sudo perf record -v -F 997 -BNT -e cpu-clock --call-graph dwarf,65528 --clockid=monotonic_raw -o my_app_$1.perf -p $1 -- sleep 20
 
     sudo perf script -i my_app_$1.perf | ${FLAME_GRAPH_DIR}/stackcollapse-perf.pl | ${FLAME_GRAPH_DIR}/flamegraph.pl > ~/flame_$1.svg
+}
+
+function config_kitty_print() {
+    # Displays not commented lines of kitty config
+    grep -v '^[#;/%<]\|^\s*$' "${HOME}/.config/kitty/kitty.conf"
 }

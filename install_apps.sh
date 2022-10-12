@@ -104,3 +104,4 @@ sudo snap install pycharm-community --classic
 sudo snap install vlc
 sudo snap install chromium
 sudo snap install discord
+sudo snap install notion-snap
