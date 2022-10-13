@@ -12,6 +12,7 @@ local screen = _G.screen
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
+
 require("awful.autofocus")
 
 -- Widget and layout library
@@ -23,7 +24,7 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 
-naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
+-- naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
 local menubar = require("menubar")
 
 -- Enable hotkeys help widget for VIM and other apps
@@ -32,6 +33,8 @@ require("awful.hotkeys_popup.keys")
 
 -- keybindings
 local keybindings = require("keybindings")
+-- rules
+local rules = require("rules")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -178,7 +181,12 @@ end
 
 -- Set keys
 root.keys(keybindings)
--- }}}
+--
+
+-- Vol widget
+local volume_widget = require("volume-widget.volume")
+local cpu_widget = require("cpu-widget.cpu-widget")
+
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
@@ -233,6 +241,8 @@ awful.screen.connect_for_each_screen(function(s)
             wibox.widget.systray(),
             mytextclock,
             s.mylayoutbox,
+            cpu_widget(),
+            volume_widget{widget_type = 'arc'}, -- customized
         },
     }
 end)
@@ -249,7 +259,7 @@ root.buttons(gears.table.join(
 -- img_path = os.getenv("HOME") .. "/Pictures/witcher.png"
 
 
-local clientkeys = gears.table.join(
+clientkeys = gears.table.join(
     awful.key({ modkey,           }, "f",
         function (c)
             c.fullscreen = not c.fullscreen
@@ -290,11 +300,14 @@ local clientkeys = gears.table.join(
             c.maximized_horizontal = not c.maximized_horizontal
             c:raise()
         end,
-        {description = "(un)maximize horizontally", group = "client"})
+        {description = "(un)maximize horizontally", group = "client"}),
+    awful.key({ modkey }, "]", function() volume_widget:inc(5) end),
+    awful.key({ modkey }, "[", function() volume_widget:dec(5) end),
+    awful.key({ modkey }, "\\", function() volume_widget:toggle() end)
 )
 
 
-local clientbuttons = gears.table.join(
+clientbuttons = gears.table.join(
     awful.button({ }, 1,
         function (c)
             c:emit_signal("request::activate", "mouse_click", {raise = true})
@@ -317,61 +330,8 @@ local clientbuttons = gears.table.join(
 
 -- {{{ Rules
 -- Rules to apply to new clients (through the "manage" signal).
-awful.rules.rules = {
-    -- All clients will match this rule.
-    { rule = { },
-      properties = { border_width = beautiful.border_width,
-                     border_color = beautiful.border_normal,
-                     focus = awful.client.focus.filter,
-                     raise = true,
-                     keys = clientkeys,
-                     buttons = clientbuttons,
-                     screen = awful.screen.preferred,
-                     placement = awful.placement.no_overlap+awful.placement.no_offscreen
-     }
-    },
-
-    -- Floating clients.
-    { rule_any = {
-        instance = {
-          "DTA",  -- Firefox addon DownThemAll.
-          "copyq",  -- Includes session name in class.
-          "pinentry",
-        },
-        class = {
-          "Arandr",
-          "Blueman-manager",
-          "Gpick",
-          "Kruler",
-          "MessageWin",  -- kalarm.
-          "Sxiv",
-          "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
-          "Wpa_gui",
-          "veromix",
-          "xtightvncviewer"},
-
-        -- Note that the name property shown in xprop might be set slightly after creation of the client
-        -- and the name shown there might not match defined rules here.
-        name = {
-          "Event Tester",  -- xev.
-        },
-        role = {
-          "AlarmWindow",  -- Thunderbird's calendar.
-          "ConfigManager",  -- Thunderbird's about:config.
-          "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
-        }
-      }, properties = { floating = true }},
-
-    -- Add titlebars to normal clients and dialogs
-    { rule_any = {type = { "normal", "dialog" }
-      }, properties = { titlebars_enabled = true }
-    },
-
-    -- Set Firefox to always map on the tag named "2" on screen 1.
-    -- { rule = { class = "Firefox" },
-    --   properties = { screen = 1, tag = "2" } },
-}
--- }}}
+awful.rules.rules = rules 
+--- }}}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
@@ -454,10 +414,11 @@ client.connect_signal("unfocus",
 -- Autostart
 -- awful.spawn.with_shell("app --some-flags")
 
+awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
+
 awful.spawn.once("picom")
 awful.spawn.once("telegram-desktop")
 awful.spawn.once("discord")
-awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 awful.spawn.once("notion-snap")
 
 -- Keyboard layout

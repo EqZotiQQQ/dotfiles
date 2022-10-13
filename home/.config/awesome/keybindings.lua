@@ -5,24 +5,15 @@
 -- @module bindings
 ---------------------------------------------------------------------------
 
-
--- Standard awesome library
-local gears = require("gears")
 local awful = require("awful")
+local gears = require("gears")
+local modkey = require("mod_key")
+require("awful.hotkeys_popup.keys")
 local hotkeys_popup = require("awful.hotkeys_popup")
-
-local menubar = require("menubar")
-
--- glob variables
-local root = _G.root
-local awesome = _G.awesome
 local client = _G.client
 
-local modkey = require("mod_key")
-local terminal = "kitty"
-
 -- {{{ Key bindings
-local globalkeys = gears.table.join(
+globalkeys = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
@@ -33,7 +24,6 @@ local globalkeys = gears.table.join(
               {description = "go back", group = "tag"}),
     awful.key({ modkey,              }, "l",
         function () 
-            -- awful.util.spawn(os.getenv("HOME") .. "/.config/i3lock/i3lock-multimonitor/lock " .. "-i " .. os.getenv("HOME") .. "/Pictures/witcher.png")
             awful.util.spawn("multilockscreen -l " .. os.getenv("HOME") .. "/Pictures/witcher.png")
         end
     ),
