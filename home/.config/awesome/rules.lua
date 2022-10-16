@@ -82,7 +82,7 @@ local rules = {
     },
     {
         rule_any = {
-            class = {"notion-snap"}
+            class = {"notion-snap"} --  xprop -> WM_CLASS
         },
         properties = {
             screen = screen.count()>1 and 1 or 2,
