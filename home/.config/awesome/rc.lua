@@ -2,12 +2,15 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 -- pcall(require, "luarocks.loader")
 
+require("global_settings")
+
 -- glob variables
 local awesome = _G.awesome
 local client = _G.client
 local root = _G.root
 local tag = _G.tag
 local screen = _G.screen
+local terminal = _G.terminal
 
 -- Standard awesome library
 local gears = require("gears")
@@ -23,9 +26,11 @@ local beautiful = require("beautiful")
 
 -- Notification library
 local naughty = require("naughty")
-
 -- naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
+
 local menubar = require("menubar")
+
+local mymainmenu = require("menu")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -33,8 +38,13 @@ require("awful.hotkeys_popup.keys")
 
 -- keybindings
 local keybindings = require("keybindings")
+
 -- rules
 local rules = require("rules")
+
+-- Vol widget
+local volume_widget = require("volume-widget.volume")
+local cpu_widget = require("cpu-widget.cpu-widget")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -76,15 +86,6 @@ beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 -- Set wallpapper
 beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
 
--- This is used later as the default terminal and editor to run.
-local terminal = "kitty"
-
--- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
-local modkey = require("mod_key")
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -108,8 +109,6 @@ awful.layout.layouts = {
 -- }}}
 
 -- {{{ Menu
-
-local mymainmenu = require("menu")
 
 local mylauncher = awful.widget.launcher({
     image = beautiful.awesome_icon,
@@ -182,10 +181,6 @@ end
 -- Set keys
 root.keys(keybindings)
 --
-
--- Vol widget
-local volume_widget = require("volume-widget.volume")
-local cpu_widget = require("cpu-widget.cpu-widget")
 
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)

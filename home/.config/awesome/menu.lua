@@ -22,17 +22,32 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "kitty"
-local editor = os.getenv("EDITOR") or "editor"
-local editor_cmd = terminal .. " -e " .. editor
+local terminal = _G.terminal
+local modkey = _G.modkey
+local editor_cmd = _G.editor_cmd
 
-local myawesomemenu = {
+local menu_power = {
+    {"Power Off", "poweroff"},
+    {"Reboot"   , "reboot"},
+}
+
+local awesomewm_menu = {
     { "Hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
     { "Manual", terminal .. " -e man awesome" },
     { "Edit config", editor_cmd .. " " .. awesome.conffile },
     { "Restart", awesome.restart },
     { "Quit", function() awesome.quit() end },
- }
+}
+
+local menu = {}
+menu.main = awful.menu({
+    items = {
+        {"Power",    menu_power},
+        {"Awesome",  awesomewm_menu},
+        {"Terminal", terminal}
+    }
+})
+
 
 local menu_awesome = {
     "awesome",
@@ -61,3 +76,10 @@ else
         }
     })
 end
+
+local mylauncher = awful.widget.launcher({
+    image = beautiful.awesome_icon,
+    menu = mymainmenu
+})
+
+-- return menu

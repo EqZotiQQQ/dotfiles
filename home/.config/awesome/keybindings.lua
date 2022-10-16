@@ -5,15 +5,33 @@
 -- @module bindings
 ---------------------------------------------------------------------------
 
+require("awful.hotkeys_popup.keys")
+
+local terminal = _G.terminal
+local hotkeys_popup = require("awful.hotkeys_popup")
 local awful = require("awful")
 local gears = require("gears")
-local modkey = require("mod_key")
-require("awful.hotkeys_popup.keys")
-local hotkeys_popup = require("awful.hotkeys_popup")
+local menu = require("menu")
+
 local client = _G.client
+local awesome = _G.awesome
+local modkey = _G.modkey
+
+-- local function client_menu_toggle_fn()
+--     local instance = nil
+
+--     return function ()
+--         if instance and instance.wibox.visible then
+--             instance:hide()
+--             instance = nil
+--         else
+--             instance = awful.menu.clients({ theme = { width = 250 } })
+--         end
+--     end
+-- end
 
 -- {{{ Key bindings
-globalkeys = gears.table.join(
+local globalkeys = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
