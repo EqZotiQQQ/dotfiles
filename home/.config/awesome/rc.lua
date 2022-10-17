@@ -179,7 +179,7 @@ local function set_wallpaper(s)
 end
 
 -- Set keys
-root.keys(keybindings.keyboard)
+root.keys(keybindings.keyboard.global)
 --
 
 
