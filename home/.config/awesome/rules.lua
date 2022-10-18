@@ -77,7 +77,7 @@ local rules = {
             class = {"TelegramDesktop"}
         },
         properties = {
-            screen = screen.count()>1 and 1 or 2,
+            screen = screen.count()>1 and 2 or 1,
             tag = screen.count()>1 and "1" or "2"
         }
     },
@@ -86,7 +86,7 @@ local rules = {
             class = {"notion-snap"} --  xprop -> WM_CLASS
         },
         properties = {
-            screen = screen.count()>1 and 1 or 2,
+            screen = screen.count()>1 and 2 or 1,
             tag = screen.count()>1 and "2" or "3"
         },
     },
@@ -95,7 +95,7 @@ local rules = {
             class = {"discord"}
         },
         properties = {
-            screen = screen.count()>1 and 1 or 2,
+            screen = screen.count()>1 and 2 or 1,
             tag = screen.count()>1 and "3" or "4"
         },
     },
@@ -104,7 +104,7 @@ local rules = {
             class = {"mattermost-desktop"}
         },
         properties = {
-            screen = screen.count()>1 and 1 or 2,
+            screen = screen.count()>1 and 2 or 1,
             tag = screen.count()>1 and "3" or "4"
         },
     },
