@@ -10,3 +10,5 @@ terminal = "kitty"
 
 local editor = os.getenv("EDITOR") or "neovim"
 editor_cmd = terminal .. " -e " .. editor
+
+file_explorer = "nautilus"
