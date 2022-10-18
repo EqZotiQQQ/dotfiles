@@ -110,9 +110,9 @@ awful.layout.layouts = {
 
 -- {{{ Menu
 
-local mylauncher = awful.widget.launcher({
+local launcher = awful.widget.launcher({
     image = beautiful.awesome_icon,
-    menu = menu
+    menu = menu.main
 })
 
 -- Menubar configuration
@@ -187,7 +187,7 @@ awful.screen.connect_for_each_screen(function(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            mylauncher,
+            launcher,
             s.mytaglist,
             s.mypromptbox,
         },

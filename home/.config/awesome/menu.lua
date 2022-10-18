@@ -79,7 +79,7 @@ menu.main = awful.menu({
 
 -- local mylauncher = awful.widget.launcher({
 --     image = beautiful.awesome_icon,
---     menu = mymainmenu
+--     menu = menu
 -- })
 
 return menu
