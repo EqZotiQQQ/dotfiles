@@ -13,7 +13,7 @@ local awful = require("awful")
 local gears = require("gears")
 local menu = require("menu")
 
-local volume_widget = require("volume-widget.volume")
+local volume_widget = require("widgets.volume-widget.volume")
 
 local client = _G.client
 local awesome = _G.awesome
@@ -44,6 +44,11 @@ bindings.mouse = {
             end
         )
     ),
+    global = gears.table.join(
+        awful.button({ }, 3, function () menu.main:toggle() end),
+        awful.button({ }, 4, awful.tag.viewnext),
+        awful.button({ }, 5, awful.tag.viewprev)
+    )
 }
 
 bindings.keyboard = {
@@ -220,8 +225,51 @@ bindings.keyboard = {
             end,
             {description = "(un)maximize horizontally", group = "client"})
     ),
+
+
+
 }
 
+-- Create a wibox for each screen and add it
+bindings.taglist_mouse = gears.table.join(
+    awful.button({ }, 1, function(t) t:view_only() end),
+    awful.button({ modkey }, 1, function(t)
+                            if client.focus then
+                                client.focus:move_to_tag(t)
+                            end
+                        end),
+    awful.button({ }, 3, awful.tag.viewtoggle),
+    awful.button({ modkey }, 3, function(t)
+                            if client.focus then
+                                client.focus:toggle_tag(t)
+                            end
+                        end),
+    awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
+    awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
+)
+
+bindings.tasklist_mouse = gears.table.join(
+    awful.button({ }, 1, function (c)
+                            if c == client.focus then
+                                c.minimized = true
+                            else
+                                c:emit_signal(
+                                    "request::activate",
+                                    "tasklist",
+                                    {raise = true}
+                                )
+                            end
+                        end),
+    awful.button({ }, 3, function()
+                            awful.menu.client_list({ theme = { width = 250 } })
+                        end),
+    awful.button({ }, 4, function ()
+                            awful.client.focus.byidx(1)
+                        end),
+    awful.button({ }, 5, function ()
+                            awful.client.focus.byidx(-1)
+                        end)
+)
 
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.

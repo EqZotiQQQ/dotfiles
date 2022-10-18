@@ -8,3 +8,7 @@
 . /etc/X11/xinit/xinitrc
 
 exec awesome
+
+# Setup home dual monitors
+# todo make it flexible?
+xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080

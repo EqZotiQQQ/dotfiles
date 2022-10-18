@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# sudo apt update
-# sudo apt upgrade -y
+sudo apt update
+sudo apt upgrade -y
 
 sudo apt install -y         \
   curl                      \
@@ -46,7 +46,8 @@ sudo apt install -y         \
    libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev \
   linux-tools-$(uname -r) \
   libxext-dev libxcb1-dev libxcb-damage0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-render-util0-dev libxcb-render0-dev libxcb-randr0-dev libxcb-composite0-dev libxcb-image0-dev libxcb-present-dev libxcb-xinerama0-dev libxcb-glx0-dev libpixman-1-dev libdbus-1-dev libconfig-dev libgl-dev libegl-dev libpcre2-dev libpcre3-dev libevdev-dev uthash-dev libev-dev libx11-xcb-dev meson \
-  maim
+  maim\
+  frei0r-plugins
 
 
 function configure_git() {
@@ -65,20 +66,20 @@ function configure_kitty() {
     fc-cache -fv
 }
 
-# specific_apps=(git zsh kitty)
-# for app in "${specific_apps[@]}"; do
-#     cd ~
-#     status=$(package_installed $app)
-#     echo "status = $status"
-#     if [ "$status" = "$app installed" ]; then
-#         configure_$app
-#     fi
-# done
+specific_apps=(git zsh kitty)
+for app in "${specific_apps[@]}"; do
+    cd ~
+    status=$(package_installed $app)
+    echo "status = $status"
+    if [ "$status" = "$app installed" ]; then
+        configure_$app
+    fi
+done
 
-# sudo snap install telegram-desktop
-# sudo snap install clion --classic
-# sudo snap install pycharm-community --classic
-# sudo snap install vlc
-# sudo snap install chromium
-# sudo snap install discord
-# sudo snap install notion-snap
+sudo snap install telegram-desktop
+sudo snap install clion --classic
+sudo snap install pycharm-community --classic
+sudo snap install vlc
+sudo snap install chromium
+sudo snap install discord
+sudo snap install notion-snap

@@ -23,6 +23,7 @@ class AppSettings:
             help="Path to top level config directory",
         )
         parser.add_argument(
+            "-r",
             "--reset-symlinks",
             action="store_true",
             help=f"Reinit symlinks for {config_default}"

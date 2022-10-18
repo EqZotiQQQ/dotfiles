@@ -49,37 +49,37 @@ menu.main = awful.menu({
 })
 
 
-local menu_awesome = {
-    "awesome",
-    myawesomemenu,
-    beautiful.awesome_icon
-}
-local menu_terminal = {
-    "open terminal",
-    terminal
-}
+-- local menu_awesome = {
+--     "awesome",
+--     myawesomemenu,
+--     beautiful.awesome_icon
+-- }
+-- local menu_terminal = {
+--     "open terminal",
+--     terminal
+-- }
 
-if has_fdo then
-    return freedesktop.menu.build({
-        before = { menu_awesome },
-        after =  { menu_terminal }
-    })
-else
-    return awful.menu({
-        items = {
-            menu_awesome,
-            {
-                "Debian",
-                debian.menu.Debian_menu.Debian
-            },
-            menu_terminal,
-        }
-    })
-end
+-- if has_fdo then
+--     return freedesktop.menu.build({
+--         before = { menu_awesome },
+--         after =  { menu_terminal }
+--     })
+-- else
+--     return awful.menu({
+--         items = {
+--             menu_awesome,
+--             {
+--                 "Debian",
+--                 debian.menu.Debian_menu.Debian
+--             },
+--             menu_terminal,
+--         }
+--     })
+-- end
 
-local mylauncher = awful.widget.launcher({
-    image = beautiful.awesome_icon,
-    menu = mymainmenu
-})
+-- local mylauncher = awful.widget.launcher({
+--     image = beautiful.awesome_icon,
+--     menu = mymainmenu
+-- })
 
--- return menu
+return menu

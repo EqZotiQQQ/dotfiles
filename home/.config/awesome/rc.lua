@@ -30,7 +30,7 @@ local naughty = require("naughty")
 
 local menubar = require("menubar")
 
-local mymainmenu = require("menu")
+local menu = require("menu")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -43,8 +43,8 @@ local keybindings = require("keybindings")
 local rules = require("rules")
 
 -- Vol widget
-local volume_widget = require("volume-widget.volume")
-local cpu_widget = require("cpu-widget.cpu-widget")
+local volume_widget = require("widgets.volume-widget.volume")
+local cpu_widget = require("widgets.cpu-widget.cpu-widget")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -112,7 +112,7 @@ awful.layout.layouts = {
 
 local mylauncher = awful.widget.launcher({
     image = beautiful.awesome_icon,
-    menu = mymainmenu
+    menu = menu
 })
 
 -- Menubar configuration
@@ -126,45 +126,6 @@ local mykeyboardlayout = awful.widget.keyboardlayout()
 -- Create a textclock widget
 local mytextclock = wibox.widget.textclock()
 
--- Create a wibox for each screen and add it
-local taglist_buttons = gears.table.join(
-                    awful.button({ }, 1, function(t) t:view_only() end),
-                    awful.button({ modkey }, 1, function(t)
-                                              if client.focus then
-                                                  client.focus:move_to_tag(t)
-                                              end
-                                          end),
-                    awful.button({ }, 3, awful.tag.viewtoggle),
-                    awful.button({ modkey }, 3, function(t)
-                                              if client.focus then
-                                                  client.focus:toggle_tag(t)
-                                              end
-                                          end),
-                    awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
-                    awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
-                )
-
-local tasklist_buttons = gears.table.join(
-                     awful.button({ }, 1, function (c)
-                                              if c == client.focus then
-                                                  c.minimized = true
-                                              else
-                                                  c:emit_signal(
-                                                      "request::activate",
-                                                      "tasklist",
-                                                      {raise = true}
-                                                  )
-                                              end
-                                          end),
-                     awful.button({ }, 3, function()
-                                              awful.menu.client_list({ theme = { width = 250 } })
-                                          end),
-                     awful.button({ }, 4, function ()
-                                              awful.client.focus.byidx(1)
-                                          end),
-                     awful.button({ }, 5, function ()
-                                              awful.client.focus.byidx(-1)
-                                          end))
 
 local function set_wallpaper(s)
     -- Wallpaper
@@ -179,6 +140,7 @@ local function set_wallpaper(s)
 end
 
 -- Set keys
+root.buttons(keybindings.mouse.global)
 root.keys(keybindings.keyboard.global)
 --
 
@@ -207,14 +169,14 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons
+        buttons = keybindings.taglist_mouse
     }
 
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist {
         screen  = s,
         filter  = awful.widget.tasklist.filter.currenttags,
-        buttons = tasklist_buttons
+        buttons = keybindings.tasklist_mouse
     }
 
     -- Create the wibox
@@ -243,21 +205,9 @@ awful.screen.connect_for_each_screen(function(s)
 end)
 -- }}}
 
--- {{{ Mouse bindings
-root.buttons(gears.table.join(
-    awful.button({ }, 3, function () mymainmenu:toggle() end),
-    awful.button({ }, 4, awful.tag.viewnext),
-    awful.button({ }, 5, awful.tag.viewprev)
-))
--- }}}
-
--- img_path = os.getenv("HOME") .. "/Pictures/witcher.png"
-
-
-
 -- {{{ Rules
 -- Rules to apply to new clients (through the "manage" signal).
-awful.rules.rules = rules 
+awful.rules.rules = rules
 --- }}}
 
 -- {{{ Signals
@@ -343,11 +293,11 @@ client.connect_signal("unfocus",
 
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
-awful.spawn.once("picom")
-awful.spawn.once("telegram-desktop")
-awful.spawn.once("discord")
-awful.spawn.once("notion-snap")
-awful.spawn.once("mattermost-desktop")
+-- awful.spawn.once("picom")
+-- awful.spawn.once("telegram-desktop")
+-- awful.spawn.once("discord")
+-- awful.spawn.once("notion-snap")
+-- awful.spawn.once("mattermost-desktop")
 
 -- Keyboard layout
 -- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }
