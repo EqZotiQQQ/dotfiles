@@ -2,11 +2,11 @@
 OPEN_SOURCE_DIR="${HOME}/open_source"
 mkdir -p "${OPEN_SOURCE_DIR}"
 
-function alias_tips() {
+alias_tips() {
     git clone https://github.com/djui/alias-tips.git "${OPEN_SOURCE_DIR}/alias-tips"
 }
 
-function picom() {
+picom() {
     picom_path="${OPEN_SOURCE_DIR}/picom"
     git clone https://github.com/yshui/picom.git $picom_path
     cd $picom_path
@@ -16,7 +16,9 @@ function picom() {
     sudo ninja -C build install
 }
 
-function i3lock() {
+i3lock() {
+    sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
+
     i3lock_color_path="${OPEN_SOURCE_DIR}/i3lock-color"
     # Previously we installed i3lock, which provides beauty lock screen
     git clone https://github.com/Raymo111/i3lock-color.git $i3lock_color_path

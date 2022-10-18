@@ -99,6 +99,15 @@ local rules = {
             tag = screen.count()>1 and "3" or "4"
         },
     },
+    {
+        rule_any = {
+            class = {"mattermost-desktop"}
+        },
+        properties = {
+            screen = screen.count()>1 and 1 or 2,
+            tag = screen.count()>1 and "3" or "4"
+        },
+    },
 }
 
 return rules

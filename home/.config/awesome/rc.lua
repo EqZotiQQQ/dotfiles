@@ -347,6 +347,7 @@ awful.spawn.once("picom")
 awful.spawn.once("telegram-desktop")
 awful.spawn.once("discord")
 awful.spawn.once("notion-snap")
+awful.spawn.once("mattermost-desktop")
 
 -- Keyboard layout
 -- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }
