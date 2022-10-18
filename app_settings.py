@@ -2,7 +2,7 @@ import argparse
 import dataclasses
 import pathlib
 
-config_default = pathlib.Path.home() / ".config"
+config_default = pathlib.Path.home()
 
 
 @dataclasses.dataclass
@@ -19,7 +19,7 @@ class AppSettings:
             "--path",
             metavar="PATH",
             type=pathlib.Path,
-            default=pathlib.Path(__file__).parent / "home" / ".config",
+            default=pathlib.Path(__file__).parent / "home",
             help="Path to top level config directory",
         )
         parser.add_argument(

@@ -15,10 +15,15 @@ def recursive_update_symlinks(source: pathlib.Path, dst: pathlib.Path) -> None:
         src_name = source_file.name
         p = dst / src_name
         if source_file.is_file():
-            if not p.exists():
+            try:
+            # if not p.exists():
+                p.symlink_to(source_file)
+            except:
+                p.unlink()
                 p.symlink_to(source_file)
         else:
-            pathlib.Path.mkdir(p, parents=True, exist_ok=True)
+            if not p.exists():
+                p.mkdir(parents=True, exist_ok=True)
             recursive_update_symlinks(source=source / src_name, dst=p)
 
 
