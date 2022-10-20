@@ -32,20 +32,37 @@ local awesomewm_menu = {
 }
 
 local ides = {
-    { "Visual Studio Code", function() awful.spawn.once("code") end },
-    { "PyCharm", function() awful.spawn.once("pycharm-community") end },
-    { "CLion", function() awful.spawn.once("clion") end }
+    { "Visual Studio Code", function() awful.spawn("code") end },
+    { "PyCharm", function() awful.spawn("pycharm-community") end },
+    { "CLion", function() awful.spawn("clion") end }
 }
 
+local productive = {
+    { "Notion", function() awful.spawn("notion-snap") end }
+}
+
+local messaging = {
+    {"Discord", function() awful.spawn("discord") end },
+    {"MatterMost", function() awful.spawn("mattermost-desktop") end },
+    {"Telegram", function() awful.spawn("telegram-desktop") end },
+}
+
+local internet = {
+    {"Google Chrome",  function() awful.spawn("google-chrome") end },
+    {"Firefox",        function() awful.spawn("firefox") end }
+}
 
 local menu = { 
     main = awful.menu({
         items = {
-            {"Power",    menu_power},
-            {"Awesome",  awesomewm_menu},
-            {"IDE",      ides},
-            {"Nautilus", file_explorer},
-            {"Terminal", terminal}
+            {"Power",       menu_power},
+            {"Awesome",     awesomewm_menu},
+            {"Internet",    internet},
+            {"IDE",         ides},
+            {"Messaging",   messaging},
+            {"Productive",  productive},
+            {"Nautilus",    file_explorer},
+            {"Terminal",    terminal}
         }
     })
 }

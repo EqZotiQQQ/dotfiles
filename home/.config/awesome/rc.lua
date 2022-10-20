@@ -293,11 +293,12 @@ client.connect_signal("unfocus",
 
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
--- awful.spawn.once("picom")
--- awful.spawn.once("telegram-desktop")
--- awful.spawn.once("discord")
--- awful.spawn.once("notion-snap")
--- awful.spawn.once("mattermost-desktop")
+awful.spawn.once("picom")
+awful.spawn.once("telegram-desktop")
+awful.spawn.once("discord")
+awful.spawn.once("notion-snap")
+awful.spawn.once("mattermost-desktop")
+awful.spawn("xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080")
 
 -- Keyboard layout
 -- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }
