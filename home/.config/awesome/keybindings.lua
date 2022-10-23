@@ -130,8 +130,14 @@ bindings.keyboard = {
             {description = "restore minimized", group = "client"}),
 
         -- Prompt
-        awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-                {description = "run prompt", group = "launcher"}),
+        -- awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
+        --         {description = "run prompt", group = "launcher"}),
+
+        -- Rofi
+        awful.key({ modkey }, "r", function()
+            awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. panel_size)
+        end,
+        {description = "run rofi launcher", group = "launcher"}),
 
         awful.key({ modkey }, "x",
             function ()

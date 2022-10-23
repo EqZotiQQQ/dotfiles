@@ -12,3 +12,8 @@ local editor = os.getenv("EDITOR") or "neovim"
 editor_cmd = terminal .. " -e " .. editor
 
 file_explorer = "nautilus"
+
+local dpi = require("beautiful.xresources").apply_dpi
+panel_size = dpi(50)
+
+panel_position  = "left"

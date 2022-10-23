@@ -35,7 +35,19 @@ i3lock() {
     multilockscreen -u ${HOME}/Pictures/witcher.png
 }
 
+rofi() {
+    rofi_theme="${OPEN_SOURCE_DIR}/rofi-themes-collection"
+    git clone https://github.com/lr-tech/rofi-themes-collection.git "${rofi_theme}"
+    cd "${rofi_theme}"
+    mkdir -p ~/.local/share/rofi/themes/
+    cp themes/spotlight ~/.local/share/rofi/themes/
+
+    echo run -> rofi-theme-selector
+    echo "Choose Alt + a on selected node"
+
+}
 
 alias_tips
 picom
 i3lock
+rofi

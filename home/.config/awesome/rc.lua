@@ -14,6 +14,11 @@ local root = _G.root
 local tag = _G.tag
 
 local screen = _G.screen
+local panel_size = _G.panel_size
+local panel_position = _G.panel_position
+local dpi = require("beautiful.xresources").apply_dpi
+local layout = require("layout")
+
 -- https://awesomewm.org/apidoc/core_components/screen.html
 
 local terminal = _G.terminal
@@ -29,6 +34,8 @@ local wibox = require("wibox")
 
 -- Theme handling library
 local beautiful = require("beautiful")
+beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
 
 -- Notification library
 local naughty = require("naughty")
@@ -37,6 +44,10 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 
 local menu = require("menu")
+
+-- User library
+local cosy = require("cosy")
+
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -85,13 +96,6 @@ do
 end
 -- }}}
 
--- {{{ Variable definitions
--- Themes define colours, icons, font and wallpapers.
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
-
--- Set wallpapper
-beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
-
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -125,9 +129,6 @@ local launcher = awful.widget.launcher({
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
--- Keyboard map indicator and switcher
-local mykeyboardlayout = awful.widget.keyboardlayout()
-
 -- {{{ Wibar
 -- Create a textclock widget
 local mytextclock = wibox.widget.textclock()
@@ -150,8 +151,14 @@ root.buttons(keybindings.mouse.global)
 root.keys(keybindings.keyboard.global)
 --
 
+-- Keyboard map indicator and switcher
+local keyboardlayout = awful.widget.keyboardlayout()
+
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
+
+-- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
+-- screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
 function _G.init_screen(screen)
 
@@ -194,11 +201,124 @@ function _G.init_screen(screen)
         screen.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            keyboardlayout,
             wibox.widget.systray(),
             mytextclock,
             screen.mylayoutbox,
             cpu_widget(),
+            volume_widget{widget_type = 'arc'}, -- customized
+        },
+    }
+end
+
+function _G.cosy_init_screen(s)
+    s.cava = cosy.widget.desktop.cava(
+        s,
+        {
+            bars = 100,
+            enable_interpolation = true,
+            size = panel_size,
+            position = panel_position,
+            update_time = 0.05
+        })
+
+    local panel_offset = {
+        x = panel_position == "left" and panel_size or 0,
+        y = panel_position == "top" and panel_size or 0,
+    }
+    s.rings = cosy.widget.desktop.rings(s, { x = panel_offset.x + 25, y = panel_offset.y + 20 })
+
+    -- Create an imagebox widget which will contain an icon indicating which layout we're using.
+    -- We need one layoutbox per screen.
+    s.layoutbox = awful.widget.layoutbox(s)
+    s.layoutbox:buttons(gears.table.join(
+                           awful.button({ }, 1, function () awful.layout.inc( 1) end),
+                           awful.button({ }, 3, function () awful.layout.inc(-1) end),
+                           awful.button({ }, 4, function () awful.layout.inc( 1) end),
+                           awful.button({ }, 5, function () awful.layout.inc(-1) end)))
+
+    local focus_gradient = gears.color.create_linear_pattern({
+            type = "linear",
+            from = {0, 0},
+            to = {panel_size, 0},
+            stops = { {0, beautiful.bg_focus.."f0"}, {1, beautiful.bg_focus.."00"} }
+        })
+
+    local panel_orientation =
+        (panel_position == "left" or panel_position == "right")
+        and "vertical"
+        or "horizontal"
+
+    -- Create a taglist widget
+    s.taglist = awful.widget.taglist {
+        screen = s,
+        filter = awful.widget.taglist.filter.noempty,
+        buttons = keybindings.taglist_mouse,
+        style = {
+            align = "center",
+            bg_normal = beautiful.bg_normal .. "a0",
+            bg_focus = focus_gradient,
+            bg_urgent = beautiful.bg_urgent .. "00",
+        },
+        layout = wibox.layout.fixed[panel_orientation](),
+    }
+
+    -- Create a tasklist widget
+    s.tasklist = awful.widget.tasklist {
+        screen = s,
+        filter = awful.widget.tasklist.filter.currenttags,
+        buttons = keybindings.tasklist_mouse,
+        style = {
+            align = "center",
+            disable_task_name = true,
+            bg_normal = "#00000000",
+            bg_focus = focus_gradient,
+            bg_urgent = beautiful.bg_urgent .. "00",
+        },
+        layout = wibox.layout.fixed[panel_orientation]()
+    }
+
+    s.systray = wibox.widget.systray()
+
+    -- remove old panel
+    if s.panel then s.panel:remove() end
+
+    local panel_properties = {
+        screen = s,
+        position = panel_position,
+        bg = beautiful.bg_normal .. "a0", -- bg with alpha
+    }
+
+    if panel_position == "left" or panel_position == "right" then
+        panel_properties.width = panel_size
+    else
+        panel_properties.height = panel_size
+    end
+
+    -- create new panel
+    s.panel = awful.wibar(panel_properties)
+
+    -- Add widgets to the wibox
+    s.panel:setup {
+        layout = wibox.layout.align[panel_orientation],
+        { -- Left widgets
+            layout = wibox.layout.fixed[panel_orientation],
+            launcher,
+            screen.mytaglist,
+            s.taglist,
+        },
+        s.tasklist, -- Middle widget
+        { -- Right widgets
+            layout = wibox.layout.fixed[panel_orientation],
+            cosy.widget.panel.volume({
+                indicator_width = dpi(2),
+                indicator_offset = dpi(5),
+            }),
+            -- cosy.widget.panel.battery({}),
+            keyboardlayout,
+            s.systray,
+            cosy.widget.textclock,
+            s.layoutbox,
             volume_widget{widget_type = 'arc'}, -- customized
         },
     }
@@ -211,7 +331,8 @@ awful.screen.connect_for_each_screen(function(screen)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, screen, awful.layout.layouts[1])
 
-    _G.init_screen(screen)
+    -- _G.init_screen(screen)
+    _G.cosy_init_screen(screen)
 end)
 -- }}}
 
@@ -291,6 +412,67 @@ client.connect_signal("unfocus",
         c.border_color = beautiful.border_normal
     end
 )
+
+local floatgeoms = {}
+
+client.connect_signal("manage", function (c)
+    -- Set the windows at the slave,
+    if not awesome.startup then awful.client.setslave(c) end
+
+    -- Set floating if slave window is created on popup layout
+    -- TODO: Consider if more elegant solution is possible
+    if awful.layout.get(c.screen) == layout.popup
+        and cosy.util.table_count(c.first_tag:clients()) > 1
+    then
+        c.floating = true
+        awful.placement.no_offscreen(c)
+    end
+
+    -- Save floating client geometry
+    if cosy.util.client_free_floating(c) then
+        floatgeoms[c.window] = c:geometry()
+    end
+
+    if awesome.startup
+        and not c.size_hints.user_position
+        and not c.size_hints.program_position
+    then
+        -- Prevent clients from being unreachable after screen count changes.
+        awful.placement.no_offscreen(c)
+    end
+end)
+
+-- FIXME: Exclude titlebar from geometry
+-- XXX: There seems to be a weird behavior with property::floating signal. It is not sent when maximized and fullscreen
+-- property changes of clients originally created on other than floating tag layouts and sent otherwise
+client.connect_signal("property::floating", function(c)
+    if cosy.util.client_free_floating(c) then
+        c:geometry(floatgeoms[c.window])
+    end
+    cosy.util.manage_titlebar(c)
+end)
+
+tag.connect_signal("property::layout", function(t)
+    for _, c in pairs(t:clients()) do
+        if cosy.util.client_free_floating(c) then
+            c:geometry(floatgeoms[c.window])
+        end
+        cosy.util.manage_titlebar(c)
+    end
+end)
+
+client.connect_signal("property::geometry", function(c)
+    if cosy.util.client_free_floating(c) then
+        floatgeoms[c.window] = c:geometry()
+    end
+end)
+
+client.connect_signal("unmanage", function(c)
+    floatgeoms[c.window] = nil
+    awful.client.focus.byidx(-1)
+end)
+
+
 -- }}}
 
 -- Autostart
