@@ -303,7 +303,6 @@ function _G.cosy_init_screen(s)
         layout = wibox.layout.align[panel_orientation],
         { -- Left widgets
             layout = wibox.layout.fixed[panel_orientation],
-            launcher,
             screen.mytaglist,
             s.taglist,
         },

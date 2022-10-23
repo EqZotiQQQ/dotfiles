@@ -19,6 +19,21 @@ local client = _G.client
 local awesome = _G.awesome
 local modkey = _G.modkey
 
+local naughty = require("naughty")
+local function client_menu_toggle_fn()
+    naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
+    local instance = nil
+
+    return function ()
+        if instance and instance.wibox.visible then
+            instance:hide()
+            instance = nil
+        else
+            instance = awful.menu.clients({ theme = { width = 250 } })
+        end
+    end
+end
+
 -- {{{ Key bindings
 
 local bindings = {
@@ -266,9 +281,7 @@ bindings.tasklist_mouse = gears.table.join(
                                 )
                             end
                         end),
-    awful.button({ }, 3, function()
-                            awful.menu.client_list({ theme = { width = 250 } })
-                        end),
+    awful.button({ }, 3, client_menu_toggle_fn()),
     awful.button({ }, 4, function ()
                             awful.client.focus.byidx(1)
                         end),
