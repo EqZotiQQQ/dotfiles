@@ -49,7 +49,8 @@ sudo apt install -y         \
   maim\
   frei0r-plugins \ 
   lua-posix \
-  rofi
+  rofi \
+  libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake 
 
 
 function configure_git() {

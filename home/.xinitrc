@@ -7,6 +7,8 @@
 
 . /etc/X11/xinit/xinitrc
 
+# exec picom&
+
 exec awesome
 
 # Setup home dual monitors

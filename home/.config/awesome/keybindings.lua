@@ -12,6 +12,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 local awful = require("awful")
 local gears = require("gears")
 local menu = require("menu")
+local beautiful = require("beautiful")
 
 local volume_widget = require("widgets.volume-widget.volume")
 
@@ -19,9 +20,7 @@ local client = _G.client
 local awesome = _G.awesome
 local modkey = _G.modkey
 
-local naughty = require("naughty")
 local function client_menu_toggle_fn()
-    naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
     local instance = nil
 
     return function ()
@@ -31,6 +30,13 @@ local function client_menu_toggle_fn()
         else
             instance = awful.menu.clients({ theme = { width = 250 } })
         end
+    end
+end
+
+local function reload_color(c)
+    beautiful.init("~/.config/awesome/themes/xresources/theme.lua")
+    for s in _G.screen do
+        _G.cosy_init_screen(s)
     end
 end
 
@@ -80,6 +86,9 @@ bindings.keyboard = {
             function () awful.client.focus.byidx( 1) end,
             {description = "focus next by index", group = "client"}
         ),
+        awful.key({ modkey,           }, "/", reload_color,
+        {description = "reload awesome colors",     group = "awesome"}),
+
         awful.key({ modkey,           }, "k",
             function () awful.client.focus.byidx(-1) end,
             {description = "focus previous by index", group = "client"}

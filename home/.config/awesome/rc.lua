@@ -221,7 +221,7 @@ function _G.cosy_init_screen(s)
             position = panel_position,
             update_time = 0.05
         })
-
+    
     local panel_offset = {
         x = panel_position == "left" and panel_size or 0,
         y = panel_position == "top" and panel_size or 0,
@@ -479,7 +479,8 @@ end)
 
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
--- awful.spawn.once("picom")
+awful.spawn.once("picom")
+
 -- awful.spawn.once("telegram-desktop")
 -- awful.spawn.once("discord")
 -- awful.spawn.once("notion-snap")

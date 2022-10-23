@@ -47,7 +47,14 @@ rofi() {
 
 }
 
+cava() {
+    add-apt-repository ppa:hsheth2/ppa
+    apt update
+    apt install cava
+}
+
 alias_tips
 picom
 i3lock
 rofi
+cava
