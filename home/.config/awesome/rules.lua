@@ -110,4 +110,4 @@ local rules = {
     },
 }
 
-return rules
+awful.rules.rules = rules

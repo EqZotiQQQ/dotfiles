@@ -6,10 +6,16 @@ require("global_settings")
 
 -- glob variables
 local awesome = _G.awesome
+
 local client = _G.client
+
 local root = _G.root
+
 local tag = _G.tag
+
 local screen = _G.screen
+-- https://awesomewm.org/apidoc/core_components/screen.html
+
 local terminal = _G.terminal
 
 -- Standard awesome library
@@ -39,8 +45,8 @@ require("awful.hotkeys_popup.keys")
 -- keybindings
 local keybindings = require("keybindings")
 
--- rules
-local rules = require("rules")
+-- Setup rules
+require("rules")
 
 -- Vol widget
 local volume_widget = require("widgets.volume-widget.volume")
@@ -144,71 +150,70 @@ root.buttons(keybindings.mouse.global)
 root.keys(keybindings.keyboard.global)
 --
 
-
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
-awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper
-    set_wallpaper(s)
-
-    -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+function _G.init_screen(screen)
 
     -- Create a promptbox for each screen
-    s.mypromptbox = awful.widget.prompt()
+    screen.mypromptbox = awful.widget.prompt()
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
-    s.mylayoutbox = awful.widget.layoutbox(s)
-    s.mylayoutbox:buttons(gears.table.join(
+    screen.mylayoutbox = awful.widget.layoutbox(screen)
+    screen.mylayoutbox:buttons(gears.table.join(
                            awful.button({ }, 1, function () awful.layout.inc( 1) end),
                            awful.button({ }, 3, function () awful.layout.inc(-1) end),
                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(-1) end)))
     -- Create a taglist widget
-    s.mytaglist = awful.widget.taglist {
-        screen  = s,
+    screen.mytaglist = awful.widget.taglist {
+        screen  = screen,
         filter  = awful.widget.taglist.filter.all,
         buttons = keybindings.taglist_mouse
     }
 
     -- Create a tasklist widget
-    s.mytasklist = awful.widget.tasklist {
-        screen  = s,
+    screen.mytasklist = awful.widget.tasklist {
+        screen  = screen,
         filter  = awful.widget.tasklist.filter.currenttags,
         buttons = keybindings.tasklist_mouse
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    screen.mywibox = awful.wibar({ position = "top", screen = screen })
 
     -- Add widgets to the wibox
-    s.mywibox:setup {
+    screen.mywibox:setup {
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
             launcher,
-            s.mytaglist,
-            s.mypromptbox,
+            screen.mytaglist,
+            screen.mypromptbox,
         },
-        s.mytasklist, -- Middle widget
+        screen.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
             wibox.widget.systray(),
             mytextclock,
-            s.mylayoutbox,
+            screen.mylayoutbox,
             cpu_widget(),
             volume_widget{widget_type = 'arc'}, -- customized
         },
     }
+end
+
+awful.screen.connect_for_each_screen(function(screen)
+    -- Wallpaper
+    set_wallpaper(screen)
+
+    -- Each screen has its own tag table.
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, screen, awful.layout.layouts[1])
+
+    _G.init_screen(screen)
 end)
 -- }}}
-
--- {{{ Rules
--- Rules to apply to new clients (through the "manage" signal).
-awful.rules.rules = rules
---- }}}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
@@ -293,11 +298,11 @@ client.connect_signal("unfocus",
 
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
-awful.spawn.once("picom")
-awful.spawn.once("telegram-desktop")
-awful.spawn.once("discord")
-awful.spawn.once("notion-snap")
-awful.spawn.once("mattermost-desktop")
+-- awful.spawn.once("picom")
+-- awful.spawn.once("telegram-desktop")
+-- awful.spawn.once("discord")
+-- awful.spawn.once("notion-snap")
+-- awful.spawn.once("mattermost-desktop")
 awful.spawn("xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080")
 
 -- Keyboard layout
