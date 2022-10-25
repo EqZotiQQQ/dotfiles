@@ -1,15 +1,22 @@
 ---------------------
 --  Gruvbox theme  --
 ---------------------
+-- Helper: -- https://www.htmlcsscolor.com/hex/000000
+---------------------
 
-local theme_dir = require("gears.filesystem").get_configuration_dir() .. "themes/default/"
+-- local theme_dir = require("gears.filesystem").get_configuration_dir() .. "themes/default/"
 local dpi = require("beautiful.xresources").apply_dpi
 
-local global = require("global")
+local global = require("global_settings")
+
+local icon_dir = os.getenv("HOME") .. "/.config/awesome/themes/app_icons/"
+
+local dynamic_theme = _G.dynamic_theme
+local theme_dir = _G.theme_dir
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = "~/Pictures/Wallpapers/LoneWolf.png"
+theme.wallpaper = "~/Pictures/LoneWolf.png"
 -- }}}
 
 -- {{{ Styles
@@ -70,14 +77,14 @@ theme.mouse_finder_color = "#d3869b"
 -- mouse_finder_[timeout|animate_timeout|radius|factor]
 -- }}}
 
-if global.dynamic_theme then
+if dynamic_theme then
     -- TODO: read color file and update colors, if dynamic_theme is enabled
     local success, xres = pcall(require, "colors")
     -- XXX: Work in progress temporary plug
     -- This will be removed as soon as color extraction program is finished
     success = true
     xres = {
-        wallpaper = "~/Pictures/Wallpapers/LoneWolf.png",
+        -- wallpaper = "~/Pictures/LoneWolf.png",
         foreground = "#e67979",
         background = "#221a26",
         cursorColor = "#e67979",
@@ -155,23 +162,23 @@ theme.menu_submenu_icon      = theme_dir .. "submenu.png"
 -- }}}
 
 -- {{{ Layout
-theme.layout_tile       = theme_dir .. "layouts/tile.png"
-theme.layout_tileleft   = theme_dir .. "layouts/tileleft.png"
-theme.layout_tilebottom = theme_dir .. "layouts/tilebottom.png"
-theme.layout_tiletop    = theme_dir .. "layouts/tiletop.png"
-theme.layout_fairv      = theme_dir .. "layouts/fairv.png"
-theme.layout_fairh      = theme_dir .. "layouts/fairh.png"
-theme.layout_spiral     = theme_dir .. "layouts/spiral.png"
-theme.layout_dwindle    = theme_dir .. "layouts/dwindle.png"
-theme.layout_max        = theme_dir .. "layouts/max.png"
-theme.layout_fullscreen = theme_dir .. "layouts/fullscreen.png"
-theme.layout_magnifier  = theme_dir .. "layouts/magnifier.png"
-theme.layout_popup      = theme_dir .. "layouts/magnifier.png"
-theme.layout_floating   = theme_dir .. "layouts/floating.png"
-theme.layout_cornernw   = theme_dir .. "layouts/cornernw.png"
-theme.layout_cornerne   = theme_dir .. "layouts/cornerne.png"
-theme.layout_cornersw   = theme_dir .. "layouts/cornersw.png"
-theme.layout_cornerse   = theme_dir .. "layouts/cornerse.png"
+theme.layout_tile       = theme_dir .. "/layouts/tile.png"
+theme.layout_tileleft   = theme_dir .. "/layouts/tileleft.png"
+theme.layout_tilebottom = theme_dir .. "/layouts/tilebottom.png"
+theme.layout_tiletop    = theme_dir .. "/layouts/tiletop.png"
+theme.layout_fairv      = theme_dir .. "/layouts/fairv.png"
+theme.layout_fairh      = theme_dir .. "/layouts/fairh.png"
+theme.layout_spiral     = theme_dir .. "/layouts/spiral.png"
+theme.layout_dwindle    = theme_dir .. "/layouts/dwindle.png"
+theme.layout_max        = theme_dir .. "/layouts/max.png"
+theme.layout_fullscreen = theme_dir .. "/layouts/fullscreen.png"
+theme.layout_magnifier  = theme_dir .. "/layouts/magnifier.png"
+theme.layout_popup      = theme_dir .. "/layouts/magnifier.png"
+theme.layout_floating   = theme_dir .. "/layouts/floating.png"
+theme.layout_cornernw   = theme_dir .. "/layouts/cornernw.png"
+theme.layout_cornerne   = theme_dir .. "/layouts/cornerne.png"
+theme.layout_cornersw   = theme_dir .. "/layouts/cornersw.png"
+theme.layout_cornerse   = theme_dir .. "/layouts/cornerse.png"
 -- }}}
 
 -- {{{ Titlebar
@@ -201,6 +208,14 @@ theme.titlebar_maximized_button_normal_active = theme_dir .. "titlebar/maximized
 theme.titlebar_maximized_button_focus_inactive  = theme_dir .. "titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_inactive = theme_dir .. "titlebar/maximized_normal_inactive.png"
 -- }}}
+-- }}}
+
+-- {{{
+theme.ic_icons = {
+    -- TODO
+    ["Chromium"] = icon_dir .. "chrome.svg",
+    ["telegram-desktop"] = icon_dir .. "tg_500.png",
+}
 -- }}}
 
 return theme

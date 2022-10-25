@@ -16,4 +16,10 @@ file_explorer = "nautilus"
 local dpi = require("beautiful.xresources").apply_dpi
 panel_size = dpi(50)
 
-panel_position  = "left"
+panel_position  = "top" --|left
+
+-- theme_dir = "~/.config/awesome/themes/xresources"
+theme_dir = "~/.config/awesome/themes/default"
+
+dynamic_theme = true
+

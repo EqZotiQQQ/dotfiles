@@ -15,10 +15,13 @@ local menu = require("menu")
 local beautiful = require("beautiful")
 
 local volume_widget = require("widgets.volume-widget.volume")
+require("global_settings")
 
 local client = _G.client
 local awesome = _G.awesome
 local modkey = _G.modkey
+local theme_dir = _G.theme_dir
+
 
 local function client_menu_toggle_fn()
     local instance = nil
@@ -34,7 +37,7 @@ local function client_menu_toggle_fn()
 end
 
 local function reload_color(c)
-    beautiful.init("~/.config/awesome/themes/xresources/theme.lua")
+    beautiful.init(theme_dir .. "/theme.lua")
     for s in _G.screen do
         _G.cosy_init_screen(s)
     end

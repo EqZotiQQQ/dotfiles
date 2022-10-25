@@ -101,7 +101,7 @@ local rules = {
     },
     {
         rule_any = {
-            class = {"mattermost-desktop"}
+            class = {"mattermost-desktop", "Mattermost", "Mattermost Desktop App"}
         },
         properties = {
             screen = screen.count()>1 and 2 or 1,

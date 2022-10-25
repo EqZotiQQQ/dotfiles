@@ -16,10 +16,6 @@ while [ $# -gt 0 ]
 do
     key="$1"
     case $key in
-        -c|--compton)
-            COMPTON=yes
-            shift
-            ;;
         -d|--debug)
             DEBUG=yes
             shift

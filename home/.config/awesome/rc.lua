@@ -6,18 +6,15 @@ require("global_settings")
 
 -- glob variables
 local awesome = _G.awesome
-
 local client = _G.client
-
 local root = _G.root
-
 local tag = _G.tag
-
 local screen = _G.screen
 local panel_size = _G.panel_size
 local panel_position = _G.panel_position
 local dpi = require("beautiful.xresources").apply_dpi
 local layout = require("layout")
+local theme_dir = _G.theme_dir
 
 -- https://awesomewm.org/apidoc/core_components/screen.html
 
@@ -34,12 +31,15 @@ local wibox = require("wibox")
 
 -- Theme handling library
 local beautiful = require("beautiful")
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
-beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
+
+
+beautiful.init(theme_dir .. "/theme.lua")
+
+-- beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/alena-aenami-witcher-1k.jpg"
 
 -- Notification library
 local naughty = require("naughty")
--- naughty.notify({ title = "Hello!", text = "You're idling", timeout = 0 })
+-- naughty.notify({ title = "Hello!", text = "You're idling\t".. theme_config_file, timeout = 0 })
 
 local menubar = require("menubar")
 
@@ -479,12 +479,20 @@ end)
 
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
+
+local time = os.date("*t")
+
+if time.hour < 9 and time.hour > 18 then
+    awful.spawn.once("telegram-desktop")
+    awful.spawn.once("discord")
+end
+if time.hour > 9 and time.hour < 18 then
+    awful.spawn.once("mattermost-desktop")
+end
+
+awful.spawn.once("notion-snap")
 awful.spawn.once("picom")
 
--- awful.spawn.once("telegram-desktop")
--- awful.spawn.once("discord")
--- awful.spawn.once("notion-snap")
--- awful.spawn.once("mattermost-desktop")
 awful.spawn("xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080")
 
 -- Keyboard layout
