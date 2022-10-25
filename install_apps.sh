@@ -79,6 +79,8 @@ for app in "${specific_apps[@]}"; do
     fi
 done
 
+mkdir -p ${HOME}/Pictures/Screenshots
+
 sudo snap install telegram-desktop
 sudo snap install clion --classic
 sudo snap install pycharm-community --classic
