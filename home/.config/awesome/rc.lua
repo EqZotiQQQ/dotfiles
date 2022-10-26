@@ -16,6 +16,8 @@ local dpi = require("beautiful.xresources").apply_dpi
 local layout = require("layout")
 local theme_dir = _G.theme_dir
 
+awesome.set_preferred_icon_size(64)
+
 -- https://awesomewm.org/apidoc/core_components/screen.html
 
 local terminal = _G.terminal
@@ -35,7 +37,7 @@ local beautiful = require("beautiful")
 
 beautiful.init(theme_dir .. "/theme.lua")
 
--- beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/alena-aenami-witcher-1k.jpg"
+beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
 
 -- Notification library
 local naughty = require("naughty")
@@ -490,6 +492,7 @@ if time.hour > 9 and time.hour < 18 then
     awful.spawn.once("mattermost-desktop")
 end
 
+awful.spawn.once("flameshot")
 awful.spawn.once("notion-snap")
 awful.spawn.once("picom")
 

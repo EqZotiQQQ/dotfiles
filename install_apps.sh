@@ -50,7 +50,8 @@ sudo apt install -y         \
   frei0r-plugins \ 
   lua-posix \
   rofi \
-  libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake 
+  libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake \
+  flameshot
 
 
 function configure_git() {

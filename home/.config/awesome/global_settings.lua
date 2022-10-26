@@ -23,3 +23,11 @@ theme_dir = "~/.config/awesome/themes/default"
 
 dynamic_theme = true
 
+-- shift       Shift_L (0x32),  Shift_R (0x3e)
+-- lock        Caps_Lock (0x42)
+-- control     Control_L (0x25),  Control_R (0x69)
+-- mod1        Alt_L (0x40),  Meta_L (0xcd)
+-- mod2        Num_Lock (0x94)
+-- mod3      
+-- mod4        Super_R (0x86),  Super_L (0xce),  Hyper_L (0xcf)
+-- mod5        ISO_Level3_Shift (0x5c),  ISO_Level3_Shift (0x6c),  Mode_switch (0x85),  Mode_switch (0xcb)
