@@ -11,12 +11,14 @@ local awesome = _G.awesome
 -- Standard awesome library
 local awful = require("awful")
 
+local global = require("global_settings")
+
 local hotkeys_popup = require("awful.hotkeys_popup")
 
 -- This is used later as the default terminal and editor to run.
-local terminal = _G.terminal
-local editor_cmd = _G.editor_cmd
-local file_explorer = _G.file_explorer
+local terminal = global.terminal
+local editor_cmd = global.editor_cmd
+local file_explorer = global.file_explorer
 
 local menu_power = {
     {"Power Off", "poweroff"},

@@ -2,7 +2,7 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 -- pcall(require, "luarocks.loader")
 
-require("global_settings")
+local globals = require("global_settings")
 
 -- glob variables
 local awesome = _G.awesome
@@ -10,17 +10,23 @@ local client = _G.client
 local root = _G.root
 local tag = _G.tag
 local screen = _G.screen
-local panel_size = _G.panel_size
-local panel_position = _G.panel_position
+
+
+local panel_size = globals.panel_size
+local panel_position = globals.panel_position
+
+-- Theme handling library
+local beautiful = require("beautiful")
 local dpi = require("beautiful.xresources").apply_dpi
 local layout = require("layout")
-local theme_dir = _G.theme_dir
+local theme_dir = globals.theme_dir
+beautiful.init(theme_dir .. "/theme.lua")
 
 awesome.set_preferred_icon_size(64)
 
 -- https://awesomewm.org/apidoc/core_components/screen.html
 
-local terminal = _G.terminal
+local terminal = globals.terminal
 
 -- Standard awesome library
 local gears = require("gears")
@@ -31,13 +37,6 @@ require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
 
--- Theme handling library
-local beautiful = require("beautiful")
-
-
-beautiful.init(theme_dir .. "/theme.lua")
-
-beautiful.get().wallpaper = os.getenv("HOME") .. "/Pictures/LoneWolf.png"
 
 -- Notification library
 local naughty = require("naughty")

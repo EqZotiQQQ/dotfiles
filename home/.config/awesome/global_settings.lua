@@ -3,25 +3,25 @@
 -- If you do not like this or do not have such a key,
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = "Mod4"
 
--- This is used later as the default terminal and editor to run.
-terminal = "kitty"
-
-local editor = os.getenv("EDITOR") or "neovim"
-editor_cmd = terminal .. " -e " .. editor
-
-file_explorer = "nautilus"
 
 local dpi = require("beautiful.xresources").apply_dpi
-panel_size = dpi(50)
 
-panel_position  = "top" --|left
+local global = {
+    terminal        = "kitty",
+    modkey          = "Mod4",
+    file_explorer   = "nautilus",
+    panel_size      = dpi(50),
+    panel_position  = "top", --|left
+    theme_dir       = "~/.config/awesome/themes/default", -- "~/.config/awesome/themes/xresources"
+    editor          = os.getenv("EDITOR") or "vim",
+    dynamic_theme   = false,
+    wallpaper       = "~/Pictures/halloween.jpg",
+}
 
--- theme_dir = "~/.config/awesome/themes/xresources"
-theme_dir = "~/.config/awesome/themes/default"
+global.editor_cmd   = global.terminal .. " -e " .. global.editor
 
-dynamic_theme = true
+return global
 
 -- shift       Shift_L (0x32),  Shift_R (0x3e)
 -- lock        Caps_Lock (0x42)

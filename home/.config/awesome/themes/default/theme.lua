@@ -11,12 +11,12 @@ local global = require("global_settings")
 
 local icon_dir = os.getenv("HOME") .. "/.config/awesome/themes/app_icons/"
 
-local dynamic_theme = _G.dynamic_theme
-local theme_dir = _G.theme_dir
+local dynamic_theme = global.dynamic_theme
+local theme_dir = global.theme_dir
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = "~/Pictures/LoneWolf.png"
+theme.wallpaper = global.wallpaper
 -- }}}
 
 -- {{{ Styles
@@ -84,7 +84,7 @@ if dynamic_theme then
     -- This will be removed as soon as color extraction program is finished
     success = true
     xres = {
-        -- wallpaper = "~/Pictures/LoneWolf.png",
+        wallpaper = "~/Pictures/helloween.png",
         foreground = "#e67979",
         background = "#221a26",
         cursorColor = "#e67979",
