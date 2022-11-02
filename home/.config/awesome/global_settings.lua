@@ -14,7 +14,7 @@ local global = {
     panel_size      = dpi(50),
     panel_position  = "top", --|left
     theme_dir       = "~/.config/awesome/themes/default", -- "~/.config/awesome/themes/xresources"
-    editor          = os.getenv("EDITOR") or "vim",
+    editor          = os.getenv("EDITOR") or "neovim",
     dynamic_theme   = false,
     wallpaper       = "~/Pictures/halloween.jpg",
 }

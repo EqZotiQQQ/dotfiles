@@ -7,7 +7,8 @@
 
 require("awful.hotkeys_popup.keys")
 
-local terminal = _G.terminal
+local global = require("global_settings")
+
 local hotkeys_popup = require("awful.hotkeys_popup")
 local awful = require("awful")
 local gears = require("gears")
@@ -15,13 +16,13 @@ local menu = require("menu")
 local beautiful = require("beautiful")
 
 local volume_widget = require("widgets.volume-widget.volume")
-local global = require("global_settings")
 
 local client = _G.client
 local awesome = _G.awesome
 
 local modkey = global.modkey
 local theme_dir = global.theme_dir
+local terminal = global.terminal
 
 
 local function client_menu_toggle_fn()
@@ -127,7 +128,7 @@ bindings.keyboard = {
             {description = "restore minimized", group = "client"}),
 
         -- Rofi
-        awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
+        awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
 
         awful.key({ modkey }, "x",
             function ()
