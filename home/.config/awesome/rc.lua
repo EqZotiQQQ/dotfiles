@@ -14,19 +14,18 @@ local screen = _G.screen
 
 local panel_size = globals.panel_size
 local panel_position = globals.panel_position
+local terminal = globals.terminal
 
 -- Theme handling library
 local beautiful = require("beautiful")
 local dpi = require("beautiful.xresources").apply_dpi
 local layout = require("layout")
-local theme_dir = globals.theme_dir
-beautiful.init(theme_dir .. "/theme.lua")
+beautiful.init(globals.theme_dir .. "/theme.lua")
 
 awesome.set_preferred_icon_size(64)
 
 -- https://awesomewm.org/apidoc/core_components/screen.html
 
-local terminal = globals.terminal
 
 -- Standard awesome library
 local gears = require("gears")
@@ -44,8 +43,6 @@ local naughty = require("naughty")
 
 local menubar = require("menubar")
 
-local menu = require("menu")
-
 -- User library
 local cosy = require("cosy")
 
@@ -62,7 +59,6 @@ require("rules")
 
 -- Vol widget
 local volume_widget = require("widgets.volume-widget.volume")
-local cpu_widget = require("widgets.cpu-widget.cpu-widget")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -119,21 +115,9 @@ awful.layout.layouts = {
 }
 -- }}}
 
--- {{{ Menu
-
-local launcher = awful.widget.launcher({
-    image = beautiful.awesome_icon,
-    menu = menu.main
-})
-
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
-
--- {{{ Wibar
--- Create a textclock widget
-local mytextclock = wibox.widget.textclock()
-
 
 local function set_wallpaper(s)
     -- Wallpaper
@@ -161,57 +145,6 @@ screen.connect_signal("property::geometry", set_wallpaper)
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 -- screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
-function _G.init_screen(screen)
-
-    -- Create a promptbox for each screen
-    screen.mypromptbox = awful.widget.prompt()
-    -- Create an imagebox widget which will contain an icon indicating which layout we're using.
-    -- We need one layoutbox per screen.
-    screen.mylayoutbox = awful.widget.layoutbox(screen)
-    screen.mylayoutbox:buttons(gears.table.join(
-                           awful.button({ }, 1, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 3, function () awful.layout.inc(-1) end),
-                           awful.button({ }, 4, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 5, function () awful.layout.inc(-1) end)))
-    -- Create a taglist widget
-    screen.mytaglist = awful.widget.taglist {
-        screen  = screen,
-        filter  = awful.widget.taglist.filter.all,
-        buttons = keybindings.taglist_mouse
-    }
-
-    -- Create a tasklist widget
-    screen.mytasklist = awful.widget.tasklist {
-        screen  = screen,
-        filter  = awful.widget.tasklist.filter.currenttags,
-        buttons = keybindings.tasklist_mouse
-    }
-
-    -- Create the wibox
-    screen.mywibox = awful.wibar({ position = "top", screen = screen })
-
-    -- Add widgets to the wibox
-    screen.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left widgets
-            layout = wibox.layout.fixed.horizontal,
-            launcher,
-            screen.mytaglist,
-            screen.mypromptbox,
-        },
-        screen.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            keyboardlayout,
-            wibox.widget.systray(),
-            mytextclock,
-            screen.mylayoutbox,
-            cpu_widget(),
-            volume_widget{widget_type = 'arc'}, -- customized
-        },
-    }
-end
-
 function _G.cosy_init_screen(s)
     s.cava = cosy.widget.desktop.cava(
         s,
@@ -227,7 +160,14 @@ function _G.cosy_init_screen(s)
         x = panel_position == "left" and panel_size or 0,
         y = panel_position == "top" and panel_size or 0,
     }
-    s.rings = cosy.widget.desktop.rings(s, { x = panel_offset.x + 25, y = panel_offset.y + 20 })
+    
+    s.rings = cosy.widget.desktop.rings(
+        s,
+        {
+            x = panel_offset.x + 25, -- ring position X
+            y = panel_offset.y + 20  -- ring position Y
+        }
+    )
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -324,15 +264,14 @@ function _G.cosy_init_screen(s)
     }
 end
 
-awful.screen.connect_for_each_screen(function(screen)
+awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
-    set_wallpaper(screen)
+    set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, screen, awful.layout.layouts[1])
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    -- _G.init_screen(screen)
-    _G.cosy_init_screen(screen)
+    _G.cosy_init_screen(s)
 end)
 -- }}}
 
@@ -481,18 +420,19 @@ end)
 awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
 
 
-local time = os.date("*t")
+local hour = os.date("*t").hour
+local wday = os.date("*t").wday
 
-if time.hour < 9 and time.hour > 18 then
-    awful.spawn.once("telegram-desktop")
+if (hour < 9 and hour > 18) or wday > 6 then
     awful.spawn.once("discord")
 end
-if time.hour > 9 and time.hour < 18 then
+if (hour > 9 and hour < 18) and wday < 6 then
     awful.spawn.once("mattermost-desktop")
 end
 
+awful.spawn.once("telegram-desktop")
 awful.spawn.once("flameshot")
-awful.spawn.once("notion-snap")
+-- awful.spawn.once("notion-snap")
 awful.spawn.once("picom")
 
 awful.spawn("xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080")
