@@ -284,7 +284,8 @@ awful.screen.connect_for_each_screen(
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
-client.connect_signal("manage",
+client.connect_signal(
+    "manage",
     function (c)
         -- Set the windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
@@ -300,62 +301,68 @@ client.connect_signal("manage",
 )
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
-client.connect_signal("request::titlebars", function(c)
-    -- buttons for the titlebar
-    local buttons = gears.table.join(
-        awful.button({ }, 1,
-            function()
-                c:emit_signal("request::activate", "titlebar", {raise = true})
-                awful.mouse.client.move(c)
-            end
-        ),
-        awful.button({ }, 3,
-            function()
-                c:emit_signal("request::activate", "titlebar", {raise = true})
-                awful.mouse.client.resize(c)
-            end
+client.connect_signal(
+    "request::titlebars",
+    function(c)
+        -- buttons for the titlebar
+        local buttons = gears.table.join(
+            awful.button({ }, 1,
+                function()
+                    c:emit_signal("request::activate", "titlebar", {raise = true})
+                    awful.mouse.client.move(c)
+                end
+            ),
+            awful.button({ }, 3,
+                function()
+                    c:emit_signal("request::activate", "titlebar", {raise = true})
+                    awful.mouse.client.resize(c)
+                end
+            )
         )
-    )
 
-    awful.titlebar(c) : setup {
-        { -- Left
-            awful.titlebar.widget.iconwidget(c),
-            buttons = buttons,
-            layout  = wibox.layout.fixed.horizontal
-        },
-        { -- Middle
-            { -- Title
-                align  = "center",
-                widget = awful.titlebar.widget.titlewidget(c)
+        awful.titlebar(c) : setup {
+            { -- Left
+                awful.titlebar.widget.iconwidget(c),
+                buttons = buttons,
+                layout  = wibox.layout.fixed.horizontal
             },
-            buttons = buttons,
-            layout  = wibox.layout.flex.horizontal
-        },
-        { -- Right
-            awful.titlebar.widget.floatingbutton (c),
-            awful.titlebar.widget.maximizedbutton(c),
-            awful.titlebar.widget.stickybutton   (c),
-            awful.titlebar.widget.ontopbutton    (c),
-            awful.titlebar.widget.closebutton    (c),
-            layout = wibox.layout.fixed.horizontal()
-        },
-        layout = wibox.layout.align.horizontal
-    }
-end)
+            { -- Middle
+                { -- Title
+                    align  = "center",
+                    widget = awful.titlebar.widget.titlewidget(c)
+                },
+                buttons = buttons,
+                layout  = wibox.layout.flex.horizontal
+            },
+            { -- Right
+                awful.titlebar.widget.floatingbutton (c),
+                awful.titlebar.widget.maximizedbutton(c),
+                awful.titlebar.widget.stickybutton   (c),
+                awful.titlebar.widget.ontopbutton    (c),
+                awful.titlebar.widget.closebutton    (c),
+                layout = wibox.layout.fixed.horizontal()
+            },
+            layout = wibox.layout.align.horizontal
+        }
+    end
+)
 
 -- Enable sloppy focus, so that focus follows mouse.
-client.connect_signal("mouse::enter",
+client.connect_signal(
+    "mouse::enter",
     function(c)
         c:emit_signal("request::activate", "mouse_enter", {raise = false})
     end
 )
 
-client.connect_signal("focus",
+client.connect_signal(
+    "focus",
     function(c)
         c.border_color = beautiful.border_focus
     end
 )
-client.connect_signal("unfocus",
+client.connect_signal(
+    "unfocus",
     function(c)
         c.border_color = beautiful.border_normal
     end
@@ -363,62 +370,77 @@ client.connect_signal("unfocus",
 
 local floatgeoms = {}
 
-client.connect_signal("manage", function (c)
-    -- Set the windows at the slave,
-    if not awesome.startup then awful.client.setslave(c) end
+client.connect_signal(
+    "manage",
+     function (c)
+        -- Set the windows at the slave,
+        if not awesome.startup then awful.client.setslave(c) end
 
-    -- Set floating if slave window is created on popup layout
-    -- TODO: Consider if more elegant solution is possible
-    if awful.layout.get(c.screen) == layout.popup
-        and cosy.util.table_count(c.first_tag:clients()) > 1
-    then
-        c.floating = true
-        awful.placement.no_offscreen(c)
-    end
+        -- Set floating if slave window is created on popup layout
+        -- TODO: Consider if more elegant solution is possible
+        if awful.layout.get(c.screen) == layout.popup
+            and cosy.util.table_count(c.first_tag:clients()) > 1
+        then
+            c.floating = true
+            awful.placement.no_offscreen(c)
+        end
 
-    -- Save floating client geometry
-    if cosy.util.client_free_floating(c) then
-        floatgeoms[c.window] = c:geometry()
-    end
+        -- Save floating client geometry
+        if cosy.util.client_free_floating(c) then
+            floatgeoms[c.window] = c:geometry()
+        end
 
-    if awesome.startup
-        and not c.size_hints.user_position
-        and not c.size_hints.program_position
-    then
-        -- Prevent clients from being unreachable after screen count changes.
-        awful.placement.no_offscreen(c)
+        if awesome.startup
+            and not c.size_hints.user_position
+            and not c.size_hints.program_position
+        then
+            -- Prevent clients from being unreachable after screen count changes.
+            awful.placement.no_offscreen(c)
+        end
     end
-end)
+)
 
 -- FIXME: Exclude titlebar from geometry
 -- XXX: There seems to be a weird behavior with property::floating signal. It is not sent when maximized and fullscreen
 -- property changes of clients originally created on other than floating tag layouts and sent otherwise
-client.connect_signal("property::floating", function(c)
-    if cosy.util.client_free_floating(c) then
-        c:geometry(floatgeoms[c.window])
-    end
-    cosy.util.manage_titlebar(c)
-end)
-
-tag.connect_signal("property::layout", function(t)
-    for _, c in pairs(t:clients()) do
+client.connect_signal(
+    "property::floating",
+    function(c)
         if cosy.util.client_free_floating(c) then
             c:geometry(floatgeoms[c.window])
         end
         cosy.util.manage_titlebar(c)
     end
-end)
+)
 
-client.connect_signal("property::geometry", function(c)
-    if cosy.util.client_free_floating(c) then
-        floatgeoms[c.window] = c:geometry()
+tag.connect_signal(
+    "property::layout",
+    function(t)
+        for _, c in pairs(t:clients()) do
+            if cosy.util.client_free_floating(c) then
+                c:geometry(floatgeoms[c.window])
+            end
+            cosy.util.manage_titlebar(c)
+        end
     end
-end)
+)
 
-client.connect_signal("unmanage", function(c)
-    floatgeoms[c.window] = nil
-    awful.client.focus.byidx(-1)
-end)
+client.connect_signal(
+    "property::geometry",
+        function(c)
+        if cosy.util.client_free_floating(c) then
+            floatgeoms[c.window] = c:geometry()
+        end
+    end
+)
+
+client.connect_signal(
+    "unmanage",
+        function(c)
+        floatgeoms[c.window] = nil
+        awful.client.focus.byidx(-1)
+    end
+)
 
 
 -- }}}
