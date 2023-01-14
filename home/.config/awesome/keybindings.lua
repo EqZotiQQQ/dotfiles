@@ -141,8 +141,8 @@ bindings.keyboard = {
             end,
             {description = "lua execute prompt", group = "awesome"}),
 
-        -- FlameShot
         awful.key({ modkey,          }, "l",         function()      awful.util.spawn("multilockscreen -l ~/Pictures/witcher.png")                  end, {description = "Lock screen",            group = "awesome"}),
+        -- FlameShot
         awful.key({                  }, "Print",     function()      awful.spawn.with_shell("flameshot screen --clipboard")                         end, {description = "Take a screenshot of focused screen",  group = "media" }),
         awful.key({ "Control"        }, "Print",     function()      awful.spawn.with_shell("flameshot screen --path ~/Pictures/Screenshots/")      end, {description = "Interactive screenshot",               group = "media" }),
         awful.key({ modkey           }, "Print",     function()      awful.spawn.with_shell("flameshot gui")                                        end, {description = "Interactive screenshot to clipboard",  group = "media" }),

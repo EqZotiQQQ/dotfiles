@@ -1,0 +1,1 @@
+xrandr --output DP-2 --primary --mode 2560x1440 -r 240 --rotate normal --output DP-0 --mode 1920x1080 --rotate normal -r 60

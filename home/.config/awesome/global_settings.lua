@@ -16,7 +16,7 @@ local global = {
     theme_dir       = "~/.config/awesome/themes/default", -- "~/.config/awesome/themes/xresources"
     editor          = os.getenv("EDITOR") or "neovim",
     dynamic_theme   = false,
-    wallpaper       = "~/Pictures/halloween.jpg",
+    wallpaper       = "~/Pictures/1.jpg",
 }
 
 global.editor_cmd   = global.terminal .. " -e " .. global.editor

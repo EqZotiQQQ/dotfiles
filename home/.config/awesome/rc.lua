@@ -156,34 +156,39 @@ function _G.cosy_init_screen(s)
             update_time = 0.05
         })
     
-    local panel_offset = {
-        x = panel_position == "left" and panel_size or 0,
-        y = panel_position == "top" and panel_size or 0,
-    }
+    -- local panel_offset = {
+    --     x = panel_position == "left" and panel_size or 0,
+    --     y = panel_position == "top" and panel_size or 0,
+    -- }
     
-    s.rings = cosy.widget.desktop.rings(
-        s,
-        {
-            x = panel_offset.x + 25, -- ring position X
-            y = panel_offset.y + 20  -- ring position Y
-        }
-    )
+    -- s.rings = cosy.widget.desktop.rings(
+    --     s,
+    --     {
+    --         x = panel_offset.x + 25, -- ring position X
+    --         y = panel_offset.y + 20  -- ring position Y
+    --     }
+    -- )
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     s.layoutbox = awful.widget.layoutbox(s)
-    s.layoutbox:buttons(gears.table.join(
-                           awful.button({ }, 1, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 3, function () awful.layout.inc(-1) end),
-                           awful.button({ }, 4, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 5, function () awful.layout.inc(-1) end)))
+    s.layoutbox:buttons(
+                        gears.table.join(
+                            awful.button({ }, 1, function () awful.layout.inc( 1) end),
+                            awful.button({ }, 3, function () awful.layout.inc(-1) end),
+                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
+                            awful.button({ }, 5, function () awful.layout.inc(-1) end)
+                        )
+                    )
 
-    local focus_gradient = gears.color.create_linear_pattern({
+    local focus_gradient = gears.color.create_linear_pattern(
+        {
             type = "linear",
             from = {0, 0},
             to = {panel_size, 0},
             stops = { {0, beautiful.bg_focus.."f0"}, {1, beautiful.bg_focus.."00"} }
-        })
+        }
+    )
 
     local panel_orientation =
         (panel_position == "left" or panel_position == "right")
@@ -264,31 +269,35 @@ function _G.cosy_init_screen(s)
     }
 end
 
-awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper
-    set_wallpaper(s)
+awful.screen.connect_for_each_screen(
+    function(s)
+        -- Wallpaper
+        set_wallpaper(s)
 
-    -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+        -- Each screen has its own tag table.
+        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    _G.cosy_init_screen(s)
-end)
+        _G.cosy_init_screen(s)
+    end
+)
 -- }}}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
-client.connect_signal("manage", function (c)
-    -- Set the windows at the slave,
-    -- i.e. put it at the end of others instead of setting it master.
-    -- if not awesome.startup then awful.client.setslave(c) end
+client.connect_signal("manage",
+    function (c)
+        -- Set the windows at the slave,
+        -- i.e. put it at the end of others instead of setting it master.
+        -- if not awesome.startup then awful.client.setslave(c) end
 
-    if awesome.startup
-      and not c.size_hints.user_position
-      and not c.size_hints.program_position then
-        -- Prevent clients from being unreachable after screen count changes.
-        awful.placement.no_offscreen(c)
+        if awesome.startup
+        and not c.size_hints.user_position
+        and not c.size_hints.program_position then
+            -- Prevent clients from being unreachable after screen count changes.
+            awful.placement.no_offscreen(c)
+        end
     end
-end)
+)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal("request::titlebars", function(c)
@@ -417,9 +426,6 @@ end)
 -- Autostart
 -- awful.spawn.with_shell("app --some-flags")
 
-awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
-
-
 local hour = os.date("*t").hour
 local wday = os.date("*t").wday
 
@@ -432,10 +438,7 @@ end
 
 awful.spawn.once("telegram-desktop")
 awful.spawn.once("flameshot")
--- awful.spawn.once("notion-snap")
 awful.spawn.once("picom")
 
-awful.spawn("xrandr --output DP-2 --primary --mode 2560x1440 --rate 239.96 --output DP-0 --mode 1920x1080")
-
 -- Keyboard layout
--- kbdcfg.layout = { { "us", "" }, { "ru,us", "phonetic" } }
+awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")

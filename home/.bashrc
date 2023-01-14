@@ -15,10 +15,6 @@ esac
 
 # When Bash is invoked as an interactive non-login shell, it reads and executes commands from ~/.bashrc, if that file exists, and it is readable.
 
-if [[ -d "${HOME}/.cargo/bin" ]]; then
-    export PATH="$HOME/.cargo/bin:$PATH"
-fi
-
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -126,4 +122,3 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-

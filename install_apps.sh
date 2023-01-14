@@ -1,91 +1,108 @@
 #!/usr/bin/env bash
 
+git submodule update --init --recursive
+
+mkdir -p ${HOME}/open_source
+
 sudo apt update
 sudo apt upgrade -y
 
-sudo apt install -y         \
-  curl                      \
-  htop                      \
-  openssh-server            \
-  gcc                       \
-  make                      \
-  zlib1g-dev                \
-  cmake                     \
-  clang                     \
-  vim                       \
-  neovim                    \
-  awesome-extra             \
-  feh                       \
-  libssl-dev                \
-  zsh                       \
-  kitty                     \
-  python3                   \
-  python3-pip               \
-  default-jdk               \
-  openssl                   \
-  tree                      \
-  zsh-autosuggestions       \
-  g++                       \
-  libjsoncpp-dev            \
-  uuid-dev                  \
-  docker                    \
-  docker-compose            \
-  bash                      \
-  postgresql-server-dev-all \
-  libmariadbclient-dev      \
-  libmariadbclient-dev      \
-  clang-12                  \
-  lldb-12                   \
-  lld-12                    \
-  libmariadb-dev \
-  lightdm \
-  i3lock imagemagick scrot \
-  autoconf gcc make pkg-config libpam0g-dev libcairo2-dev \
-  libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev \
-  libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev \
-   libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev \
-  linux-tools-$(uname -r) \
-  libxext-dev libxcb1-dev libxcb-damage0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-render-util0-dev libxcb-render0-dev libxcb-randr0-dev libxcb-composite0-dev libxcb-image0-dev libxcb-present-dev libxcb-xinerama0-dev libxcb-glx0-dev libpixman-1-dev libdbus-1-dev libconfig-dev libgl-dev libegl-dev libpcre2-dev libpcre3-dev libevdev-dev uthash-dev libev-dev libx11-xcb-dev meson \
-  maim\
-  frei0r-plugins \ 
-  lua-posix \
-  rofi \
-  libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool automake \
-  flameshot
+
+# C++ Compilers
+sudo apt install -y \
+    gcc \
+    clang
 
 
-function configure_git() {
-    git config --global merge.tool vimdiff
-    git config --global user.name "Mikhail Fedyakov"
-    git config --global user.email mf_52@mail.ru
-    git config --global core.editor "vim"
-}
+# C++ build tools
+sudo apt install -y \
+    cmake \
+    make \
+    ninja-build \
+    meson \
+    libstdc++-12-dev \
+    libstdc++-11-dev \
+    libc++abi-14-dev # clang libc
 
-function configure_zsh() {
-    chsh -s $(which zsh)
-}
 
-function configure_kitty() {
-    cd .fonts
-    fc-cache -fv
-}
+# Py tools
+sudo apt install -y \
+    python3-pip \
+    python3.10-distutils
 
-specific_apps=(git zsh kitty)
-for app in "${specific_apps[@]}"; do
-    cd ~
-    status=$(package_installed $app)
-    echo "status = $status"
-    if [ "$status" = "$app installed" ]; then
-        configure_$app
-    fi
-done
 
+# lua
+sudo apt install -y \
+    lua-posix
+
+
+# Kitty term
+sudo apt install -y \
+    kitty \
+    feh
+cd $HOME/.fonts
+fc-cache -fv # scan font dir and generate font cache
+
+
+# Awesome wm
+sudo apt install -y \
+    awesome-extra
+
+
+# zsh
+sudo apt install -y \
+    zsh \
+    zsh-autosuggestions
+chsh -s $(which zsh) # set zsh by default
+
+
+# docker related
+sudo apt install -y \
+    docker \
+    docker-compose
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
+
+
+# git
+sudo apt install -y \
+    git
+git config --global merge.tool vimdiff
+
+
+# neovim
+sudo apt install -y \
+    neovim
+
+
+# screenshot tool
+sudo apt install -y \
+    flameshot
 mkdir -p ${HOME}/Pictures/Screenshots
 
+
+# perf
+sudo apt install -y \
+    linux-tools-$(uname -r)
+
+
+# Rust
+sudo apt install -y \
+    curl \
+    build-essential
+
+
+# Utils
+sudo apt install -y
+    htop
+
+
+# Beauty login screens
+sudo apt install -y
+    lightdm
+
+
 sudo snap install telegram-desktop
-sudo snap install clion --classic
-sudo snap install pycharm-community --classic
 sudo snap install vlc
-sudo snap install chromium
 sudo snap install discord
-sudo snap install notion-snap

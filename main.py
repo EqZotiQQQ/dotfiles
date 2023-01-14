@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import argparse
 import logging
 import pathlib
@@ -7,16 +9,13 @@ from app_settings import AppSettings
 
 logging.basicConfig(level=logging.INFO)
 
-
 def recursive_update_symlinks(source: pathlib.Path, dst: pathlib.Path) -> None:
-    logging.info(f"Source: {source}\n"
-                 f"Destination: {dst}")
+    logging.info(f"Source: {source}\n" f"Destination: {dst}")
     for source_file in source.iterdir():
         src_name = source_file.name
         p = dst / src_name
         if source_file.is_file():
             try:
-            # if not p.exists():
                 p.symlink_to(source_file)
             except:
                 p.unlink()
@@ -41,6 +40,3 @@ if __name__ == '__main__':
 
     if settings.install_ubuntu_apps:
         ret = subprocess.call("./install_apps.sh", shell=True)
-
-
-
