@@ -12,12 +12,12 @@ local signals = {
     },
     request = {
         titlebars = "request::titlebars", -- Emited when a client need to get a titlebar
-        activate = "request::activate", -- Emited when a client should get activated 
+        activate = "request::activate", -- Emited when a client should get activated
     },
     property = {
-        geometry = "property::geometry", -- Emited on resolution change??
-        layout = "property::layout",
-        floating = "property::floating", -- inokes while free or tiled layout.
+        geometry = "property::geometry", -- Emited on client window size change, on layout changes and window position
+        layout = "property::layout", -- Emit on layout change
+        floating = "property::floating", -- inokes while free or tiled layout
     },
     debug = {
         error = "debug::error",
