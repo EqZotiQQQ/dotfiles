@@ -5,16 +5,18 @@ local signals = {
     on_unmanage = "unmanage", -- signal invokes when clien destroyed
     on_focus = "focus", -- signal invokes when app focused
     on_unfocus = "unfocus", -- signal invokes when app unfocues
-    floating = {
-        property_floating = "property::floating", -- inokes while free or tiled layout.
-    },
     mouse = {
-        on_enter = "enter",
-        on_leave = "leave",
-        on_move = "move",
+        on_enter = "mouse::enter",
+        on_leave = "mouse::leave",
+        on_move = "mouse::move",
     },
     request = {
         on_titlebars = "request::titlebars",
+    },
+    property = {
+        geometry = "geometry",
+        layout = "layout",
+        floating = "floating", -- inokes while free or tiled layout.
     },
 }
 

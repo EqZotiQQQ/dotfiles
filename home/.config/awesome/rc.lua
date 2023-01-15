@@ -46,6 +46,8 @@ local menubar = require("menubar")
 -- User library
 local cosy = require("cosy")
 
+local client_signals = require("signals.client_signals")
+local d = require("cosy.dbg")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -120,6 +122,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 local function set_wallpaper(s)
+    d.notify("set_wallpaper")
     -- Wallpaper
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
@@ -146,6 +149,7 @@ screen.connect_signal("property::geometry", set_wallpaper)
 -- screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
 function _G.cosy_init_screen(s)
+    d.notify("_G.cosy_init_screen")
     s.cava = cosy.widget.desktop.cava(
         s,
         {
@@ -271,6 +275,7 @@ end
 
 awful.screen.connect_for_each_screen(
     function(s)
+        d.notify("awful.screen.connect_for_each_screen")
         -- Wallpaper
         set_wallpaper(s)
 
@@ -285,8 +290,9 @@ awful.screen.connect_for_each_screen(
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal(
-    "manage",
+    client_signals.on_manage,
     function (c)
+        d.notify("manage")
         -- Set the windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
         -- if not awesome.startup then awful.client.setslave(c) end
@@ -302,8 +308,9 @@ client.connect_signal(
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal(
-    "request::titlebars",
+    client_signals.request.on_titlebars,
     function(c)
+        d.notify("request::titlebars")
         -- buttons for the titlebar
         local buttons = gears.table.join(
             awful.button({ }, 1,
@@ -349,21 +356,24 @@ client.connect_signal(
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal(
-    "mouse::enter",
+    client_signals.mouse.on_enter,
     function(c)
+        d.notify("mouse::enter")
         c:emit_signal("request::activate", "mouse_enter", {raise = false})
     end
 )
 
 client.connect_signal(
-    "focus",
+    client_signals.on_focus,
     function(c)
+        d.notify("focus")
         c.border_color = beautiful.border_focus
     end
 )
 client.connect_signal(
-    "unfocus",
+    client_signals.on_unfocus,
     function(c)
+        d.notify("unfocus")
         c.border_color = beautiful.border_normal
     end
 )
@@ -371,8 +381,9 @@ client.connect_signal(
 local floatgeoms = {}
 
 client.connect_signal(
-    "manage",
-     function (c)
+    client_signals.on_manage,
+    function (c)
+        d.notify("manage")
         -- Set the windows at the slave,
         if not awesome.startup then awful.client.setslave(c) end
 
@@ -404,8 +415,9 @@ client.connect_signal(
 -- XXX: There seems to be a weird behavior with property::floating signal. It is not sent when maximized and fullscreen
 -- property changes of clients originally created on other than floating tag layouts and sent otherwise
 client.connect_signal(
-    "property::floating",
+    client_signals.property.floating,
     function(c)
+        d.notify("property::floating")
         if cosy.util.client_free_floating(c) then
             c:geometry(floatgeoms[c.window])
         end
@@ -414,8 +426,9 @@ client.connect_signal(
 )
 
 tag.connect_signal(
-    "property::layout",
+    client_signals.property.layout,
     function(t)
+        d.notify("property::layout")
         for _, c in pairs(t:clients()) do
             if cosy.util.client_free_floating(c) then
                 c:geometry(floatgeoms[c.window])
@@ -426,8 +439,9 @@ tag.connect_signal(
 )
 
 client.connect_signal(
-    "property::geometry",
-        function(c)
+    client_signals.property.geometry,
+    function(c)
+        d.notify("property::geometry")
         if cosy.util.client_free_floating(c) then
             floatgeoms[c.window] = c:geometry()
         end
@@ -435,8 +449,9 @@ client.connect_signal(
 )
 
 client.connect_signal(
-    "unmanage",
-        function(c)
+    client_signals.on_unmanage,
+    function(c)
+        d.notify("unmanage")
         floatgeoms[c.window] = nil
         awful.client.focus.byidx(-1)
     end
