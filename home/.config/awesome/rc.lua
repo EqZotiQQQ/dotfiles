@@ -36,11 +36,8 @@ require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
 
-
 -- Notification library
 local naughty = require("naughty")
--- naughty.notify({ title = "Hello!", text = "You're idling\t".. theme_config_file, timeout = 0 })
-
 local menubar = require("menubar")
 
 -- User library
@@ -76,7 +73,8 @@ end
 -- Handle runtime errors after startup
 do
     local in_error = false
-    awesome.connect_signal("debug::error",
+    awesome.connect_signal(
+        client_signals.debug.error,
         function (err)
             -- Make sure we don't go into an endless error loop
             if in_error then
@@ -103,17 +101,6 @@ awful.layout.layouts = {
     awful.layout.suit.tile.left,
     awful.layout.suit.fair,
     awful.layout.suit.max,
-    -- awful.layout.suit.spiral,
-    -- awful.layout.suit.tile.bottom,
-    -- awful.layout.suit.tile.top,
-    -- awful.layout.suit.fair.horizontal,
-    -- awful.layout.suit.spiral.dwindle,
-    -- awful.layout.suit.max.fullscreen,
-    -- awful.layout.suit.magnifier,
-    -- awful.layout.suit.corner.nw,
-    -- awful.layout.suit.corner.ne,
-    -- awful.layout.suit.corner.sw,
-    -- awful.layout.suit.corner.se,
 }
 -- }}}
 
@@ -121,16 +108,16 @@ awful.layout.layouts = {
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
-local function set_wallpaper(s)
+local function set_wallpaper(current_screen)
     d.notify("set_wallpaper")
     -- Wallpaper
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
         -- If wallpaper is a function, call it with the screen
         if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
+            wallpaper = wallpaper(current_screen)
         end
-        gears.wallpaper.maximized(wallpaper, s, true)
+        gears.wallpaper.maximized(wallpaper, current_screen, true)
     end
 end
 
@@ -143,15 +130,12 @@ root.keys(keybindings.keyboard.global)
 local keyboardlayout = awful.widget.keyboardlayout()
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
-
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 -- screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
-function _G.cosy_init_screen(s)
+function _G.cosy_init_screen(current_screen)
     d.notify("_G.cosy_init_screen")
-    s.cava = cosy.widget.desktop.cava(
-        s,
+    current_screen.cava = cosy.widget.desktop.cava(
+        current_screen,
         {
             bars = 100,
             enable_interpolation = true,
@@ -175,8 +159,8 @@ function _G.cosy_init_screen(s)
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
-    s.layoutbox = awful.widget.layoutbox(s)
-    s.layoutbox:buttons(
+    current_screen.layoutbox = awful.widget.layoutbox(current_screen)
+    current_screen.layoutbox:buttons(
                         gears.table.join(
                             awful.button({ }, 1, function () awful.layout.inc( 1) end),
                             awful.button({ }, 3, function () awful.layout.inc(-1) end),
@@ -200,8 +184,8 @@ function _G.cosy_init_screen(s)
         or "horizontal"
 
     -- Create a taglist widget
-    s.taglist = awful.widget.taglist {
-        screen = s,
+    current_screen.taglist = awful.widget.taglist {
+        screen = current_screen,
         filter = awful.widget.taglist.filter.noempty,
         buttons = keybindings.taglist_mouse,
         style = {
@@ -214,8 +198,8 @@ function _G.cosy_init_screen(s)
     }
 
     -- Create a tasklist widget
-    s.tasklist = awful.widget.tasklist {
-        screen = s,
+    current_screen.tasklist = awful.widget.tasklist {
+        screen = current_screen,
         filter = awful.widget.tasklist.filter.currenttags,
         buttons = keybindings.tasklist_mouse,
         style = {
@@ -228,13 +212,13 @@ function _G.cosy_init_screen(s)
         layout = wibox.layout.fixed[panel_orientation]()
     }
 
-    s.systray = wibox.widget.systray()
+    current_screen.systray = wibox.widget.systray()
 
     -- remove old panel
-    if s.panel then s.panel:remove() end
+    if current_screen.panel then current_screen.panel:remove() end
 
     local panel_properties = {
-        screen = s,
+        screen = current_screen,
         position = panel_position,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
@@ -246,43 +230,42 @@ function _G.cosy_init_screen(s)
     end
 
     -- create new panel
-    s.panel = awful.wibar(panel_properties)
+    current_screen.panel = awful.wibar(panel_properties)
 
     -- Add widgets to the wibox
-    s.panel:setup {
+    current_screen.panel:setup {
         layout = wibox.layout.align[panel_orientation],
         { -- Left widgets
             layout = wibox.layout.fixed[panel_orientation],
             screen.mytaglist,
-            s.taglist,
+            current_screen.taglist,
         },
-        s.tasklist, -- Middle widget
+        current_screen.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed[panel_orientation],
             cosy.widget.panel.volume({
                 indicator_width = dpi(2),
                 indicator_offset = dpi(5),
             }),
-            -- cosy.widget.panel.battery({}),
             keyboardlayout,
-            s.systray,
+            current_screen.systray,
             cosy.widget.textclock,
-            s.layoutbox,
+            current_screen.layoutbox,
             volume_widget{widget_type = 'arc'}, -- customized
         },
     }
 end
 
 awful.screen.connect_for_each_screen(
-    function(s)
+    function(current_screen)
         d.notify("awful.screen.connect_for_each_screen")
         -- Wallpaper
-        set_wallpaper(s)
+        set_wallpaper(current_screen)
 
         -- Each screen has its own tag table.
-        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, current_screen, awful.layout.layouts[1])
 
-        _G.cosy_init_screen(s)
+        _G.cosy_init_screen(current_screen)
     end
 )
 -- }}}
@@ -291,62 +274,74 @@ awful.screen.connect_for_each_screen(
 -- Signal function to execute when a new client appears.
 client.connect_signal(
     client_signals.on_manage,
-    function (c)
+    function (current_client)
         d.notify("manage")
         -- Set the windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
         -- if not awesome.startup then awful.client.setslave(c) end
 
         if awesome.startup
-        and not c.size_hints.user_position
-        and not c.size_hints.program_position then
+        and not current_client.size_hints.user_position
+        and not current_client.size_hints.program_position then
             -- Prevent clients from being unreachable after screen count changes.
-            awful.placement.no_offscreen(c)
+            awful.placement.no_offscreen(current_client)
         end
     end
 )
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal(
-    client_signals.request.on_titlebars,
-    function(c)
+    client_signals.request.titlebars,
+    function(current_client)
         d.notify("request::titlebars")
         -- buttons for the titlebar
         local buttons = gears.table.join(
             awful.button({ }, 1,
                 function()
-                    c:emit_signal("request::activate", "titlebar", {raise = true})
-                    awful.mouse.client.move(c)
+                    current_client:emit_signal(
+                        client_signals.request.activate,
+                        "titlebar",
+                        {
+                            raise = true
+                        }
+                    )
+                    awful.mouse.client.move(current_client)
                 end
             ),
             awful.button({ }, 3,
                 function()
-                    c:emit_signal("request::activate", "titlebar", {raise = true})
-                    awful.mouse.client.resize(c)
+                    current_client:emit_signal(
+                        client_signals.request.activate,
+                        "titlebar",
+                        {
+                            raise = true
+                        }
+                    )
+                    awful.mouse.client.resize(current_client)
                 end
             )
         )
 
-        awful.titlebar(c) : setup {
+        awful.titlebar(current_client) : setup {
             { -- Left
-                awful.titlebar.widget.iconwidget(c),
+                awful.titlebar.widget.iconwidget(current_client),
                 buttons = buttons,
                 layout  = wibox.layout.fixed.horizontal
             },
             { -- Middle
                 { -- Title
                     align  = "center",
-                    widget = awful.titlebar.widget.titlewidget(c)
+                    widget = awful.titlebar.widget.titlewidget(current_client)
                 },
                 buttons = buttons,
                 layout  = wibox.layout.flex.horizontal
             },
             { -- Right
-                awful.titlebar.widget.floatingbutton (c),
-                awful.titlebar.widget.maximizedbutton(c),
-                awful.titlebar.widget.stickybutton   (c),
-                awful.titlebar.widget.ontopbutton    (c),
-                awful.titlebar.widget.closebutton    (c),
+                awful.titlebar.widget.floatingbutton (current_client),
+                awful.titlebar.widget.maximizedbutton(current_client),
+                awful.titlebar.widget.stickybutton   (current_client),
+                awful.titlebar.widget.ontopbutton    (current_client),
+                awful.titlebar.widget.closebutton    (current_client),
                 layout = wibox.layout.fixed.horizontal()
             },
             layout = wibox.layout.align.horizontal
@@ -357,24 +352,30 @@ client.connect_signal(
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal(
     client_signals.mouse.on_enter,
-    function(c)
+    function(current_client)
         d.notify("mouse::enter")
-        c:emit_signal("request::activate", "mouse_enter", {raise = false})
+        current_client:emit_signal(
+            client_signals.request.activate,
+            "mouse_enter",
+            {
+                raise = false
+            }
+        )
     end
 )
 
 client.connect_signal(
     client_signals.on_focus,
-    function(c)
+    function(current_client)
         d.notify("focus")
-        c.border_color = beautiful.border_focus
+        current_client.border_color = beautiful.border_focus
     end
 )
 client.connect_signal(
     client_signals.on_unfocus,
-    function(c)
+    function(current_client)
         d.notify("unfocus")
-        c.border_color = beautiful.border_normal
+        current_client.border_color = beautiful.border_normal
     end
 )
 
@@ -382,31 +383,31 @@ local floatgeoms = {}
 
 client.connect_signal(
     client_signals.on_manage,
-    function (c)
+    function (current_client)
         d.notify("manage")
         -- Set the windows at the slave,
-        if not awesome.startup then awful.client.setslave(c) end
+        if not awesome.startup then awful.client.setslave(current_client) end
 
         -- Set floating if slave window is created on popup layout
         -- TODO: Consider if more elegant solution is possible
-        if awful.layout.get(c.screen) == layout.popup
-            and cosy.util.table_count(c.first_tag:clients()) > 1
+        if awful.layout.get(current_client.screen) == layout.popup
+            and cosy.util.table_count(current_client.first_tag:clients()) > 1
         then
-            c.floating = true
-            awful.placement.no_offscreen(c)
+            current_client.floating = true
+            awful.placement.no_offscreen(current_client)
         end
 
         -- Save floating client geometry
-        if cosy.util.client_free_floating(c) then
-            floatgeoms[c.window] = c:geometry()
+        if cosy.util.client_free_floating(current_client) then
+            floatgeoms[current_client.window] = current_client:geometry()
         end
 
         if awesome.startup
-            and not c.size_hints.user_position
-            and not c.size_hints.program_position
+            and not current_client.size_hints.user_position
+            and not current_client.size_hints.program_position
         then
             -- Prevent clients from being unreachable after screen count changes.
-            awful.placement.no_offscreen(c)
+            awful.placement.no_offscreen(current_client)
         end
     end
 )
@@ -416,47 +417,52 @@ client.connect_signal(
 -- property changes of clients originally created on other than floating tag layouts and sent otherwise
 client.connect_signal(
     client_signals.property.floating,
-    function(c)
+    function(current_client)
         d.notify("property::floating")
-        if cosy.util.client_free_floating(c) then
-            c:geometry(floatgeoms[c.window])
+        if cosy.util.client_free_floating(current_client) then
+            current_client:geometry(floatgeoms[current_client.window])
         end
-        cosy.util.manage_titlebar(c)
+        cosy.util.manage_titlebar(current_client)
     end
 )
 
 tag.connect_signal(
     client_signals.property.layout,
-    function(t)
+    function(current_tag)
         d.notify("property::layout")
-        for _, c in pairs(t:clients()) do
-            if cosy.util.client_free_floating(c) then
-                c:geometry(floatgeoms[c.window])
+        for _, current_client in pairs(current_tag:clients()) do
+            if cosy.util.client_free_floating(current_client) then
+                current_client:geometry(floatgeoms[current_client.window])
             end
-            cosy.util.manage_titlebar(c)
+            cosy.util.manage_titlebar(current_client)
         end
     end
 )
 
 client.connect_signal(
     client_signals.property.geometry,
-    function(c)
+    function(current_client)
         d.notify("property::geometry")
-        if cosy.util.client_free_floating(c) then
-            floatgeoms[c.window] = c:geometry()
+        if cosy.util.client_free_floating(current_client) then
+            floatgeoms[current_client.window] = current_client:geometry()
         end
     end
 )
 
 client.connect_signal(
     client_signals.on_unmanage,
-    function(c)
+    function(current_client)
         d.notify("unmanage")
-        floatgeoms[c.window] = nil
+        floatgeoms[current_client.window] = nil
         awful.client.focus.byidx(-1)
     end
 )
 
+-- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
+screen.connect_signal(
+    client_signals.property.geometry,
+    set_wallpaper
+)
 
 -- }}}
 
