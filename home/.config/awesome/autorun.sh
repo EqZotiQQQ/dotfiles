@@ -1,1 +1,0 @@
-# Executes apps on start

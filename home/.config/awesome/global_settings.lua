@@ -7,12 +7,19 @@
 
 local dpi = require("beautiful.xresources").apply_dpi
 
+local position = {
+    top = "top",
+    bottom = "bottom",
+    left = "left",
+    right = "right",
+}
+
 local global = {
     terminal        = "kitty",
     modkey          = "Mod4",
     file_explorer   = "nautilus",
     panel_size      = dpi(50),
-    panel_position  = "top", --|left
+    panel_position  = position.top,
     theme_dir       = "~/.config/awesome/themes/default", -- "~/.config/awesome/themes/xresources"
     editor          = os.getenv("EDITOR") or "neovim",
     dynamic_theme   = false,

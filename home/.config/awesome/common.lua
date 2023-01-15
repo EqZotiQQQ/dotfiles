@@ -5,7 +5,7 @@ local beautiful = require("beautiful")
 
 local common = {
     set_wallpaper = function(current_screen)
-        d.notify("set_wallpaper")
+        -- d.notify("set_wallpaper")
         -- Wallpaper
         if beautiful.wallpaper then
             local wallpaper = beautiful.wallpaper

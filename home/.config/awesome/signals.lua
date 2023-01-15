@@ -19,7 +19,7 @@ local common = require("common")
 client.connect_signal(
     client_signals.on_manage,
     function (current_client)
-        d.notify("manage")
+        -- d.notify("manage")
         -- Set the windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
         -- if not awesome.startup then awful.client.setslave(c) end
@@ -37,7 +37,7 @@ client.connect_signal(
 client.connect_signal(
     client_signals.request.titlebars,
     function(current_client)
-        d.notify("request::titlebars")
+        -- d.notify("request::titlebars")
         -- buttons for the titlebar
         local buttons = gears.table.join(
             awful.button({ }, 1,
@@ -97,7 +97,7 @@ client.connect_signal(
 client.connect_signal(
     client_signals.mouse.on_enter,
     function(current_client)
-        d.notify("mouse::enter")
+        -- d.notify("mouse::enter")
         current_client:emit_signal(
             client_signals.request.activate,
             "mouse_enter",
@@ -111,14 +111,14 @@ client.connect_signal(
 client.connect_signal(
     client_signals.on_focus,
     function(current_client)
-        d.notify("focus")
+        -- d.notify("focus")
         current_client.border_color = beautiful.border_focus
     end
 )
 client.connect_signal(
     client_signals.on_unfocus,
     function(current_client)
-        d.notify("unfocus")
+        -- d.notify("unfocus")
         current_client.border_color = beautiful.border_normal
     end
 )
@@ -128,7 +128,7 @@ local floatgeoms = {}
 client.connect_signal(
     client_signals.on_manage,
     function (current_client)
-        d.notify("manage")
+        -- d.notify("manage")
         -- Set the windows at the slave,
         if not awesome.startup then awful.client.setslave(current_client) end
 
@@ -162,7 +162,7 @@ client.connect_signal(
 client.connect_signal(
     client_signals.property.floating,
     function(current_client)
-        d.notify("property::floating")
+        -- d.notify("property::floating")
         if cosy.util.client_free_floating(current_client) then
             current_client:geometry(floatgeoms[current_client.window])
         end
@@ -173,7 +173,7 @@ client.connect_signal(
 tag.connect_signal(
     client_signals.property.layout,
     function(current_tag)
-        d.notify("property::layout")
+        -- d.notify("property::layout")
         for _, current_client in pairs(current_tag:clients()) do
             if cosy.util.client_free_floating(current_client) then
                 current_client:geometry(floatgeoms[current_client.window])
@@ -186,7 +186,7 @@ tag.connect_signal(
 client.connect_signal(
     client_signals.property.geometry,
     function(current_client)
-        d.notify("property::geometry")
+        -- d.notify("property::geometry")
         if cosy.util.client_free_floating(current_client) then
             floatgeoms[current_client.window] = current_client:geometry()
         end
@@ -196,7 +196,7 @@ client.connect_signal(
 client.connect_signal(
     client_signals.on_unmanage,
     function(current_client)
-        d.notify("unmanage")
+        -- d.notify("unmanage")
         floatgeoms[current_client.window] = nil
         awful.client.focus.byidx(-1)
     end

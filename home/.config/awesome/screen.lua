@@ -13,11 +13,28 @@ local common = require("common")
 local dpi = require("beautiful.xresources").apply_dpi
 local screen = _G.screen
 
+
+local orientation = {
+    vertical = "vertical",
+    horizontal = "horizontal"
+}
+
+local positions = {
+    top = "top",
+    bottom = "bottom",
+    left = "left",
+    right = "right",
+}
+
+local align = {
+    center = "center"
+}
+
 -- Keyboard map indicator and switcher
 local keyboardlayout = awful.widget.keyboardlayout()
 
 function _G.cosy_init_screen(current_screen)
-    d.notify("_G.cosy_init_screen")
+    -- d.notify("_G.cosy_init_screen")
     current_screen.cava = cosy.widget.desktop.cava(
         current_screen,
         {
@@ -26,7 +43,8 @@ function _G.cosy_init_screen(current_screen)
             size = panel_size,
             position = panel_position,
             update_time = 0.05
-        })
+        }
+    )
 
     -- local panel_offset = {
     --     x = panel_position == "left" and panel_size or 0,
@@ -45,13 +63,13 @@ function _G.cosy_init_screen(current_screen)
     -- We need one layoutbox per screen.
     current_screen.layoutbox = awful.widget.layoutbox(current_screen)
     current_screen.layoutbox:buttons(
-                        gears.table.join(
-                            awful.button({ }, 1, function () awful.layout.inc( 1) end),
-                            awful.button({ }, 3, function () awful.layout.inc(-1) end),
-                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
-                            awful.button({ }, 5, function () awful.layout.inc(-1) end)
-                        )
-                    )
+        gears.table.join(
+            awful.button({ }, 1, function () awful.layout.inc( 1) end),
+            awful.button({ }, 3, function () awful.layout.inc(-1) end),
+            awful.button({ }, 4, function () awful.layout.inc( 1) end),
+            awful.button({ }, 5, function () awful.layout.inc(-1) end)
+        )
+    )
 
     local focus_gradient = gears.color.create_linear_pattern(
         {
@@ -63,9 +81,9 @@ function _G.cosy_init_screen(current_screen)
     )
 
     local panel_orientation =
-        (panel_position == "left" or panel_position == "right")
-        and "vertical"
-        or "horizontal"
+        (panel_position == positions.left or panel_position == positions.right)
+        and orientation.vertical
+        or orientation.horizontal
 
     -- Create a taglist widget
     current_screen.taglist = awful.widget.taglist {
@@ -73,7 +91,7 @@ function _G.cosy_init_screen(current_screen)
         filter = awful.widget.taglist.filter.noempty,
         buttons = keybindings.taglist_mouse,
         style = {
-            align = "center",
+            align = align.center,
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
@@ -87,7 +105,7 @@ function _G.cosy_init_screen(current_screen)
         filter = awful.widget.tasklist.filter.currenttags,
         buttons = keybindings.tasklist_mouse,
         style = {
-            align = "center",
+            align = align.center,
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
@@ -107,7 +125,7 @@ function _G.cosy_init_screen(current_screen)
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if panel_position == "left" or panel_position == "right" then
+    if panel_position == positions.left or panel_position == positions.right then
         panel_properties.width = panel_size
     else
         panel_properties.height = panel_size
@@ -127,22 +145,26 @@ function _G.cosy_init_screen(current_screen)
         current_screen.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed[panel_orientation],
-            cosy.widget.panel.volume({
-                indicator_width = dpi(2),
-                indicator_offset = dpi(5),
-            }),
+            cosy.widget.panel.volume(
+                {
+                    indicator_width = dpi(2),
+                    indicator_offset = dpi(5),
+                }
+            ),
             keyboardlayout,
             current_screen.systray,
             cosy.widget.textclock,
             current_screen.layoutbox,
-            volume_widget{widget_type = 'arc'}, -- customized
+            volume_widget{
+                widget_type = 'arc'
+            }, -- customized
         },
     }
 end
 
 awful.screen.connect_for_each_screen(
     function(current_screen)
-        d.notify("awful.screen.connect_for_each_screen")
+        -- d.notify("awful.screen.connect_for_each_screen")
         -- Wallpaper
         common.set_wallpaper(current_screen)
 
