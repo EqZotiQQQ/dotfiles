@@ -1,4 +1,10 @@
--- Client Signals
+---------------------------------------------------------------------------
+--- Signals
+--
+-- Module with used signals
+--
+-- @module d
+---------------------------------------------------------------------------
 
 local signals = {
     on_manage = "manage", -- signal emited when  client created

@@ -54,7 +54,7 @@ local internet = {
     {"Firefox",        function() awful.spawn("firefox") end }
 }
 
-local menu = { 
+local menu = {
     main = awful.menu({
         items = {
             {"Power",       menu_power},

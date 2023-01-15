@@ -71,7 +71,7 @@ local rules = {
         },
         properties = { titlebars_enabled = true }
     },
-    
+
     {
         rule_any = {
             class = {"TelegramDesktop"}

@@ -130,17 +130,6 @@ bindings.keyboard = {
         -- Rofi
         awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
 
-        awful.key({ modkey }, "x",
-            function ()
-                awful.prompt.run {
-                prompt       = "Run Lua code: ",
-                textbox      = awful.screen.focused().mypromptbox.widget,
-                exe_callback = awful.util.eval,
-                history_path = awful.util.get_cache_dir() .. "/history_eval"
-                }
-            end,
-            {description = "lua execute prompt", group = "awesome"}),
-
         awful.key({ modkey,          }, "l",         function()      awful.util.spawn("multilockscreen -l ~/Pictures/witcher.png")                  end, {description = "Lock screen",            group = "awesome"}),
         -- FlameShot
         awful.key({                  }, "Print",     function()      awful.spawn.with_shell("flameshot screen --clipboard")                         end, {description = "Take a screenshot of focused screen",  group = "media" }),
