@@ -13,7 +13,6 @@ local common = require("common")
 local dpi = require("beautiful.xresources").apply_dpi
 local screen = _G.screen
 
-
 -- Keyboard map indicator and switcher
 local keyboardlayout = awful.widget.keyboardlayout()
 
@@ -148,7 +147,21 @@ awful.screen.connect_for_each_screen(
         common.set_wallpaper(current_screen)
 
         -- Each screen has its own tag table.
-        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, current_screen, awful.layout.layouts[1])
+        awful.tag(
+            {
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+            },
+            current_screen,
+            awful.layout.layouts[1]
+        )
 
         _G.cosy_init_screen(current_screen)
     end

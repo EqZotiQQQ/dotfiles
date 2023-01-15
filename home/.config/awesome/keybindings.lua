@@ -19,6 +19,7 @@ local volume_widget = require("widgets.volume-widget.volume")
 
 local client = _G.client
 local awesome = _G.awesome
+local root = _G.root
 
 local modkey = global.modkey
 local theme_dir = global.theme_dir
@@ -279,5 +280,9 @@ for i = 1, 9 do
                   {description = "toggle focused client on tag #" .. i, group = "tag"})
     )
 end
+
+-- set keys
+root.buttons(bindings.mouse.global)
+root.keys(bindings.keyboard.global)
 
 return bindings

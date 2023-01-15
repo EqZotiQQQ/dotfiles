@@ -83,15 +83,6 @@ local rules = {
     },
     {
         rule_any = {
-            class = {"notion-snap"} --  xprop -> WM_CLASS
-        },
-        properties = {
-            screen = screen.count()>1 and 2 or 1,
-            tag = screen.count()>1 and "2" or "3"
-        },
-    },
-    {
-        rule_any = {
             class = {"discord"}
         },
         properties = {
@@ -101,7 +92,11 @@ local rules = {
     },
     {
         rule_any = {
-            class = {"mattermost-desktop", "Mattermost", "Mattermost Desktop App"}
+            class = {
+                "mattermost-desktop",
+                "Mattermost",
+                "Mattermost Desktop App",
+            }
         },
         properties = {
             screen = screen.count()>1 and 2 or 1,
