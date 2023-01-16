@@ -22,7 +22,7 @@ require("awful.autofocus")
 
 local menubar = require("menubar")
 
-local d = require("cosy.dbg")
+local d = require("dbg")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:

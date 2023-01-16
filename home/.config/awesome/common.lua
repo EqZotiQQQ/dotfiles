@@ -1,5 +1,5 @@
 
-local d = require("cosy.dbg")
+local d = require("dbg")
 local gears = require("gears")
 local beautiful = require("beautiful")
 
