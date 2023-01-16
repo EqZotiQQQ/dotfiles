@@ -20,10 +20,7 @@ local global = {
     file_explorer   = "nautilus",
     panel_size      = dpi(50),
     panel_position  = position.top,
-    theme_dir       = "~/.config/awesome/themes/default", -- "~/.config/awesome/themes/xresources"
     editor          = os.getenv("EDITOR") or "neovim",
-    dynamic_theme   = false,
-    wallpaper       = "~/Pictures/1.jpg",
 }
 
 global.editor_cmd   = global.terminal .. " -e " .. global.editor

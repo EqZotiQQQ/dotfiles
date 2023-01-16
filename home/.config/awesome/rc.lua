@@ -3,7 +3,7 @@
 -- pcall(require, "luarocks.loader")
 
 local globals = require("global_settings")
-
+local theme_config = require("theme_config")
 -- glob variables
 local awesome = _G.awesome
 local root = _G.root
@@ -12,7 +12,7 @@ local terminal = globals.terminal
 
 -- Theme handling library
 local beautiful = require("beautiful")
-beautiful.init(globals.theme_dir .. "/theme.lua")
+beautiful.init(theme_config.theme_dir .. "/theme.lua")
 
 awesome.set_preferred_icon_size(64)
 

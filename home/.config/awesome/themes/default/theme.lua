@@ -7,16 +7,16 @@
 -- local theme_dir = require("gears.filesystem").get_configuration_dir() .. "themes/default/"
 local dpi = require("beautiful.xresources").apply_dpi
 
-local global = require("global_settings")
+local theme_config = require("theme_config")
 
 local icon_dir = os.getenv("HOME") .. "/.config/awesome/themes/app_icons/"
 
-local dynamic_theme = global.dynamic_theme
-local theme_dir = global.theme_dir
+local dynamic_theme = theme_config.dynamic_theme
+local theme_dir = theme_config.theme_dir
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = global.wallpaper
+theme.wallpaper = theme_config.wallpaper
 -- }}}
 
 -- {{{ Styles

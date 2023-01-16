@@ -8,6 +8,7 @@
 require("awful.hotkeys_popup.keys")
 
 local global = require("global_settings")
+local theme_config = require("theme_config")
 
 local hotkeys_popup = require("awful.hotkeys_popup")
 local awful = require("awful")
@@ -21,7 +22,7 @@ local client = _G.client
 local awesome = _G.awesome
 
 local modkey = global.modkey
-local theme_dir = global.theme_dir
+local theme_dir = theme_config.theme_dir
 local terminal = global.terminal
 
 
