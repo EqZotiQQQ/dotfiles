@@ -3,9 +3,7 @@ local wibox = require("wibox")
 local gears = require("gears")
 local cosy = require("cosy")
 local beautiful = require("beautiful")
-local globals = require("global_settings")
-local panel_size = globals.panel_size
-local panel_position = globals.panel_position
+local panel_config = require("panel_config")
 local d = require("dbg")
 local keybindings = require("keybindings")
 local volume_widget = require("widgets.volume-widget.volume")
@@ -40,8 +38,8 @@ function _G.cosy_init_screen(current_screen)
         {
             bars = 100,
             enable_interpolation = true,
-            size = panel_size,
-            position = panel_position,
+            size = panel_config.panel_size,
+            position = panel_config.panel_position,
             update_time = 0.05
         }
     )
@@ -75,13 +73,13 @@ function _G.cosy_init_screen(current_screen)
         {
             type = "linear",
             from = {0, 0},
-            to = {panel_size, 0},
+            to = {panel_config.panel_size, 0},
             stops = { {0, beautiful.bg_focus.."f0"}, {1, beautiful.bg_focus.."00"} }
         }
     )
 
     local panel_orientation =
-        (panel_position == positions.left or panel_position == positions.right)
+        (panel_config.panel_position == positions.left or panel_config.panel_position == positions.right)
         and orientation.vertical
         or orientation.horizontal
 
@@ -121,14 +119,14 @@ function _G.cosy_init_screen(current_screen)
 
     local panel_properties = {
         screen = current_screen,
-        position = panel_position,
+        position = panel_config.panel_position,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if panel_position == positions.left or panel_position == positions.right then
-        panel_properties.width = panel_size
+    if panel_config.panel_position == positions.left or panel_config.panel_position == positions.right then
+        panel_properties.width = panel_config.panel_size
     else
-        panel_properties.height = panel_size
+        panel_properties.height = panel_config.panel_size
     end
 
     -- create new panel

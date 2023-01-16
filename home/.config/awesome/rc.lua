@@ -2,13 +2,13 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 -- pcall(require, "luarocks.loader")
 
-local globals = require("global_settings")
+local general_config = require("general_config")
 local theme_config = require("theme_config")
 -- glob variables
 local awesome = _G.awesome
 local root = _G.root
 
-local terminal = globals.terminal
+local terminal = general_config.terminal
 
 -- Theme handling library
 local beautiful = require("beautiful")

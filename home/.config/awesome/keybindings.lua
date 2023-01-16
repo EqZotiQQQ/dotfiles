@@ -7,7 +7,7 @@
 
 require("awful.hotkeys_popup.keys")
 
-local global = require("global_settings")
+local general_config = require("general_config")
 local theme_config = require("theme_config")
 
 local hotkeys_popup = require("awful.hotkeys_popup")
@@ -18,12 +18,14 @@ local beautiful = require("beautiful")
 
 local volume_widget = require("widgets.volume-widget.volume")
 
+local panel_config = require("panel_config")
+
 local client = _G.client
 local awesome = _G.awesome
 
-local modkey = global.modkey
+local modkey = general_config.modkey
 local theme_dir = theme_config.theme_dir
-local terminal = global.terminal
+local terminal = general_config.terminal
 
 
 local function client_menu_toggle_fn()
@@ -129,7 +131,7 @@ bindings.keyboard = {
             {description = "restore minimized", group = "client"}),
 
         -- Rofi
-        awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
+        awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. panel_config.panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
 
         awful.key({ modkey,          }, "l",         function()      awful.util.spawn("multilockscreen -l ~/Pictures/witcher.png")                  end, {description = "Lock screen",            group = "awesome"}),
         -- FlameShot

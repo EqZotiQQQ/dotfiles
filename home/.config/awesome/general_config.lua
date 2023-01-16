@@ -4,28 +4,16 @@
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 
-
-local dpi = require("beautiful.xresources").apply_dpi
-
-local position = {
-    top = "top",
-    bottom = "bottom",
-    left = "left",
-    right = "right",
-}
-
-local global = {
+local general_config = {
     terminal        = "kitty",
     modkey          = "Mod4",
     file_explorer   = "nautilus",
-    panel_size      = dpi(50),
-    panel_position  = position.top,
     editor          = os.getenv("EDITOR") or "neovim",
 }
 
-global.editor_cmd   = global.terminal .. " -e " .. global.editor
+general_config.editor_cmd   = general_config.terminal .. " -e " .. general_config.editor
 
-return global
+return general_config
 
 -- shift       Shift_L (0x32),  Shift_R (0x3e)
 -- lock        Caps_Lock (0x42)
