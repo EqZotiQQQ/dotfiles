@@ -13,7 +13,7 @@ if (hour > 9 and hour < 18) and wday < 6 then
     awful.spawn.once("mattermost-desktop")
 end
 
-awful.spawn.once("telegram-desktop")
+-- awful.spawn.once("telegram-desktop")
 awful.spawn.once("flameshot")
 awful.spawn.once("picom")
 

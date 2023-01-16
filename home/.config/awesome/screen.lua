@@ -8,25 +8,9 @@ local d = require("dbg")
 local keybindings = require("keybindings")
 local volume_widget = require("widgets.volume-widget.volume")
 local common = require("common")
-local dpi = require("beautiful.xresources").apply_dpi
+local dpi = require("beautiful").xresources.apply_dpi
 local screen = _G.screen
 
-
-local orientation = {
-    vertical = "vertical",
-    horizontal = "horizontal"
-}
-
-local positions = {
-    top = "top",
-    bottom = "bottom",
-    left = "left",
-    right = "right",
-}
-
-local align = {
-    center = "center"
-}
 
 -- Keyboard map indicator and switcher
 local keyboardlayout = awful.widget.keyboardlayout()
@@ -36,11 +20,11 @@ function _G.cosy_init_screen(current_screen)
     current_screen.cava = cosy.widget.desktop.cava(
         current_screen,
         {
-            bars = 100,
-            enable_interpolation = true,
+            bars = panel_config.cava_config.bars,
+            enable_interpolation = panel_config.cava_config.interpolation,
             size = panel_config.panel_size,
-            position = panel_config.panel_position,
-            update_time = 0.05
+            position = panel_config.actual_position,
+            update_time = panel_config.cava_config.update_time,
         }
     )
 
@@ -49,8 +33,8 @@ function _G.cosy_init_screen(current_screen)
     --     y = panel_position == "top" and panel_size or 0,
     -- }
 
-    -- s.rings = cosy.widget.desktop.rings(
-    --     s,
+    -- current_screen.rings = cosy.widget.desktop.rings(
+    --     current_screen,
     --     {
     --         x = panel_offset.x + 25, -- ring position X
     --         y = panel_offset.y + 20  -- ring position Y
@@ -72,16 +56,32 @@ function _G.cosy_init_screen(current_screen)
     local focus_gradient = gears.color.create_linear_pattern(
         {
             type = "linear",
-            from = {0, 0},
-            to = {panel_config.panel_size, 0},
-            stops = { {0, beautiful.bg_focus.."f0"}, {1, beautiful.bg_focus.."00"} }
+            from = {
+                0,
+                0,
+            },
+            to = {
+                panel_config.panel_size,
+                0,
+            },
+            stops = {
+                {
+                    0,
+                    beautiful.bg_focus.."f0"
+                },
+                {
+                    1,
+                    beautiful.bg_focus.."00"
+                }
+            }
         }
     )
 
     local panel_orientation =
-        (panel_config.panel_position == positions.left or panel_config.panel_position == positions.right)
-        and orientation.vertical
-        or orientation.horizontal
+        (panel_config.actual_position == panel_config.panel_position.left or
+            panel_config.actual_position == panel_config.panel_position.right)
+        and panel_config.panel_orientation.vertical
+        or panel_config.panel_orientation.horizontal
 
     -- Create a taglist widget
     current_screen.taglist = awful.widget.taglist {
@@ -89,7 +89,7 @@ function _G.cosy_init_screen(current_screen)
         filter = awful.widget.taglist.filter.noempty,
         buttons = keybindings.taglist_mouse,
         style = {
-            align = align.center,
+            align = panel_config.align.center,
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
@@ -97,13 +97,13 @@ function _G.cosy_init_screen(current_screen)
         layout = wibox.layout.fixed[panel_orientation](),
     }
 
-    -- Create a tasklist widget
+    -- Create a tasklist widget. Shows apps running on current_screen
     current_screen.tasklist = awful.widget.tasklist {
         screen = current_screen,
         filter = awful.widget.tasklist.filter.currenttags,
         buttons = keybindings.tasklist_mouse,
         style = {
-            align = align.center,
+            align = panel_config.align.center,
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
@@ -119,11 +119,11 @@ function _G.cosy_init_screen(current_screen)
 
     local panel_properties = {
         screen = current_screen,
-        position = panel_config.panel_position,
+        position = panel_config.actual_position,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if panel_config.panel_position == positions.left or panel_config.panel_position == positions.right then
+    if panel_config.actual_position == panel_config.panel_position.left or panel_config.actual_position == panel_config.panel_position.right then
         panel_properties.width = panel_config.panel_size
     else
         panel_properties.height = panel_config.panel_size

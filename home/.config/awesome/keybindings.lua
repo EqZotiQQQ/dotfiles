@@ -22,6 +22,7 @@ local panel_config = require("panel_config")
 
 local client = _G.client
 local awesome = _G.awesome
+local screen = _G.screen
 
 local modkey = general_config.modkey
 local theme_dir = theme_config.theme_dir
@@ -43,7 +44,7 @@ end
 
 local function reload_color(c)
     beautiful.init(theme_dir .. "/theme.lua")
-    for s in _G.screen do
+    for s in screen do
         _G.cosy_init_screen(s)
     end
 end
