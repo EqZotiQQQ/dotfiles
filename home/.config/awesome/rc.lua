@@ -6,6 +6,7 @@ local globals = require("global_settings")
 
 -- glob variables
 local awesome = _G.awesome
+local root = _G.root
 
 local terminal = globals.terminal
 
@@ -28,11 +29,14 @@ local d = require("cosy.dbg")
 require("awful.hotkeys_popup.keys")
 
 -- {{{ Configure keybindings
-require("keybindings")
+local bindings = require("keybindings")
+root.buttons(bindings.mouse.global)
+root.keys(bindings.keyboard.global)
 -- }}
 
 -- {{{ Configure rules
-require("rules")
+local rules = require("rules")
+awful.rules.rules = rules
 -- }}}
 
 -- {{{ Configure error handling
@@ -42,8 +46,8 @@ require("error_handling")
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
-    awful.layout.suit.floating,
     awful.layout.suit.tile,
+    awful.layout.suit.floating,
     awful.layout.suit.tile.left,
     awful.layout.suit.fair,
     awful.layout.suit.max,

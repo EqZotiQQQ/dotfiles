@@ -156,7 +156,8 @@ function _G.cosy_init_screen(current_screen)
             cosy.widget.textclock,
             current_screen.layoutbox,
             volume_widget{
-                widget_type = 'arc'
+                widget_type = 'arc',
+                refresh_rate = 0.1
             }, -- customized
         },
     }

@@ -67,14 +67,19 @@ local rules = {
 -- Add titlebars to normal clients and dialogs
     {
         rule_any = {
-            type = { "normal", "dialog" }
+            type = {
+                "normal",
+                "dialog"
+            }
         },
         properties = { titlebars_enabled = true }
     },
 
     {
         rule_any = {
-            class = {"TelegramDesktop"}
+            class = {
+                "TelegramDesktop",
+            }
         },
         properties = {
             screen = screen.count()>1 and 2 or 1,
@@ -105,4 +110,4 @@ local rules = {
     },
 }
 
-awful.rules.rules = rules
+return rules
