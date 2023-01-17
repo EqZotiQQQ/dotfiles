@@ -4,14 +4,16 @@
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 
+local terminal = "kitty"
+local editor = os.getenv("EDITOR") or "neovim"
+
 local general_config = {
-    terminal        = "kitty",
+    terminal        = terminal,
     modkey          = "Mod4",
     file_explorer   = "nautilus",
-    editor          = os.getenv("EDITOR") or "neovim",
+    editor          = editor,
+    editor_cmd      = terminal .. " -e " .. editor
 }
-
-general_config.editor_cmd   = general_config.terminal .. " -e " .. general_config.editor
 
 return general_config
 

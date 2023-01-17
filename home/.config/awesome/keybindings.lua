@@ -9,7 +9,7 @@ require("awful.hotkeys_popup.keys")
 
 local general_config = require("general_config")
 local theme_config = require("theme_config")
-
+local d = require("dbg")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local awful = require("awful")
 local gears = require("gears")
@@ -28,6 +28,7 @@ local modkey = general_config.modkey
 local theme_dir = theme_config.theme_dir
 local terminal = general_config.terminal
 
+local screenshot_path = "~/Pictures/Screenshots/"
 
 local function client_menu_toggle_fn()
     local instance = nil
@@ -42,7 +43,7 @@ local function client_menu_toggle_fn()
     end
 end
 
-local function reload_color(c)
+local function reload_color()
     beautiful.init(theme_dir .. "/theme.lua")
     for s in screen do
         _G.cosy_init_screen(s)
@@ -134,12 +135,15 @@ bindings.keyboard = {
         -- Rofi
         awful.key({ modkey }, "r", function()   awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. panel_config.panel_size) end,      {description = "run rofi launcher", group = "launcher"}),
 
-        awful.key({ modkey,          }, "l",         function()      awful.util.spawn("multilockscreen -l ~/Pictures/witcher.png")                  end, {description = "Lock screen",            group = "awesome"}),
+        awful.key({ modkey,          }, "l",         function()
+            awful.spawn.easy_async_with_shell(". "..os.getenv("HOME").."/bin/lock.sh")
+            d.notify(". "..os.getenv("HOME").."/bin/lock.sh")
+        end, {description = "Lock screen",            group = "awesome"}),
         -- FlameShot
         awful.key({                  }, "Print",     function()      awful.spawn.with_shell("flameshot screen --clipboard")                         end, {description = "Take a screenshot of focused screen",  group = "media" }),
-        awful.key({ "Control"        }, "Print",     function()      awful.spawn.with_shell("flameshot screen --path ~/Pictures/Screenshots/")      end, {description = "Interactive screenshot",               group = "media" }),
+        awful.key({ "Control"        }, "Print",     function()      awful.spawn.with_shell("flameshot screen --path "..screenshot_path)      end, {description = "Interactive screenshot",               group = "media" }),
         awful.key({ modkey           }, "Print",     function()      awful.spawn.with_shell("flameshot gui")                                        end, {description = "Interactive screenshot to clipboard",  group = "media" }),
-        awful.key({ "Mod1"           }, "Print",     function()      awful.spawn.with_shell("flameshot full --path ~/Pictures/Screenshots/")        end, {description = "Take a screenshot of all screens to file",  group = "media" }),
+        awful.key({ "Mod1"           }, "Print",     function()      awful.spawn.with_shell("flameshot full --path "..screenshot_path)        end, {description = "Take a screenshot of all screens to file",  group = "media" }),
         awful.key({ "Mod1", "Control"}, "Print",     function()      awful.spawn.with_shell("flameshot full --clipboard")                           end, {description = "Take a screenshot of all screens to clipboard",  group = "media" }),
 
         -- Audio control
@@ -190,9 +194,6 @@ bindings.keyboard = {
             end,
             {description = "(un)maximize horizontally", group = "client"})
     ),
-
-
-
 }
 
 -- Create a wibox for each screen and add it

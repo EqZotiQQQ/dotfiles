@@ -6,23 +6,23 @@
 
 -- local theme_dir = require("gears.filesystem").get_configuration_dir() .. "themes/default/"
 local dpi = require("beautiful.xresources").apply_dpi
+local panel_config = require("panel_config")
 
+local d = require("dbg")
 local theme_config = require("theme_config")
-
-local icon_dir = os.getenv("HOME") .. "/.config/awesome/themes/app_icons/"
 
 local dynamic_theme = theme_config.dynamic_theme
 local theme_dir = theme_config.theme_dir
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = theme_config.wallpaper
+theme.wallpaper = theme_config.wallpaper_dir
 -- }}}
 
 -- {{{ Styles
 theme.font_family   = "Iosevka"
 theme.font          = theme.font_family.." 12"
-theme.taglist_font  = theme.font_family.." 15"
+theme.taglist_font  = theme.font_family.." "..panel_config.taglist_font_size
 
 -- {{{ Colors
 theme.fg_normal  = "#a89984"
@@ -208,14 +208,6 @@ theme.titlebar_maximized_button_normal_active = theme_dir .. "titlebar/maximized
 theme.titlebar_maximized_button_focus_inactive  = theme_dir .. "titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_inactive = theme_dir .. "titlebar/maximized_normal_inactive.png"
 -- }}}
--- }}}
-
--- {{{
-theme.ic_icons = {
-    -- TODO
-    ["Chromium"] = icon_dir .. "chrome.svg",
-    ["telegram-desktop"] = icon_dir .. "tg_500.png",
-}
 -- }}}
 
 return theme

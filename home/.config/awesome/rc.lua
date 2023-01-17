@@ -8,6 +8,8 @@ local theme_config = require("theme_config")
 local awesome = _G.awesome
 local root = _G.root
 
+local d = require("dbg")
+
 local terminal = general_config.terminal
 
 -- Theme handling library
@@ -22,7 +24,6 @@ require("awful.autofocus")
 
 local menubar = require("menubar")
 
-local d = require("dbg")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:

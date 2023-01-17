@@ -10,6 +10,7 @@ local volume_widget = require("widgets.volume-widget.volume")
 local common = require("common")
 local dpi = require("beautiful").xresources.apply_dpi
 local screen = _G.screen
+local details = require("details")
 
 
 -- Keyboard map indicator and switcher
@@ -57,8 +58,8 @@ function _G.cosy_init_screen(current_screen)
         {
             type = "linear",
             from = {
-                0,
-                0,
+                0, -- top
+                0, -- left
             },
             to = {
                 panel_config.panel_size,
@@ -78,10 +79,10 @@ function _G.cosy_init_screen(current_screen)
     )
 
     local panel_orientation =
-        (panel_config.actual_position == panel_config.panel_position.left or
-            panel_config.actual_position == panel_config.panel_position.right)
-        and panel_config.panel_orientation.vertical
-        or panel_config.panel_orientation.horizontal
+        (panel_config.actual_position == details.position.left or
+            panel_config.actual_position == details.position.right)
+        and details.orientation.vertical
+        or details.orientation.horizontal
 
     -- Create a taglist widget
     current_screen.taglist = awful.widget.taglist {
@@ -123,7 +124,7 @@ function _G.cosy_init_screen(current_screen)
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if panel_config.actual_position == panel_config.panel_position.left or panel_config.actual_position == panel_config.panel_position.right then
+    if panel_config.actual_position == details.position.left or panel_config.actual_position == details.position.right then
         panel_properties.width = panel_config.panel_size
     else
         panel_properties.height = panel_config.panel_size
