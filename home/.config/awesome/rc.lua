@@ -41,7 +41,9 @@ awful.rules.rules = rules
 -- }}}
 
 -- {{{ Configure error handling
-require("error_handling")
+local error_handling = require("error_handling")
+error_handling.startup_error_check()
+error_handling.add_runtime_error_check_signal()
 -- }}}
 
 
@@ -49,8 +51,6 @@ require("error_handling")
 awful.layout.layouts = {
     awful.layout.suit.tile,
     awful.layout.suit.floating,
-    awful.layout.suit.tile.left,
-    awful.layout.suit.fair,
     awful.layout.suit.max,
 }
 -- }}}

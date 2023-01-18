@@ -57,23 +57,11 @@ function _G.cosy_init_screen(current_screen)
     local focus_gradient = gears.color.create_linear_pattern(
         {
             type = "linear",
-            from = {
-                0, -- top
-                0, -- left
-            },
-            to = {
-                panel_config.panel_size,
-                0,
-            },
+            from = {0, 0},
+            to = {panel_config.panel_size, 0},
             stops = {
-                {
-                    0,
-                    beautiful.bg_focus.."f0"
-                },
-                {
-                    1,
-                    beautiful.bg_focus.."00"
-                }
+                {0, beautiful.bg_focus.."f0"},
+                {1, beautiful.bg_focus.."00"}
             }
         }
     )

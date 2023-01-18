@@ -9,6 +9,9 @@ local chooses = {
         left = "left",
         right = "right",
     },
+    align = {
+        center = "center"
+    },
 }
 
 return chooses
