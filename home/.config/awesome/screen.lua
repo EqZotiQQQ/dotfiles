@@ -17,7 +17,6 @@ local details = require("details")
 local keyboardlayout = awful.widget.keyboardlayout()
 
 function _G.cosy_init_screen(current_screen)
-    -- d.notify("_G.cosy_init_screen")
     current_screen.cava = cosy.widget.desktop.cava(
         current_screen,
         {
@@ -78,7 +77,7 @@ function _G.cosy_init_screen(current_screen)
         filter = awful.widget.taglist.filter.noempty,
         buttons = keybindings.taglist_mouse,
         style = {
-            align = panel_config.align.center,
+            align = panel_config.align,
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
@@ -92,7 +91,7 @@ function _G.cosy_init_screen(current_screen)
         filter = awful.widget.tasklist.filter.currenttags,
         buttons = keybindings.tasklist_mouse,
         style = {
-            align = panel_config.align.center,
+            align = panel_config.align,
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
@@ -150,29 +149,32 @@ function _G.cosy_init_screen(current_screen)
     }
 end
 
-awful.screen.connect_for_each_screen(
-    function(current_screen)
-        -- d.notify("awful.screen.connect_for_each_screen")
-        -- Wallpaper
-        common.set_wallpaper(current_screen)
+local function connect_for_each_screen()
+    awful.screen.connect_for_each_screen(
+        function(current_screen)
+            -- Wallpaper
+            common.set_wallpaper(current_screen)
 
-        -- Each screen has its own tag table.
-        awful.tag(
-            {
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-            },
-            current_screen,
-            awful.layout.layouts[1]
-        )
+            -- Each screen has its own tag table.
+            awful.tag(
+                {
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                },
+                current_screen,
+                awful.layout.layouts[1]
+            )
 
-        _G.cosy_init_screen(current_screen)
-    end
-)
+            cosy_init_screen(current_screen)
+        end
+    )
+end
+
+return connect_for_each_screen

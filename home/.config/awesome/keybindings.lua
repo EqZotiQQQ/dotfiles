@@ -137,7 +137,6 @@ bindings.keyboard = {
 
         awful.key({ modkey,          }, "l",         function()
             awful.spawn.easy_async_with_shell(". "..os.getenv("HOME").."/bin/lock.sh")
-            d.notify(". "..os.getenv("HOME").."/bin/lock.sh")
         end, {description = "Lock screen",            group = "awesome"}),
         -- FlameShot
         awful.key({                  }, "Print",     function()      awful.spawn.with_shell("flameshot screen --clipboard")                         end, {description = "Take a screenshot of focused screen",  group = "media" }),

@@ -21,9 +21,7 @@ awesome.set_preferred_icon_size(64)
 local awful = require("awful")
 
 require("awful.autofocus")
-
-local menubar = require("menubar")
-
+local signals = require("signals")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -43,7 +41,7 @@ awful.rules.rules = rules
 -- {{{ Configure error handling
 local error_handling = require("error_handling")
 error_handling.startup_error_check()
-error_handling.add_runtime_error_check_signal()
+signals.on_error_signal()
 -- }}}
 
 
@@ -56,15 +54,21 @@ awful.layout.layouts = {
 -- }}}
 
 -- Menubar configuration
+local menubar = require("menubar")
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- {{{ Configure screens
-require("screen")
+local connect_for_each_screen = require("screen")
+connect_for_each_screen()
 -- }}}
 
 -- {{{ Configure signals
-require("signals")
+for func_name, func in pairs(signals) do
+    if func_name ~= "on_error_signal" then
+        func()
+    end
+end
 -- }}}
 
 -- {{{ Autostart apps
