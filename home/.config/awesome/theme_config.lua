@@ -7,7 +7,7 @@ local themes = {
 
 local config = {
     theme_dir = themes.default,
-    wallpaper_dir = "~/Pictures/1.jpg",
+    -- wallpaper_dir = "~/Pictures/1.jpg",
     dynamic_theme = false,
 }
 

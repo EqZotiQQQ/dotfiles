@@ -28,18 +28,18 @@ function _G.cosy_init_screen(current_screen)
         }
     )
 
-    -- local panel_offset = {
-    --     x = panel_position == "left" and panel_size or 0,
-    --     y = panel_position == "top" and panel_size or 0,
-    -- }
+    local panel_offset = {
+        x = panel_config.actual_position == "left" and panel_config.panel_size or 0,
+        y = panel_config.actual_position == "top" and panel_config.panel_size or 0,
+    }
 
-    -- current_screen.rings = cosy.widget.desktop.rings(
-    --     current_screen,
-    --     {
-    --         x = panel_offset.x + 25, -- ring position X
-    --         y = panel_offset.y + 20  -- ring position Y
-    --     }
-    -- )
+    current_screen.rings = cosy.widget.desktop.rings(
+        current_screen,
+        {
+            x = panel_offset.x + 25, -- ring position X
+            y = panel_offset.y + 20  -- ring position Y
+        }
+    )
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -144,7 +144,7 @@ function _G.cosy_init_screen(current_screen)
             volume_widget{
                 widget_type = 'arc',
                 refresh_rate = 0.1
-            }, -- customized
+            },
         },
     }
 end
@@ -152,7 +152,6 @@ end
 local function connect_for_each_screen()
     awful.screen.connect_for_each_screen(
         function(current_screen)
-            -- Wallpaper
             common.set_wallpaper(current_screen)
 
             -- Each screen has its own tag table.
@@ -172,7 +171,7 @@ local function connect_for_each_screen()
                 awful.layout.layouts[1]
             )
 
-            cosy_init_screen(current_screen)
+            _G.cosy_init_screen(current_screen)
         end
     )
 end
