@@ -4,6 +4,7 @@
 
 local general_config = require("general_config")
 local theme_config = require("theme_config")
+
 -- glob variables
 local awesome = _G.awesome
 local root = _G.root
@@ -17,7 +18,7 @@ local beautiful = require("beautiful")
 beautiful.init(theme_config.theme_dir .. "/theme.lua")
 
 awesome.set_preferred_icon_size(64)
-
+local naughty = require("naughty")
 local awful = require("awful")
 
 require("awful.autofocus")
@@ -39,8 +40,13 @@ awful.rules.rules = rules
 -- }}}
 
 -- {{{ Configure error handling
-local error_handling = require("error_handling")
-error_handling.startup_error_check()
+if awesome.startup_errors then
+    naughty.notify({
+        preset = naughty.config.presets.critical,
+        title = "Oops, there were errors during startup!",
+        text = awesome.startup_errors
+    })
+end
 signals.on_error_signal()
 -- }}}
 

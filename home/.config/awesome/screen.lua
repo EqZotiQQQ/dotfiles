@@ -1,14 +1,14 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
-local cosy = require("cosy")
+local widgets = require("widgets")
 local beautiful = require("beautiful")
 local panel_config = require("panel_config")
 local d = require("dbg")
 local keybindings = require("keybindings")
-local volume_widget = require("widgets.volume-widget.volume")
-local common = require("common")
-local dpi = require("beautiful").xresources.apply_dpi
+-- local volume_widget = require("widgets.volume-widget.volume")
+-- local widgets = require("widgets")
+local util = require("util")
 local screen = _G.screen
 local details = require("details")
 
@@ -17,7 +17,7 @@ local details = require("details")
 local keyboardlayout = awful.widget.keyboardlayout()
 
 function _G.cosy_init_screen(current_screen)
-    current_screen.cava = cosy.widget.desktop.cava(
+    current_screen.cava = widgets.cava(
         current_screen,
         {
             bars = panel_config.cava_config.bars,
@@ -25,19 +25,6 @@ function _G.cosy_init_screen(current_screen)
             size = panel_config.panel_size,
             position = panel_config.actual_position,
             update_time = panel_config.cava_config.update_time,
-        }
-    )
-
-    local panel_offset = {
-        x = panel_config.actual_position == "left" and panel_config.panel_size or 0,
-        y = panel_config.actual_position == "top" and panel_config.panel_size or 0,
-    }
-
-    current_screen.rings = cosy.widget.desktop.rings(
-        current_screen,
-        {
-            x = panel_offset.x + 25, -- ring position X
-            y = panel_offset.y + 20  -- ring position Y
         }
     )
 
@@ -131,28 +118,23 @@ function _G.cosy_init_screen(current_screen)
         current_screen.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed[panel_orientation],
-            cosy.widget.panel.volume(
-                {
-                    indicator_width = dpi(2),
-                    indicator_offset = dpi(5),
-                }
-            ),
             keyboardlayout,
             current_screen.systray,
-            cosy.widget.textclock,
+            widgets.textclock{},
             current_screen.layoutbox,
-            volume_widget{
+            widgets.volume_widget{
                 widget_type = 'arc',
                 refresh_rate = 0.1
             },
         },
     }
+    -- d.notify(current_screen.volume_widget{...}})
 end
 
 local function connect_for_each_screen()
     awful.screen.connect_for_each_screen(
         function(current_screen)
-            common.set_wallpaper(current_screen)
+            util.set_wallpaper(current_screen)
 
             -- Each screen has its own tag table.
             awful.tag(

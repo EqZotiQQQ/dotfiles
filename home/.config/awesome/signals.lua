@@ -10,10 +10,10 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local d = require("dbg")
-local cosy = require("cosy")
+local util = require("util")
+
 local layout = require("layout")
 local beautiful = require("beautiful")
-local common = require("common")
 
 local signals = {}
 
@@ -143,14 +143,14 @@ signals.on_manage = function ()
             -- Set floating if slave window is created on popup layout
             -- TODO: Consider if more elegant solution is possible
             if awful.layout.get(current_client.screen) == layout.popup
-                and cosy.util.table_count(current_client.first_tag:clients()) > 1
+                and util.table_count(current_client.first_tag:clients()) > 1
             then
                 current_client.floating = true
                 awful.placement.no_offscreen(current_client)
             end
 
             -- Save floating client geometry
-            if cosy.util.client_free_floating(current_client) then
+            if util.client_free_floating(current_client) then
                 floatgeoms[current_client.window] = current_client:geometry()
             end
 
@@ -172,10 +172,10 @@ signals.on_client_floating = function ()
     client.connect_signal(
         client_signals.property.floating,
         function(current_client)
-            if cosy.util.client_free_floating(current_client) then
+            if util.client_free_floating(current_client) then
                 current_client:geometry(floatgeoms[current_client.window])
             end
-            cosy.util.manage_titlebar(current_client)
+            util.manage_titlebar(current_client)
         end
     )
 end
@@ -185,10 +185,10 @@ signals.on_property_layout = function ()
         client_signals.property.layout,
         function(current_tag)
             for _, current_client in pairs(current_tag:clients()) do
-                if cosy.util.client_free_floating(current_client) then
+                if util.client_free_floating(current_client) then
                     current_client:geometry(floatgeoms[current_client.window])
                 end
-                cosy.util.manage_titlebar(current_client)
+                util.manage_titlebar(current_client)
             end
         end
     )
@@ -198,7 +198,7 @@ signals.on_client_geometry_change = function ()
     client.connect_signal(
         client_signals.property.geometry,
         function(current_client)
-            if cosy.util.client_free_floating(current_client) then
+            if util.client_free_floating(current_client) then
                 floatgeoms[current_client.window] = current_client:geometry()
             end
         end
@@ -218,7 +218,7 @@ end
 signals.on_resolution_change = function ()
     screen.connect_signal(
         client_signals.property.geometry,
-        common.set_wallpaper
+        util.set_wallpaper
     )
 end
 

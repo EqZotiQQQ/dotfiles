@@ -54,19 +54,21 @@ local internet = {
     {"Firefox",        function() awful.spawn("firefox") end }
 }
 
+local menu_items = {
+    items = {
+        {"Power",       menu_power},
+        {"Awesome",     awesomewm_menu},
+        {"Internet",    internet},
+        {"IDE",         ides},
+        {"Messaging",   messaging},
+        {"Productive",  productive},
+        {"Nautilus",    file_explorer},
+        {"Terminal",    terminal}
+    }
+}
+
 local menu = {
-    main = awful.menu({
-        items = {
-            {"Power",       menu_power},
-            {"Awesome",     awesomewm_menu},
-            {"Internet",    internet},
-            {"IDE",         ides},
-            {"Messaging",   messaging},
-            {"Productive",  productive},
-            {"Nautilus",    file_explorer},
-            {"Terminal",    terminal}
-        }
-    })
+    main = awful.menu(menu_items)
 }
 
 return menu

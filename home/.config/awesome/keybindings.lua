@@ -242,8 +242,8 @@ for i = 1, 9 do
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
                   function ()
-                        local screen = awful.screen.focused()
-                        local tag = screen.tags[i]
+                        local current_screen = awful.screen.focused()
+                        local tag = current_screen.tags[i]
                         if tag then
                            tag:view_only()
                         end
@@ -252,8 +252,8 @@ for i = 1, 9 do
         -- Toggle tag display.
         awful.key({ modkey, "Control" }, "#" .. i + 9,
                   function ()
-                      local screen = awful.screen.focused()
-                      local tag = screen.tags[i]
+                      local current_screen = awful.screen.focused()
+                      local tag = current_screen.tags[i]
                       if tag then
                          awful.tag.viewtoggle(tag)
                       end
