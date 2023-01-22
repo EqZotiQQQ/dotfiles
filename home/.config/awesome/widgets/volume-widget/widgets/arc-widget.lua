@@ -1,6 +1,8 @@
 local wibox = require("wibox")
 local beautiful = require('beautiful')
 
+local panel_config = require("panel_config")
+
 local ICON_DIR = os.getenv("HOME") .. '/.config/awesome/widgets/awesome-wm-widgets/volume-widget/icons/'
 
 local widget = {}
@@ -12,7 +14,7 @@ function widget.get_widget(widgets_args)
     local main_color = args.main_color or beautiful.fg_color
     local bg_color = args.bg_color or '#ffffff11'
     local mute_color = args.mute_color or beautiful.fg_urgent
-    local size = args.size or 18
+    local size = args.size or panel_config.panel_size - 10
 
     return wibox.widget {
         {

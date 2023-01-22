@@ -51,6 +51,11 @@ function _G.cosy_init_screen(current_screen)
             }
         }
     )
+    local cw = widgets.calendar({
+        theme = 'nord',
+        placement = 'top_right',
+    })
+    cw.toggle()
 
     local panel_orientation =
         (panel_config.actual_position == details.position.left or
@@ -107,6 +112,9 @@ function _G.cosy_init_screen(current_screen)
     -- create new panel
     current_screen.panel = awful.wibar(panel_properties)
 
+    local textclock_widget = widgets.textclock{}
+    -- local mytextclock = wibox.widget.textclock(markup.fontfg(theme.font, theme.widgetbar_fg, "%a %d-%m-%Y") .. markup.fontfg(theme.font_larger, theme.fg_focus, " %H:%M:%S "), 1)
+
     -- Add widgets to the wibox
     current_screen.panel:setup {
         layout = wibox.layout.align[panel_orientation],
@@ -120,15 +128,34 @@ function _G.cosy_init_screen(current_screen)
             layout = wibox.layout.fixed[panel_orientation],
             keyboardlayout,
             current_screen.systray,
-            widgets.textclock{},
+            textclock_widget,
             current_screen.layoutbox,
+            widgets.cpu_widget{},
             widgets.volume_widget{
                 widget_type = 'arc',
-                refresh_rate = 0.1
+                refresh_rate = 0.05
             },
         },
     }
-    -- d.notify(current_screen.volume_widget{...}})
+
+    -- local cw = calendar_widget
+    -- local cw = widgets.calendar({
+    --     theme = 'nord',
+    --     placement = 'top_right',
+    -- })
+    -- widgets.calendar.toggle()
+    -- d.notify_persistent(textclock_widget)
+    -- textclock_widget:get_format()
+    -- d.notify(cw)
+    -- textclock_widget:connect_signal(
+    --     "button::press",
+    --     function ()
+        
+    --     end
+    --     function(_, _, _, button)
+    --         if button == 1 then cw.toggle() end
+    --     end
+    -- )
 end
 
 local function connect_for_each_screen()
