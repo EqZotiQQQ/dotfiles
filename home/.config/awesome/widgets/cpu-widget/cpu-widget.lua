@@ -21,7 +21,9 @@ local CMD = [[sh -c "grep '^cpu.' /proc/stat; ps -eo '%p|%c|%C|' -o "%mem" -o '|
 local CMD_slim = [[grep --max-count=1 '^cpu.' /proc/stat]]
 
 local HOME_DIR = os.getenv("HOME")
-local WIDGET_DIR = HOME_DIR .. '/.config/awesome/awesome-wm-widgets/cpu-widget'
+local WIDGET_DIR = HOME_DIR .. '/.config/awesome/widgets/cpu-widget'
+
+local panel_config = require("panel_config")
 
 local cpu_widget = {}
 local cpu_rows = {
@@ -57,7 +59,7 @@ local function create_textbox(args)
         text = args.text,
         align = args.align or 'left',
         markup = args.markup,
-        forced_width = args.forced_width or 40,
+        forced_width = args.forced_width or panel_config.panel_size,
         widget = wibox.widget.textbox
     }
 end
@@ -96,7 +98,7 @@ local function worker(user_args)
 
     local args = user_args or {}
 
-    local width = args.width or 50
+    local width = args.width or panel_config.panel_size
     local step_width = args.step_width or 2
     local step_spacing = args.step_spacing or 1
     local color = args.color or beautiful.fg_normal

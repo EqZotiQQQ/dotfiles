@@ -8,6 +8,7 @@ local widgets = {
     cava = require("widgets.cava.cava"),
     textclock = require("widgets.textclock.textclock"),
     calendar = require("widgets.calendar.calendar"),
+    network_widgets = require("widgets.network_widgets"),
 }
 
 return widgets

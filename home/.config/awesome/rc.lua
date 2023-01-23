@@ -29,7 +29,7 @@ local signals = require("signals")
 require("awful.hotkeys_popup.keys")
 
 -- {{{ Configure keybindings
-local bindings = require("keybindings")
+local bindings = require("keybindings.general_bindings")
 root.buttons(bindings.mouse.global)
 root.keys(bindings.keyboard.global)
 -- }}

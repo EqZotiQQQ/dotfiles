@@ -7,7 +7,7 @@
 
 local awful = require("awful")
 local beautiful = require("beautiful")
-local keybindings = require("keybindings")
+local keybindings = require("keybindings.general_bindings")
 
 local screen = _G.screen
 

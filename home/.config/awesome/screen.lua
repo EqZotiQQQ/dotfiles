@@ -5,7 +5,8 @@ local widgets = require("widgets")
 local beautiful = require("beautiful")
 local panel_config = require("panel_config")
 local d = require("dbg")
-local keybindings = require("keybindings")
+local keybindings = require("keybindings.general_bindings")
+local layout_keybindings = require("keybindings.layout_bindings")
 -- local volume_widget = require("widgets.volume-widget.volume")
 -- local widgets = require("widgets")
 local util = require("util")
@@ -31,14 +32,7 @@ function _G.cosy_init_screen(current_screen)
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     current_screen.layoutbox = awful.widget.layoutbox(current_screen)
-    current_screen.layoutbox:buttons(
-        gears.table.join(
-            awful.button({ }, 1, function () awful.layout.inc( 1) end),
-            awful.button({ }, 3, function () awful.layout.inc(-1) end),
-            awful.button({ }, 4, function () awful.layout.inc( 1) end),
-            awful.button({ }, 5, function () awful.layout.inc(-1) end)
-        )
-    )
+    current_screen.layoutbox:buttons(layout_keybindings)
 
     local focus_gradient = gears.color.create_linear_pattern(
         {
@@ -112,9 +106,17 @@ function _G.cosy_init_screen(current_screen)
     -- create new panel
     current_screen.panel = awful.wibar(panel_properties)
 
+    local systray = current_screen.systray
     local textclock_widget = widgets.textclock{}
-    -- local mytextclock = wibox.widget.textclock(markup.fontfg(theme.font, theme.widgetbar_fg, "%a %d-%m-%Y") .. markup.fontfg(theme.font_larger, theme.fg_focus, " %H:%M:%S "), 1)
+    local cpu_widget = widgets.cpu_widget{}
+    local net_widget = widgets.network_widgets.indicator{}
+    local volume_widget = widgets.volume_widget{
+        widget_type = 'arc',
+        refresh_rate = 0.05
+    }
+    local layout_box = current_screen.layoutbox
 
+    -- d.notify_persistent(net_widget)
     -- Add widgets to the wibox
     current_screen.panel:setup {
         layout = wibox.layout.align[panel_orientation],
@@ -126,36 +128,15 @@ function _G.cosy_init_screen(current_screen)
         current_screen.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed[panel_orientation],
+            systray,
             keyboardlayout,
-            current_screen.systray,
             textclock_widget,
-            current_screen.layoutbox,
-            widgets.cpu_widget{},
-            widgets.volume_widget{
-                widget_type = 'arc',
-                refresh_rate = 0.05
-            },
+            cpu_widget,
+            net_widget,
+            volume_widget,
+            layout_box,
         },
     }
-
-    -- local cw = calendar_widget
-    -- local cw = widgets.calendar({
-    --     theme = 'nord',
-    --     placement = 'top_right',
-    -- })
-    -- widgets.calendar.toggle()
-    -- d.notify_persistent(textclock_widget)
-    -- textclock_widget:get_format()
-    -- d.notify(cw)
-    -- textclock_widget:connect_signal(
-    --     "button::press",
-    --     function ()
-        
-    --     end
-    --     function(_, _, _, button)
-    --         if button == 1 then cw.toggle() end
-    --     end
-    -- )
 end
 
 local function connect_for_each_screen()
