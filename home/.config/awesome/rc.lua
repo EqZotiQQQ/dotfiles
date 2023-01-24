@@ -65,17 +65,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 
--- This is used later as the default terminal and editor to run.
-local terminal = "kitty"
-local editor = os.getenv("EDITOR") or "neovim"
-local editor_cmd = terminal .. " -e " .. editor
-
--- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
-local modkey = "Mod4"
+local config_defaults = require("configs.config_defaults")
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -89,14 +79,14 @@ awful.layout.layouts = {
 -- Create a launcher widget and a main menu
 local myawesomemenu = {
    { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
-   { "manual", terminal .. " -e man awesome" },
-   { "edit config", editor_cmd .. " " .. awesome.conffile },
+   { "manual", config_defaults.terminal .. " -e man awesome" },
+   { "edit config", config_defaults.editor_cmd .. " " .. awesome.conffile },
    { "restart", awesome_common.restart },
    { "quit", awesome_common.quit },
 }
 
 local menu_awesome = { "awesome", myawesomemenu, beautiful.awesome_icon }
-local menu_terminal = { "open terminal", terminal }
+local menu_terminal = { "open terminal", config_defaults.terminal }
 
 local mymainmenu = freedesktop.menu.build({
     before = { menu_awesome },
@@ -110,7 +100,7 @@ local mylauncher = awful.widget.launcher({
 })
 
 -- Menubar configuration
-menubar.utils.terminal = terminal -- Set the terminal for applications that require it
+menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- Keyboard map indicator and switcher
@@ -121,9 +111,9 @@ local mykeyboardlayout = awful.widget.keyboardlayout()
 local mytextclock = wibox.widget.textclock()
 
 -- Create a wibox for each screen and add it
-local taglist_buttons = require("keybindings.general_taglist_buttons")
+local taglist_buttons = require("keybindings.general_taglist_mouse_bindings")
 
-local tasklist_buttons = require("keybindings.general_tasklist_buttons")
+local tasklist_buttons = require("keybindings.general_tasklist_mouse_bindings")
 
 local function set_wallpaper(s)
     -- Wallpaper
@@ -207,19 +197,7 @@ local clientkeys = require("keybindings.general_client_bindings")
 local add_tags_bindings = require("keybindings.general_panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
 
-local clientbuttons = gears.table.join(
-    awful.button({ }, 1, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-    end),
-    awful.button({ modkey }, 1, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-        awful.mouse.client.move(c)
-    end),
-    awful.button({ modkey }, 3, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-        awful.mouse.client.resize(c)
-    end)
-)
+local clientbuttons = require("keybindings.general_client_mouse_bindings")
 
 -- Set keys
 root.buttons(mouse_bindings)
