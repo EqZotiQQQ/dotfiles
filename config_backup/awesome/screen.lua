@@ -7,8 +7,6 @@ local panel_config = require("panel_config")
 local d = require("dbg")
 local keybindings = require("keybindings.general_bindings")
 local layout_keybindings = require("keybindings.layout_bindings")
--- local volume_widget = require("widgets.volume-widget.volume")
--- local widgets = require("widgets")
 local util = require("util")
 local screen = _G.screen
 local details = require("details")
@@ -18,16 +16,16 @@ local details = require("details")
 local keyboardlayout = awful.widget.keyboardlayout()
 
 function _G.cosy_init_screen(current_screen)
-    current_screen.cava = widgets.cava(
-        current_screen,
-        {
-            bars = panel_config.cava_config.bars,
-            enable_interpolation = panel_config.cava_config.interpolation,
-            size = panel_config.panel_size,
-            position = panel_config.actual_position,
-            update_time = panel_config.cava_config.update_time,
-        }
-    )
+    -- current_screen.cava = widgets.cava(
+    --     current_screen,
+    --     {
+    --         bars = panel_config.cava_config.bars,
+    --         enable_interpolation = panel_config.cava_config.interpolation,
+    --         size = panel_config.panel_size,
+    --         position = panel_config.actual_position,
+    --         update_time = panel_config.cava_config.update_time,
+    --     }
+    -- )
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -45,11 +43,11 @@ function _G.cosy_init_screen(current_screen)
             }
         }
     )
-    local cw = widgets.calendar({
-        theme = 'nord',
-        placement = 'top_right',
-    })
-    cw.toggle()
+    -- local cw = widgets.calendar({
+    --     theme = 'nord',
+    --     placement = 'top_right',
+    -- })
+    -- cw.toggle()
 
     local panel_orientation =
         (panel_config.actual_position == details.position.left or
@@ -108,8 +106,8 @@ function _G.cosy_init_screen(current_screen)
 
     local systray = current_screen.systray
     local textclock_widget = widgets.textclock{}
-    local cpu_widget = widgets.cpu_widget{}
-    local net_widget = widgets.network_widgets.indicator{}
+    -- local cpu_widget = widgets.cpu_widget{}
+    -- local net_widget = widgets.network_widgets.indicator{}
     local volume_widget = widgets.volume_widget{
         widget_type = 'arc',
         refresh_rate = 0.05
@@ -131,8 +129,8 @@ function _G.cosy_init_screen(current_screen)
             systray,
             keyboardlayout,
             textclock_widget,
-            cpu_widget,
-            net_widget,
+            -- cpu_widget,
+            -- net_widget,
             volume_widget,
             layout_box,
         },

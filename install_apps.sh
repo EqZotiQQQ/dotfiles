@@ -33,7 +33,8 @@ sudo apt install -y \
 
 # lua
 sudo apt install -y \
-    lua-posix
+    lua-posix \
+    luarocks
 
 
 # Kitty term
@@ -94,14 +95,22 @@ sudo apt install -y \
 
 
 # Utils
-sudo apt install -y
-    htop
+sudo apt install -y \
+    htop \
+    net-tools
 
 
 # Beauty login screens
-sudo apt install -y
+sudo apt install -y \
     lightdm
 
+# Xorg server
+sudo apt install -y \
+    xorg-server-source
+
+# Ssl chrome fix
+sudo apt install -y \
+    ssl-cert-check
 
 sudo snap install telegram-desktop
 sudo snap install vlc

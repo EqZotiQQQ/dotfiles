@@ -5,7 +5,7 @@ local panel_dpi = 50
 local taglist_font_size = 13
 
 local cava_config = {
-    update_time = 0.1,
+    update_time = 1,
     bars = 100,
     interpolation = false,
 }

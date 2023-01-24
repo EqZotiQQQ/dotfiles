@@ -7,4 +7,6 @@
 
 . /etc/X11/xinit/xinitrc
 
+setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'
+
 exec awesome
