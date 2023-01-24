@@ -1,5 +1,6 @@
 local awful = require("awful")
 local menubar = require("menubar")
+local gears = require("gears")
 
 local modkey = require("configs.config_defaults").modkey
 local terminal = require("configs.config_defaults").terminal
@@ -8,7 +9,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 
 local client = _G.client
 
-local bindings = {
+local bindings = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
         {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
@@ -107,6 +108,6 @@ local bindings = {
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
         {description = "show the menubar", group = "launcher"})
-}
+)
 
 return bindings
