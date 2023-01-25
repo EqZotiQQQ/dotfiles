@@ -97,27 +97,17 @@ local mymainmenu = freedesktop.menu.build({
 menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
 -- }}}
 
-local function set_wallpaper(this_screen)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(this_screen)
-        end
-        gears.wallpaper.maximized(wallpaper, this_screen, true)
-    end
-end
+local theme_management = require("theme_management.common")
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
+screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
 local init_panel = require("panel.panel")
 
 awful.screen.connect_for_each_screen(
     function(this_screen)
     -- Wallpaper
-    set_wallpaper(this_screen)
+    theme_management.set_wallpaper(this_screen)
 
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
