@@ -112,8 +112,6 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
-local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
-
 local init_panel = require("panel.panel")
 
 awful.screen.connect_for_each_screen(
@@ -124,7 +122,7 @@ awful.screen.connect_for_each_screen(
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_panel(this_screen, layout_mouse_bindings)
+    init_panel(this_screen)
 end)
 -- }}}
 

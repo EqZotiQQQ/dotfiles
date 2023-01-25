@@ -8,10 +8,11 @@ local panel_orientations = require("presets.panel_orientations")
 
 local taglist_mouse_bindings = require("keybindings.taglist_mouse_bindings")
 local tasklist_mouse_bindings = require("keybindings.tasklist_mouse_bindings")
+local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
 
 local panel_config = require("configs.panel")
 
-local init_panel = function(current_screen, layout_keybindings)
+local init_panel = function(current_screen)
     -- current_screen.cava = widgets.cava(
     --     current_screen,
     --     {
@@ -26,7 +27,7 @@ local init_panel = function(current_screen, layout_keybindings)
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     current_screen.layoutbox = awful.widget.layoutbox(current_screen)
-    current_screen.layoutbox:buttons(layout_keybindings)
+    current_screen.layoutbox:buttons(layout_mouse_bindings)
 
     local focus_gradient = gears.color.create_linear_pattern(
         {
