@@ -12,6 +12,10 @@ local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
 
 local panel_config = require("configs.panel")
 
+local clock_widget = require("widgets.panel.textclock.textclock")
+local volume_widget = require("widgets.panel.volume-widget.volume")
+
+
 local init_panel = function(current_screen)
     -- current_screen.cava = widgets.cava(
     --     current_screen,
@@ -102,13 +106,13 @@ local init_panel = function(current_screen)
     current_screen.panel = awful.wibar(panel_properties)
 
     local systray = current_screen.systray
-    -- local textclock_widget = widgets.textclock{}
+    local textclock_widget = clock_widget{}
     -- local cpu_widget = widgets.cpu_widget{}
     -- local net_widget = widgets.network_widgets.indicator{}
-    -- local volume_widget = widgets.volume_widget{
-    --     widget_type = 'arc',
-    --     refresh_rate = 0.05
-    -- }
+    local volume_widget = volume_widget{
+        widget_type = 'arc',
+        refresh_rate = 0.05
+    }
     local layout_box = current_screen.layoutbox
 
     -- d.notify_persistent(net_widget)
@@ -125,10 +129,10 @@ local init_panel = function(current_screen)
             layout = wibox.layout.fixed[panel_orientation],
             systray,
             -- keyboardlayout,
-            -- textclock_widget,
+            textclock_widget,
             -- cpu_widget,
             -- net_widget,
-            -- volume_widget,
+            volume_widget,
             layout_box,
         },
     }
