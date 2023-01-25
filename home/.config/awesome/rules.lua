@@ -1,8 +1,11 @@
 local beautiful = require("beautiful")
 local awful = require("awful")
 
+local clientkeys = require("keybindings.client_bindings")
+local clientbuttons = require("keybindings.client_mouse_bindings")
 
-local create_rules = function(clientkeys, clientbuttons)
+
+local create_rules = function()
     local rules = {
         -- All clients will match this rule.
         {

@@ -93,27 +93,9 @@ local mymainmenu = freedesktop.menu.build({
     after =  { menu_terminal }
 })
 
-
-local mylauncher = awful.widget.launcher({
-    image = beautiful.awesome_icon,
-    menu = mymainmenu,
-})
-
 -- Menubar configuration
 menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
 -- }}}
-
--- Keyboard map indicator and switcher
-local mykeyboardlayout = awful.widget.keyboardlayout()
-
--- {{{ Wibar
--- Create a textclock widget
-local mytextclock = wibox.widget.textclock()
-
--- Create a wibox for each screen and add it
-local taglist_buttons = require("keybindings.taglist_mouse_bindings")
-
-local tasklist_buttons = require("keybindings.tasklist_mouse_bindings")
 
 local function set_wallpaper(this_screen)
     -- Wallpaper
@@ -153,12 +135,10 @@ local mouse_bindings = set_mouse_bindings(mymainmenu)
 local set_keyboard_bindings = require("keybindings.bindings")
 local keyboard_bindings = set_keyboard_bindings(mymainmenu)
 
-local clientkeys = require("keybindings.client_bindings")
 
 local add_tags_bindings = require("keybindings.panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
 
-local clientbuttons = require("keybindings.client_mouse_bindings")
 
 -- Set keys
 root.buttons(mouse_bindings)
@@ -168,7 +148,7 @@ root.keys(keyboard_bindings)
 -- {{{ Rules
 -- Rules to apply to new clients (through the "manage" signal).
 local create_rules = require("rules")
-awful.rules.rules = create_rules(clientkeys, clientbuttons)
+awful.rules.rules = create_rules()
 -- }}}
 
 -- {{{ Signals
