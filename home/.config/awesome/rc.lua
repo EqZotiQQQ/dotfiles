@@ -111,93 +111,54 @@ local mykeyboardlayout = awful.widget.keyboardlayout()
 local mytextclock = wibox.widget.textclock()
 
 -- Create a wibox for each screen and add it
-local taglist_buttons = require("keybindings.general_taglist_mouse_bindings")
+local taglist_buttons = require("keybindings.taglist_mouse_bindings")
 
-local tasklist_buttons = require("keybindings.general_tasklist_mouse_bindings")
+local tasklist_buttons = require("keybindings.tasklist_mouse_bindings")
 
-local function set_wallpaper(s)
+local function set_wallpaper(this_screen)
     -- Wallpaper
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
         -- If wallpaper is a function, call it with the screen
         if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
+            wallpaper = wallpaper(this_screen)
         end
-        gears.wallpaper.maximized(wallpaper, s, true)
+        gears.wallpaper.maximized(wallpaper, this_screen, true)
     end
 end
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
-awful.screen.connect_for_each_screen(function(s)
+local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
+
+local init_panel = require("panel.panel")
+
+awful.screen.connect_for_each_screen(
+    function(this_screen)
     -- Wallpaper
-    set_wallpaper(s)
+    set_wallpaper(this_screen)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    -- Create a promptbox for each screen
-    s.mypromptbox = awful.widget.prompt()
-    -- Create an imagebox widget which will contain an icon indicating which layout we're using.
-    -- We need one layoutbox per screen.
-    s.mylayoutbox = awful.widget.layoutbox(s)
-    s.mylayoutbox:buttons(gears.table.join(
-                           awful.button({ }, 1, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 3, function () awful.layout.inc(-1) end),
-                           awful.button({ }, 4, function () awful.layout.inc( 1) end),
-                           awful.button({ }, 5, function () awful.layout.inc(-1) end)))
-    -- Create a taglist widget
-    s.mytaglist = awful.widget.taglist {
-        screen  = s,
-        filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons
-    }
-
-    -- Create a tasklist widget
-    s.mytasklist = awful.widget.tasklist {
-        screen  = s,
-        filter  = awful.widget.tasklist.filter.currenttags,
-        buttons = tasklist_buttons
-    }
-
-    -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
-
-    -- Add widgets to the wibox
-    s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left widgets
-            layout = wibox.layout.fixed.horizontal,
-            mylauncher,
-            s.mytaglist,
-            s.mypromptbox,
-        },
-        s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            mytextclock,
-            s.mylayoutbox,
-        },
-    }
+    init_panel(this_screen, layout_mouse_bindings)
 end)
 -- }}}
 
 -- {{{ Bindings
-local set_mouse_bindings = require("keybindings.general_mouse_bindings")
+local set_mouse_bindings = require("keybindings.mouse_bindings")
 local mouse_bindings = set_mouse_bindings(mymainmenu)
 
-local set_general_keyboard_bindings = require("keybindings.general_bindings")
-local keyboard_bindings = set_general_keyboard_bindings(mymainmenu)
+local set_keyboard_bindings = require("keybindings.bindings")
+local keyboard_bindings = set_keyboard_bindings(mymainmenu)
 
-local clientkeys = require("keybindings.general_client_bindings")
+local clientkeys = require("keybindings.client_bindings")
 
-local add_tags_bindings = require("keybindings.general_panel_bindings")
+local add_tags_bindings = require("keybindings.panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
 
-local clientbuttons = require("keybindings.general_client_mouse_bindings")
+local clientbuttons = require("keybindings.client_mouse_bindings")
 
 -- Set keys
 root.buttons(mouse_bindings)
@@ -227,44 +188,47 @@ client.connect_signal("manage", function (c)
 )
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
-client.connect_signal("request::titlebars", function(c)
-    -- buttons for the titlebar
-    local buttons = gears.table.join(
-        awful.button({ }, 1, function()
-            c:emit_signal("request::activate", "titlebar", {raise = true})
-            awful.mouse.client.move(c)
-        end),
-        awful.button({ }, 3, function()
-            c:emit_signal("request::activate", "titlebar", {raise = true})
-            awful.mouse.client.resize(c)
-        end)
-    )
+client.connect_signal(
+    "request::titlebars",
+    function(this_client)
+        -- buttons for the titlebar
+        local buttons = gears.table.join(
+            awful.button({ }, 1, function()
+                this_client:emit_signal("request::activate", "titlebar", {raise = true})
+                awful.mouse.client.move(this_client)
+            end),
+            awful.button({ }, 3, function()
+                this_client:emit_signal("request::activate", "titlebar", {raise = true})
+                awful.mouse.client.resize(this_client)
+            end)
+        )
 
-    awful.titlebar(c) : setup {
-        { -- Left
-            awful.titlebar.widget.iconwidget(c),
-            buttons = buttons,
-            layout  = wibox.layout.fixed.horizontal
-        },
-        { -- Middle
-            { -- Title
-                align  = "center",
-                widget = awful.titlebar.widget.titlewidget(c)
+        awful.titlebar(this_client) : setup {
+            { -- Left
+                awful.titlebar.widget.iconwidget(this_client),
+                buttons = buttons,
+                layout  = wibox.layout.fixed.horizontal
             },
-            buttons = buttons,
-            layout  = wibox.layout.flex.horizontal
-        },
-        { -- Right
-            awful.titlebar.widget.floatingbutton (c),
-            awful.titlebar.widget.maximizedbutton(c),
-            awful.titlebar.widget.stickybutton   (c),
-            awful.titlebar.widget.ontopbutton    (c),
-            awful.titlebar.widget.closebutton    (c),
-            layout = wibox.layout.fixed.horizontal()
-        },
-        layout = wibox.layout.align.horizontal
-    }
-end)
+            { -- Middle
+                { -- Title
+                    align  = "center",
+                    widget = awful.titlebar.widget.titlewidget(this_client)
+                },
+                buttons = buttons,
+                layout  = wibox.layout.flex.horizontal
+            },
+            { -- Right
+                awful.titlebar.widget.floatingbutton (this_client),
+                awful.titlebar.widget.maximizedbutton(this_client),
+                awful.titlebar.widget.stickybutton   (this_client),
+                awful.titlebar.widget.ontopbutton    (this_client),
+                awful.titlebar.widget.closebutton    (this_client),
+                layout = wibox.layout.fixed.horizontal()
+            },
+            layout = wibox.layout.align.horizontal
+        }
+    end
+)
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
