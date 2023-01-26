@@ -114,7 +114,7 @@ local init_panel = function(current_screen)
         refresh_rate = 0.05
     }
     local layout_box = current_screen.layoutbox
-
+    local keyboardlayout = awful.widget.keyboardlayout()
     -- d.notify_persistent(net_widget)
     -- Add widgets to the wibox
     current_screen.panel:setup {
@@ -128,7 +128,7 @@ local init_panel = function(current_screen)
         { -- Right widgets
             layout = wibox.layout.fixed[panel_orientation],
             systray,
-            -- keyboardlayout,
+            keyboardlayout,
             textclock_widget,
             -- cpu_widget,
             -- net_widget,
