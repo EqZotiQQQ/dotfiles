@@ -104,8 +104,7 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
 local init_panel = require("panel.panel")
 
-awful.screen.connect_for_each_screen(
-    function(this_screen)
+awful.screen.connect_for_each_screen(function(this_screen)
     -- Wallpaper
     theme_management.set_wallpaper(this_screen)
 

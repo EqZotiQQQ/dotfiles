@@ -16,6 +16,7 @@ local watch = require("awful.widget.watch")
 local utils = require("widgets.panel.volume-widget.utils")
 local mouse = _G.mouse
 
+local d = require("dbg")
 
 local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
 local function GET_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sget Master' end
@@ -160,7 +161,7 @@ local function rebuild_popup()
 end
 
 
-local function worker(user_args)
+local function init(user_args)
 
     local args = user_args or {}
 
@@ -216,7 +217,9 @@ local function worker(user_args)
                     end),
                     awful.button({}, 4, function() volume:inc() end),
                     awful.button({}, 5, function() volume:dec() end),
-                    awful.button({}, 2, function() volume:mixer() end),
+                    awful.button({}, 2, function()
+                        volume:mixer()
+                    end),
                     awful.button({}, 1, function() volume:toggle() end)
             )
     )
@@ -226,4 +229,4 @@ local function worker(user_args)
     return volume.widget
 end
 
-return setmetatable(volume, { __call = function(_, ...) return worker(...) end })
+return setmetatable(volume, { __call = function(_, ...) return init(...) end })

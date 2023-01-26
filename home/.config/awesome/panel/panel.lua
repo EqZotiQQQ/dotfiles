@@ -111,7 +111,9 @@ local init_panel = function(current_screen)
     -- local net_widget = widgets.network_widgets.indicator{}
     local volume_widget = volume_widget{
         widget_type = 'arc',
-        refresh_rate = 0.05
+        -- refresh_rate = 1,
+        -- step = 5,
+        -- device = "pulse",
     }
     local layout_box = current_screen.layoutbox
     local keyboardlayout = awful.widget.keyboardlayout()

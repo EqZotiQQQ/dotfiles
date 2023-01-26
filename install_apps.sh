@@ -112,6 +112,10 @@ sudo apt install -y \
 sudo apt install -y \
     ssl-cert-check
 
+# audio
+sudo apt install -y \
+    pavucontrol
+
 sudo snap install telegram-desktop
 sudo snap install vlc
 sudo snap install discord

@@ -3,7 +3,13 @@ local beautiful = require('beautiful')
 
 local panel_size = require("configs.panel").panel_size
 
-local ICON_DIR = os.getenv("HOME") .. '/.config/awesome/widgets/panel/volume-widget/icons/'
+
+local get_script_location = require("common.awesome_common").get_script_location
+local d = require("dbg")
+local ICON_DIR = get_script_location() .. '../'.. 'icons/'
+
+d.notify_persistent(get_script_location() .. 'icons/')
+
 
 local widget = {}
 
