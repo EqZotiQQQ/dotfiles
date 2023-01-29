@@ -12,30 +12,23 @@ require("awful.hotkeys_popup.keys")
 
 local theme_management = require("theme_management.common")
 
--- Debug module
 local d = require("dbg")
 
--- Awesome stack
 local awesome = _G.awesome
 local client = _G.client
 local root = _G.root
 local screen = _G.screen
 
 
--- {{{ Error handling
--- Check if awesome encountered an error during startup and fell back to
--- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
     naughty.notify({ preset = naughty.config.presets.critical,
                      title = "Oops, there were errors during startup!",
                      text = awesome.startup_errors })
 end
 
--- Handle runtime errors after startup
 do
     local in_error = false
     awesome.connect_signal("debug::error", function (err)
-        -- Make sure we don't go into an endless error loop
         if in_error then return end
         in_error = true
 
@@ -45,26 +38,17 @@ do
         in_error = false
     end)
 end
--- }}}
 
--- {{{ Variable definitions
--- Themes define colours, icons, font and wallpapers.
 beautiful.init(theme_management.get_theme())
 
-local config_defaults = require("configs.config_defaults")
-
--- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
     awful.layout.suit.tile,
     awful.layout.suit.floating,
     awful.layout.suit.max,
 }
--- }}}
 
-
--- Menubar configuration
-menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
--- }}}
+local config_defaults = require("configs.config_defaults")
+menubar.utils.terminal = config_defaults.terminal
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", theme_management.set_wallpaper)
@@ -80,15 +64,14 @@ awful.screen.connect_for_each_screen(function(this_screen)
     init_screen(this_screen)
 end)
 
-local menu = require("menu")
 
 -- {{{ Bindings
+local menu = require("menu")
 local set_mouse_bindings = require("keybindings.mouse_bindings")
 local mouse_bindings = set_mouse_bindings(menu)
 
 local set_keyboard_bindings = require("keybindings.bindings")
 local keyboard_bindings = set_keyboard_bindings(menu)
-
 
 local add_tags_bindings = require("keybindings.panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
