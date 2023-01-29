@@ -8,7 +8,12 @@ local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 
-local audio = require("widgets.cava.details.audio")
+
+-- local get_script_location = require("common.awesome_common").get_script_location
+local audio = require("widgets.screen.cava.details.audio")
+
+
+local panel_config = require("configs.panel")
 
 local d = require("dbg")
 
@@ -72,16 +77,7 @@ local function draw_interpolated(self, context, cr, width, height)
     cr:stroke()
 end
 
--- TODO: Document properties
---- args:
---- current_screen,
---- {
----     bars = panel_config.cava_config.*,
----     enable_interpolation = panel_config.cava_config.*,
----     size = panel_config.*,
----     position = panel_config.*,
----     update_time = panel_config.cava_config.*,
---- }
+
 function cava.new(current_screen, properties)
     local properties = gears.table.join(cava.defaults, properties or {})
     local cava_widget = gears.table.join(properties, wibox.widget.base.make_widget())
@@ -89,36 +85,37 @@ function cava.new(current_screen, properties)
 
     cava_widget.draw = cava_widget.enable_interpolation and draw_interpolated or draw
 
+    local cava_shift = panel_config.cava_config.overlap_panel and properties.size or properties.size * 2
+    local cava_shift_horizontal = panel_config.cava_config.overlap_panel and 0 or properties.size
+
     -- positioning
     if cava_widget.position == "top" then
         properties.w = current_screen.geometry.width
         properties.h = properties.size
         properties.rotation = "south"
         if not properties.x then properties.x = 0 end
-        if not properties.y then properties.y = 0 end
+        if not properties.y then properties.y = cava_shift_horizontal end
     elseif cava_widget.position == "left" then
         properties.w = properties.size
         properties.h = current_screen.geometry.height
         properties.rotation = "west"
-        if not properties.x then properties.x = 0 end
+        if not properties.x then properties.x = cava_shift_horizontal end
         if not properties.y then properties.y = 0 end
     elseif cava_widget.position == "bottom" then
         properties.w = current_screen.geometry.width
         properties.h = properties.size
         properties.rotation = "north"
         if not properties.x then properties.x = 0 end
-        if not properties.y then properties.y = current_screen.geometry.height - properties.size end
+        if not properties.y then properties.y = current_screen.geometry.height - cava_shift end
     elseif cava_widget.position == "right" then
         properties.w = properties.size
         properties.h = current_screen.geometry.height
         properties.rotation = "east"
-        if not properties.x then properties.x = current_screen.geometry.width - properties.size end
+        if not properties.x then properties.x = current_screen.geometry.width - cava_shift end
         if not properties.y then properties.y = 0 end
     else
         error("Wrong cava widget position: "..cava_widget.position)
     end
-
-    -- d.notify_persistent(properties)
 
     for i = 1, cava_widget.bars do
         cava_widget.val[i] = 0

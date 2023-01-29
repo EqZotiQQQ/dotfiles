@@ -8,9 +8,6 @@ local get_script_location = require("common.awesome_common").get_script_location
 local d = require("dbg")
 local ICON_DIR = get_script_location() .. '../'.. 'icons/'
 
-d.notify_persistent(get_script_location() .. 'icons/')
-
-
 local widget = {}
 
 function widget.get_widget(widgets_args)

@@ -16,24 +16,24 @@ fi
 
 # Create cache dir if missing
 export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/"
-if [[ ! -d $ZSH_CACHE_DIR ]]; then
-  mkdir -p $ZSH_CACHE_DIR
+if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
+  mkdir -p "${ZSH_CACHE_DIR}"
 fi
 
 # load zinit or download if missing
-export ZINIT_HOME="$ZDOTDIR/zinit"
-if [[ ! -a $ZINIT_HOME/bin/zinit.zsh ]]; then
-    git clone https://github.com/zdharma-continuum/zinit.git $ZINIT_HOME/bin
+export ZINIT_HOME="${ZDOTDIR}/zinit"
+if [[ ! -a "${ZINIT_HOME}/bin/zinit.zsh" ]]; then
+    git clone https://github.com/zdharma-continuum/zinit.git "${ZINIT_HOME}/bin"
 fi
 
-source $ZINIT_HOME/bin/zinit.zsh
-source $ZDOTDIR/plugins.zsh
-source $ZDOTDIR/p10k_1.zsh
+source "${ZINIT_HOME}/bin/zinit.zsh"
+source "${ZDOTDIR}/plugins.zsh"
+source "${ZDOTDIR}/p10k_1.zsh"
 
 
 # Load basic settings
-for file in $ZDOTDIR/settings/*; do
-  source $file
+for file in ${ZDOTDIR}/settings/*; do
+  source ${file}
 done
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

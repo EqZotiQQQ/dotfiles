@@ -26,10 +26,7 @@ local function TOG_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sset Ma
 
 
 local widget_types = {
-    icon_and_text = require("widgets.panel.volume-widget.widgets.icon-and-text-widget"),
-    icon = require("widgets.panel.volume-widget.widgets.icon-widget"),
     arc = require("widgets.panel.volume-widget.widgets.arc-widget"),
-    horizontal_bar = require("widgets.panel.volume-widget.widgets.horizontal-bar-widget"),
     vertical_bar = require("widgets.panel.volume-widget.widgets.vertical-bar-widget")
 }
 local volume = {}
@@ -172,7 +169,7 @@ local function init(user_args)
     local device = args.device or 'pulse'
 
     if widget_types[widget_type] == nil then
-        volume.widget = widget_types['icon_and_text'].get_widget(args.icon_and_text_args)
+        volume.widget = widget_types['vertical_bar'].get_widget(args.vertical_bar)
     else
         volume.widget = widget_types[widget_type].get_widget(args)
     end

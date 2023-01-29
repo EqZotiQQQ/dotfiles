@@ -8,7 +8,7 @@ local awful = require("awful")
 local posix_signal = require("posix.signal")
 local naughty = require("naughty")
 local gears = require("gears")
-local util = require("util")
+local util = require("common.util")
 local posix = require("posix")
 
 local d = require("dbg")

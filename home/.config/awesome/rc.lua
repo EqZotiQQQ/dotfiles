@@ -26,6 +26,8 @@ local _, freedesktop = pcall(require, "freedesktop")
 
 local awesome_common = require("common.awesome_common")
 
+local theme_management = require("theme_management.common")
+
 -- Debug module
 local d = require("dbg")
 
@@ -63,7 +65,7 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+beautiful.init(theme_management.get_theme().improved_default)
 
 local config_defaults = require("configs.config_defaults")
 
@@ -97,12 +99,10 @@ local mymainmenu = freedesktop.menu.build({
 menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
 -- }}}
 
-local theme_management = require("theme_management.common")
-
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
-local init_panel = require("panel.panel")
+local init_screen = require("screen.init_screen")
 
 awful.screen.connect_for_each_screen(function(this_screen)
     -- Wallpaper
@@ -111,7 +111,7 @@ awful.screen.connect_for_each_screen(function(this_screen)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_panel(this_screen)
+    init_screen(this_screen)
 end)
 -- }}}
 
@@ -205,3 +205,10 @@ end)
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+local startups = require("startup")
+for func_name, func in pairs(startups) do
+    if func_name ~= "on_error_signal" then
+        func()
+    end
+end

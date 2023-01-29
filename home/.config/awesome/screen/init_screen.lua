@@ -14,19 +14,20 @@ local panel_config = require("configs.panel")
 
 local clock_widget = require("widgets.panel.textclock.textclock")
 local volume_widget = require("widgets.panel.volume-widget.volume")
+local cava = require("widgets.screen.cava.cava")
 
 
 local init_panel = function(current_screen)
-    -- current_screen.cava = widgets.cava(
-    --     current_screen,
-    --     {
-    --         bars = panel_config.cava_config.bars,
-    --         enable_interpolation = panel_config.cava_config.interpolation,
-    --         size = panel_config.panel_size,
-    --         position = panel_config.actual_position,
-    --         update_time = panel_config.cava_config.update_time,
-    --     }
-    -- )
+    current_screen.cava = cava(
+        current_screen,
+        {
+            bars = panel_config.cava_config.bars,
+            enable_interpolation = panel_config.cava_config.interpolation,
+            size = panel_config.panel_size,
+            position = panel_config.actual_position,
+            update_time = panel_config.cava_config.update_time,
+        }
+    )
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -44,11 +45,6 @@ local init_panel = function(current_screen)
             }
         }
     )
-    -- local cw = widgets.calendar({
-    --     theme = 'nord',
-    --     placement = 'top_right',
-    -- })
-    -- cw.toggle()
 
     local panel_orientation =
         (panel_config.actual_position == panel_positions.left or
@@ -110,10 +106,8 @@ local init_panel = function(current_screen)
     -- local cpu_widget = widgets.cpu_widget{}
     -- local net_widget = widgets.network_widgets.indicator{}
     local volume_widget = volume_widget{
-        widget_type = 'arc',
-        -- refresh_rate = 1,
-        -- step = 5,
-        -- device = "pulse",
+        widget_type = 'vertical_bar', -- [] arc | vertical_bar ]
+        refresh_rate = 0.1,
     }
     local layout_box = current_screen.layoutbox
     local keyboardlayout = awful.widget.keyboardlayout()
