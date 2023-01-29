@@ -1,30 +1,14 @@
--- If LuaRocks is installed, make sure that packages installed through it are
--- found (e.g. lgi). If LuaRocks is not installed, do nothing.
--- pcall(require, "luarocks.loader")
-
--- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
 
--- Widget and layout library
 local wibox = require("wibox")
 
--- Theme handling library
 local beautiful = require("beautiful")
 
--- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
-local hotkeys_popup = require("awful.hotkeys_popup")
--- Enable hotkeys help widget for VIM and other apps
--- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
-
--- Load Debian menu entries
-local _, freedesktop = pcall(require, "freedesktop")
-
-local awesome_common = require("common.awesome_common")
 
 local theme_management = require("theme_management.common")
 
@@ -77,23 +61,6 @@ awful.layout.layouts = {
 }
 -- }}}
 
--- {{{ Menu
--- Create a launcher widget and a main menu
-local myawesomemenu = {
-   { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
-   { "manual", config_defaults.terminal .. " -e man awesome" },
-   { "edit config", config_defaults.editor_cmd .. " " .. awesome.conffile },
-   { "restart", awesome_common.restart },
-   { "quit", awesome_common.quit },
-}
-
-local menu_awesome = { "awesome", myawesomemenu, beautiful.awesome_icon }
-local menu_terminal = { "open terminal", config_defaults.terminal }
-
-local mymainmenu = freedesktop.menu.build({
-    before = { menu_awesome },
-    after =  { menu_terminal }
-})
 
 -- Menubar configuration
 menubar.utils.terminal = config_defaults.terminal -- Set the terminal for applications that require it
@@ -104,34 +71,23 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
 local init_screen = require("screen.init_screen")
 
-local widgets = require("widgets.init")
-
-local screen_widgets = {}
-
-local panel_widgets = {}
-
-local widgets = gears.table.join(
-    screen_widgets,
-    panel_widgets
-)
-
 awful.screen.connect_for_each_screen(function(this_screen)
-    -- Wallpaper
     theme_management.set_wallpaper(this_screen)
 
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_screen(this_screen, widgets)
+    init_screen(this_screen)
 end)
--- }}}
+
+local menu = require("menu")
 
 -- {{{ Bindings
 local set_mouse_bindings = require("keybindings.mouse_bindings")
-local mouse_bindings = set_mouse_bindings(mymainmenu)
+local mouse_bindings = set_mouse_bindings(menu)
 
 local set_keyboard_bindings = require("keybindings.bindings")
-local keyboard_bindings = set_keyboard_bindings(mymainmenu)
+local keyboard_bindings = set_keyboard_bindings(menu)
 
 
 local add_tags_bindings = require("keybindings.panel_bindings")
@@ -218,6 +174,6 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 local startups = require("startup")
-for func_name, func in pairs(startups) do
+for _, func in pairs(startups) do
     func()
 end

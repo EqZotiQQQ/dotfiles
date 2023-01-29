@@ -16,7 +16,6 @@ local clock_widget = require("widgets.panel.textclock.textclock")
 local volume_widget = require("widgets.panel.volume-widget.volume")
 local cava = require("widgets.screen.cava.cava")
 
-
 local init_panel = function(current_screen)
     current_screen.cava = cava(
         current_screen,
