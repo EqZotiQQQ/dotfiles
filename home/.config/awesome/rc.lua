@@ -104,6 +104,17 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
 local init_screen = require("screen.init_screen")
 
+local widgets = require("widgets.init")
+
+local screen_widgets = {}
+
+local panel_widgets = {}
+
+local widgets = gears.table.join(
+    screen_widgets,
+    panel_widgets
+)
+
 awful.screen.connect_for_each_screen(function(this_screen)
     -- Wallpaper
     theme_management.set_wallpaper(this_screen)
@@ -111,7 +122,7 @@ awful.screen.connect_for_each_screen(function(this_screen)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_screen(this_screen)
+    init_screen(this_screen, widgets)
 end)
 -- }}}
 

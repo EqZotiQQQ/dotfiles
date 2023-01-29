@@ -18,17 +18,17 @@ local beautiful = require("beautiful")
 
 local volume_widget = require("widgets.volume-widget.volume")
 
+local volume_bindings = require("keybindings.volume_widget_bindings")
+
 local panel_config = require("panel_config")
+local theme_management = require("theme_management.common")
 
 local client = _G.client
 local awesome = _G.awesome
 local screen = _G.screen
 
 local modkey = general_config.modkey
-local theme_dir = theme_config.theme_dir
 local terminal = general_config.terminal
-
-local high_level_theme_config = require("configs.theme")
 
 local screenshot_path = "~/Pictures/Screenshots/"
 
@@ -53,7 +53,7 @@ local function client_menu_toggle_fn()
 end
 
 local function reload_color()
-    beautiful.init(high_level_theme_config.theme)
+    beautiful.init(theme_management.get_theme())
     for s in screen do
         _G.cosy_init_screen(s)
     end
@@ -155,9 +155,7 @@ bindings.keyboard = {
         awful.key({ "Mod1", ctrl}, "Print",     function()      awful.spawn.with_shell("flameshot full --clipboard")                           end, {description = "Take a screenshot of all screens to clipboard",  group = "media" }),
 
         -- Audio control
-        awful.key({ modkey }, "]", function() volume_widget:inc(5)   end, {description = "Increase sound by 5 percent",  group = "media" }),
-        awful.key({ modkey }, "[", function() volume_widget:dec(5)   end, {description = "Decrease sound by 5 percent",  group = "media" }),
-        awful.key({ modkey }, "\\",function() volume_widget:toggle() end, {description = "Mute out sound",               group = "media" }),
+
 
         -- Screen manipulation
         awful.key({ modkey }, "o", awful.client.movetoscreen, {description = "Move window to another screen",               group = "screen" })
@@ -292,5 +290,7 @@ for i = 1, 9 do
                   {description = "toggle focused client on tag #" .. i, group = "tag"})
     )
 end
+
+
 
 return bindings

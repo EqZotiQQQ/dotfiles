@@ -12,3 +12,17 @@
 -- }
 
 -- return widgets
+
+local volume_widget = require("widgets.panel.volume-widget.volume")
+local clock_widget = require("widgets.panel.textclock.textclock")
+
+local panel_widgets = {}
+
+panel_widgets.textclock_widget = clock_widget{}
+
+panel_widgets.volume_widget = volume_widget{
+    widget_type = 'vertical_bar', -- [] arc | vertical_bar ]
+    refresh_rate = 0.1
+}
+
+return panel_widgets
