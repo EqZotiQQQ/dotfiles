@@ -65,7 +65,7 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(theme_management.get_theme().improved_default)
+beautiful.init(theme_management.get_theme())
 
 local config_defaults = require("configs.config_defaults")
 
@@ -208,7 +208,5 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 local startups = require("startup")
 for func_name, func in pairs(startups) do
-    if func_name ~= "on_error_signal" then
-        func()
-    end
+    func()
 end

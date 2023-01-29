@@ -3,6 +3,8 @@
 
 local awful = require("awful")
 
+local d = require("dbg")
+
 local hour = os.date("*t").hour
 local wday = os.date("*t").wday
 

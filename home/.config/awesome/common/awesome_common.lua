@@ -1,4 +1,5 @@
 -- Awesome stack
+local awful = require("awful")
 local awesome = _G.awesome
 
 local awesome_common = {}
@@ -9,6 +10,10 @@ end
 
 awesome_common.quit = function()
     awesome.quit()
+end
+
+awesome_common.suspend = function ()
+    awful.spawn("systemctl suspend")
 end
 
 awesome_common.get_script_location = function()
