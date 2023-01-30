@@ -12,12 +12,15 @@ require("awful.hotkeys_popup.keys")
 
 local theme_management = require("theme_management.common")
 
+
 local d = require("dbg")
 
 local awesome = _G.awesome
 local client = _G.client
 local root = _G.root
 local screen = _G.screen
+
+awesome.set_preferred_icon_size(512)
 
 
 if awesome.startup_errors then
@@ -69,11 +72,13 @@ local init_screen = require("screen.init_screen")
 local panel_widgets_ = require("widgets.panel_widgets")
 
 local textclock_widget = panel_widgets_.init_textclock_widget()
+local cpu_widget = panel_widgets_.init_cpu_widget()
 local volume_widget = panel_widgets_.init_volume_widget()
 
 local panel_widgets = {
     textclock_widget,
-    volume_widget,
+    cpu_widget,
+    volume_widget
 }
 
 awful.screen.connect_for_each_screen(function(this_screen)
@@ -97,7 +102,13 @@ local keyboard_bindings = set_keyboard_bindings(menu)
 local add_tags_bindings = require("keybindings.panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
 
+local init_volume_widget_bindings = require("keybindings.volume_widget_bindings")
+local volume_bindings = init_volume_widget_bindings(volume_widget)
 
+keyboard_bindings = gears.table.join(
+    volume_bindings,
+    keyboard_bindings
+)
 -- Set keys
 root.buttons(mouse_bindings)
 root.keys(keyboard_bindings)

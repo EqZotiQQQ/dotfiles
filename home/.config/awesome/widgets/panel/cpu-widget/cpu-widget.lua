@@ -23,7 +23,7 @@ local CMD_slim = [[grep --max-count=1 '^cpu.' /proc/stat]]
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/widgets/cpu-widget'
 
-local panel_config = require("panel_config")
+local panel_config = require("configs.panel")
 
 local cpu_widget = {}
 local cpu_rows = {
