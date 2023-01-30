@@ -16,7 +16,7 @@ local clock_widget = require("widgets.panel.textclock.textclock")
 local volume_widget = require("widgets.panel.volume-widget.volume")
 local cava = require("widgets.screen.cava.cava")
 
-local init_panel = function(current_screen)
+local init_panel = function(current_screen, panel_widgets)
     current_screen.cava = cava(
         current_screen,
         {
@@ -120,16 +120,17 @@ local init_panel = function(current_screen)
             current_screen.taglist,
         },
         current_screen.tasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed[panel_orientation],
-            systray,
-            keyboardlayout,
-            textclock_widget,
-            -- cpu_widget,
-            -- net_widget,
-            volume_widget,
-            layout_box,
-        },
+        gears.table.join(
+            { -- Right widgets
+                layout = wibox.layout.fixed[panel_orientation],
+                systray,
+                keyboardlayout,
+                -- cpu_widget,
+                -- net_widget,
+                layout_box,
+            },
+            panel_widgets
+        )
     }
 end
 

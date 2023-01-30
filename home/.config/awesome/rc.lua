@@ -21,22 +21,33 @@ local screen = _G.screen
 
 
 if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
+    naughty.notify(
+        {
+            preset = naughty.config.presets.critical,
+            title = "Oops, there were errors during startup!",
+            text = awesome.startup_errors
+        }
+    )
 end
 
 do
     local in_error = false
-    awesome.connect_signal("debug::error", function (err)
-        if in_error then return end
-        in_error = true
+    awesome.connect_signal(
+        "debug::error",
+        function (err)
+            if in_error then return end
+            in_error = true
 
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Oops, an error happened!",
-                         text = tostring(err) })
-        in_error = false
-    end)
+            naughty.notify(
+                {
+                    preset = naughty.config.presets.critical,
+                    title = "Oops, an error happened!",
+                    text = tostring(err)
+                }
+            )
+            in_error = false
+        end
+    )
 end
 
 beautiful.init(theme_management.get_theme())
@@ -55,13 +66,22 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 
 local init_screen = require("screen.init_screen")
 
+local panel_widgets_ = require("widgets.panel_widgets")
+local textclock_widget = panel_widgets_.init_textclock_widget()
+local volume_widget = panel_widgets_.init_volume_widget()
+
+local panel_widgets = {
+    textclock_widget = textclock_widget,
+    volume_widget = volume_widget,
+}
+
 awful.screen.connect_for_each_screen(function(this_screen)
     theme_management.set_wallpaper(this_screen)
 
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_screen(this_screen)
+    init_screen(this_screen, panel_widgets)
 end)
 
 
