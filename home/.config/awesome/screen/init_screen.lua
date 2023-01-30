@@ -15,6 +15,7 @@ local panel_config = require("configs.panel")
 local clock_widget = require("widgets.panel.textclock.textclock")
 local volume_widget = require("widgets.panel.volume-widget.volume")
 local cava = require("widgets.screen.cava.cava")
+local d = require("dbg")
 
 local init_panel = function(current_screen, panel_widgets)
     current_screen.cava = cava(
@@ -112,6 +113,19 @@ local init_panel = function(current_screen, panel_widgets)
     local keyboardlayout = awful.widget.keyboardlayout()
     -- d.notify_persistent(net_widget)
     -- Add widgets to the wibox
+    local right_widgets = gears.table.join(
+        { -- Right widgets
+            layout = wibox.layout.fixed[panel_orientation],
+            systray,
+            keyboardlayout,
+            -- cpu_widget,
+            -- net_widget,
+            layout_box,
+            -- panel_widgets.textclock_widget,
+        },
+        panel_widgets
+    )
+
     current_screen.panel:setup {
         layout = wibox.layout.align[panel_orientation],
         { -- Left widgets
@@ -120,17 +134,7 @@ local init_panel = function(current_screen, panel_widgets)
             current_screen.taglist,
         },
         current_screen.tasklist, -- Middle widget
-        gears.table.join(
-            { -- Right widgets
-                layout = wibox.layout.fixed[panel_orientation],
-                systray,
-                keyboardlayout,
-                -- cpu_widget,
-                -- net_widget,
-                layout_box,
-            },
-            panel_widgets
-        )
+        right_widgets
     }
 end
 

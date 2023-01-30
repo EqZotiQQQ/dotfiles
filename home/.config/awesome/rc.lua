@@ -67,12 +67,13 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 local init_screen = require("screen.init_screen")
 
 local panel_widgets_ = require("widgets.panel_widgets")
+
 local textclock_widget = panel_widgets_.init_textclock_widget()
 local volume_widget = panel_widgets_.init_volume_widget()
 
 local panel_widgets = {
-    textclock_widget = textclock_widget,
-    volume_widget = volume_widget,
+    textclock_widget,
+    volume_widget,
 }
 
 awful.screen.connect_for_each_screen(function(this_screen)
