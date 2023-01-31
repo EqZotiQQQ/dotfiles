@@ -20,7 +20,10 @@ local d = require("dbg")
 
 local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
 local function GET_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sget Master' end
-local function INC_VOLUME_CMD(device, step) return 'amixer -D ' .. device .. ' sset Master ' .. step .. '%+' end
+local function INC_VOLUME_CMD(device, step)
+    -- d.notify_persistent('amixer -D ' .. device .. ' sset Master ' .. step .. '%+')
+    return 'amixer -D ' .. device .. ' sset Master ' .. step .. '%+'
+end
 local function DEC_VOLUME_CMD(device, step) return 'amixer -D ' .. device .. ' sset Master ' .. step .. '%-' end
 local function TOG_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sset Master toggle' end
 
@@ -223,7 +226,7 @@ local function init(user_args)
 
     watch(GET_VOLUME_CMD(device), refresh_rate, update_graphic, volume.widget)
 
-    return volume.widget
+    return volume
 end
 
 return setmetatable(volume, { __call = function(_, ...) return init(...) end })

@@ -10,7 +10,7 @@ end
 
 panel_widgets.init_volume_widget = function()
     return volume_widget{
-        widget_type = 'vertical_bar', -- [] arc | vertical_bar ]
+        widget_type = 'arc', -- [] arc | vertical_bar ]
         refresh_rate = 0.1
     }
 end

@@ -40,14 +40,16 @@ do
         function (err)
             if in_error then return end
             in_error = true
-
-            naughty.notify(
-                {
-                    preset = naughty.config.presets.critical,
-                    title = "Oops, an error happened!",
-                    text = tostring(err)
-                }
+            d.notify_persistent(
+                "Oops, an error happened!\n"..tostring(err)
             )
+            -- naughty.notify(
+            --     {
+            --         preset = naughty.config.presets.critical,
+            --         title = "Oops, an error happened!",
+            --         text = tostring(err)
+            --     }
+            -- )
             in_error = false
         end
     )
@@ -78,7 +80,7 @@ local volume_widget = panel_widgets_.init_volume_widget()
 local panel_widgets = {
     textclock_widget,
     cpu_widget,
-    volume_widget
+    volume_widget.widget
 }
 
 awful.screen.connect_for_each_screen(function(this_screen)
