@@ -72,6 +72,7 @@ screen.connect_signal("property::geometry", theme_management.set_wallpaper)
 local init_screen = require("screen.init_screen")
 
 local panel_widgets_ = require("widgets.panel_widgets")
+local screen_widgets_ = require("widgets.screen_widgets")
 
 local textclock_widget = panel_widgets_.init_textclock_widget()
 local cpu_widget = panel_widgets_.init_cpu_widget()
@@ -89,7 +90,12 @@ awful.screen.connect_for_each_screen(function(this_screen)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    init_screen(this_screen, panel_widgets)
+    local cava = screen_widgets_.init_cava(this_screen)
+    local screen_widgets = {
+        cava = cava
+    }
+
+    init_screen(this_screen, panel_widgets, screen_widgets)
 end)
 
 
@@ -105,7 +111,7 @@ local add_tags_bindings = require("keybindings.panel_bindings")
 keyboard_bindings = add_tags_bindings(keyboard_bindings)
 
 local init_volume_widget_bindings = require("keybindings.volume_widget_bindings")
-local volume_bindings = init_volume_widget_bindings(volume_widget)
+local volume_bindings = init_volume_widget_bindings()
 
 keyboard_bindings = gears.table.join(
     volume_bindings,

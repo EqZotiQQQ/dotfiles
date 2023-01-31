@@ -12,20 +12,12 @@ local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
 
 local panel_config = require("configs.panel")
 
-local cava = require("widgets.screen.cava.cava")
 local d = require("dbg")
 
-local init_panel = function(current_screen, panel_widgets)
-    current_screen.cava = cava(
-        current_screen,
-        {
-            bars = panel_config.cava_config.bars,
-            enable_interpolation = panel_config.cava_config.interpolation,
-            size = panel_config.panel_size,
-            position = panel_config.actual_position,
-            update_time = panel_config.cava_config.update_time,
-        }
-    )
+local init_panel = function(current_screen, panel_widgets, screen_widgets)
+    for name, value in pairs(screen_widgets) do
+        current_screen[name] = value
+    end
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.

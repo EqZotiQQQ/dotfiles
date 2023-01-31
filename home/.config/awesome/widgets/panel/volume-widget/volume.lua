@@ -15,17 +15,32 @@ local beautiful = require("beautiful")
 local watch = require("awful.widget.watch")
 local utils = require("widgets.panel.volume-widget.utils")
 local mouse = _G.mouse
+local audio = require("widgets.screen.cava.details.audio")
 
 local d = require("dbg")
 
 local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
-local function GET_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sget Master' end
-local function INC_VOLUME_CMD(device, step)
-    -- d.notify_persistent('amixer -D ' .. device .. ' sset Master ' .. step .. '%+')
-    return 'amixer -D ' .. device .. ' sset Master ' .. step .. '%+'
+
+local function GET_VOLUME_CMD(device)
+    local cmd = 'amixer -D ' .. device .. ' sget Master'
+    d.notify_persistent(cmd)
+    return cmd
 end
-local function DEC_VOLUME_CMD(device, step) return 'amixer -D ' .. device .. ' sset Master ' .. step .. '%-' end
-local function TOG_VOLUME_CMD(device) return 'amixer -D ' .. device .. ' sset Master toggle' end
+
+local function INC_VOLUME_CMD(device, step)
+    local cmd = 'amixer -D ' .. device .. ' sset Master ' .. step .. '%+'
+    return cmd
+end
+
+local function DEC_VOLUME_CMD(device, step)
+    local cmd = 'amixer -D ' .. device .. ' sset Master ' .. step .. '%-'
+    return cmd
+end
+
+local function TOG_VOLUME_CMD(device)
+    local cmd = 'amixer -D ' .. device .. ' sset Master toggle'
+    return cmd
+end
 
 
 local widget_types = {
@@ -188,15 +203,30 @@ local function init(user_args)
     end
 
     function volume:inc(s)
-        spawn.easy_async(INC_VOLUME_CMD(device, s or step), function(stdout) update_graphic(volume.widget, stdout) end)
+        spawn.easy_async(
+            INC_VOLUME_CMD(device, s or step),
+            function(stdout)
+                update_graphic(volume.widget, stdout)
+            end
+        )
     end
 
     function volume:dec(s)
-        spawn.easy_async(DEC_VOLUME_CMD(device, s or step), function(stdout) update_graphic(volume.widget, stdout) end)
+        spawn.easy_async(
+            DEC_VOLUME_CMD(device, s or step),
+            function(stdout)
+                update_graphic(volume.widget, stdout)
+            end
+        )
     end
 
     function volume:toggle()
-        spawn.easy_async(TOG_VOLUME_CMD(device), function(stdout) update_graphic(volume.widget, stdout) end)
+        spawn.easy_async(
+            TOG_VOLUME_CMD(device),
+            function(stdout)
+                update_graphic(volume.widget, stdout)
+            end
+        )
     end
 
     function volume:mixer()
@@ -215,17 +245,16 @@ local function init(user_args)
                             popup:move_next_to(mouse.current_widget_geometry)
                         end
                     end),
-                    awful.button({}, 4, function() volume:inc() end),
-                    awful.button({}, 5, function() volume:dec() end),
-                    awful.button({}, 2, function()
-                        volume:mixer()
-                    end),
+                    awful.button({}, 4, function() audio:volume_set("+5%") end),
+                    awful.button({}, 5, function() audio:volume_set("-5%") end),
+                    awful.button({}, 2, function() volume:mixer() end),
                     awful.button({}, 1, function() volume:toggle() end)
             )
     )
 
-    watch(GET_VOLUME_CMD(device), refresh_rate, update_graphic, volume.widget)
-
+    audio.connect_signal("audio::volume", function()
+        volume.widget:set_volume_level(audio.volume[audio.sink])
+    end)
     return volume
 end
 
