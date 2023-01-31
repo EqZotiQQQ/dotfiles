@@ -3,6 +3,8 @@ local beautiful = require('beautiful')
 
 local panel_size = require("configs.panel").panel_size
 
+local audio = require("widgets.screen.cava.details.audio")
+
 
 local get_script_location = require("common.awesome_common").get_script_location
 local d = require("dbg")
@@ -15,7 +17,7 @@ function widget.get_widget(widgets_args)
 
     local thickness = args.thickness or 2
     local main_color = args.main_color or beautiful.fg_color
-    local bg_color = args.bg_color or '#ffffff11'
+    local bg_color = args.r or '#ffffff11'
     local mute_color = args.mute_color or beautiful.fg_urgent
     local size = args.size or panel_size - 10
 
@@ -44,8 +46,6 @@ function widget.get_widget(widgets_args)
             self.colors = { main_color }
         end
     }
-
 end
-
 
 return widget

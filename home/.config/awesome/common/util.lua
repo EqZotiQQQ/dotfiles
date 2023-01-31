@@ -114,4 +114,12 @@ end
 
 util.file.delete = os.remove
 
+util.string_to_hex = function (hex_value)
+    return tonumber(hex_value, 16)
+end
+
+util.hex_to_string = function (value)
+    return tostring(value)
+end
+
 return util

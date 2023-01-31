@@ -248,13 +248,20 @@ local function init(user_args)
                     awful.button({}, 4, function() audio:volume_set("+5%") end),
                     awful.button({}, 5, function() audio:volume_set("-5%") end),
                     awful.button({}, 2, function() volume:mixer() end),
-                    awful.button({}, 1, function() volume:toggle() end)
+                    awful.button({}, 1, function() audio:volume_mute() end)
             )
     )
 
     audio.connect_signal("audio::volume", function()
         volume.widget:set_volume_level(audio.volume[audio.sink])
     end)
+
+    audio.connect_signal(
+        "audio::mute",
+        function ()
+            volume.widget:mute()
+        end
+    )
     return volume
 end
 

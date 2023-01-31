@@ -242,7 +242,9 @@ function audio:volume_mute(val, sink)
     local val = val and tostring(val) or "toggle"
 
     if sink ~= nil then
-        awful.spawn("pactl set-sink-mute "..sink.." "..val)
+        local cmd = "pactl set-sink-mute "..sink.." "..val
+        self.emit_signal("audio::mute")
+        awful.spawn(cmd)
     end
 end
 
