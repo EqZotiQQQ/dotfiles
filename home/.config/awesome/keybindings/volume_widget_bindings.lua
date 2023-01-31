@@ -2,7 +2,7 @@ local awful = require("awful")
 local gears = require("gears")
 local modkey = require("configs.config_defaults").modkey
 
--- local audio = require("widgets.cava.details.audio")
+local audio = require("widgets.screen.cava.details.audio")
 
 local d = require("dbg")
 
