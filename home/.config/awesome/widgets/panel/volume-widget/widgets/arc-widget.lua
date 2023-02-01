@@ -1,15 +1,12 @@
+local d = require("dbg")
+
 local wibox = require("wibox")
 local beautiful = require('beautiful')
-local table = require("table")
 
 local panel_size = require("configs.panel").panel_size
 
-local audio = require("widgets.screen.cava.details.audio")
-local util = require("common.util")
-local string = require("string")
-
 local get_script_location = require("common.awesome_common").get_script_location
-local d = require("dbg")
+
 local ICON_DIR = get_script_location() .. '../'.. 'icons/'
 
 local widget = {}

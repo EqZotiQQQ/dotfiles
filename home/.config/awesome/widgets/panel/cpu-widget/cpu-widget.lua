@@ -99,7 +99,7 @@ local function worker(user_args)
     local args = user_args or {}
 
     local width = args.width or panel_config.panel_size
-    local step_width = args.step_width or 2
+    local step_width = args.step_width or 5
     local step_spacing = args.step_spacing or 1
     local color = args.color or beautiful.fg_normal
     local background_color = args.background_color or "#00000000"
