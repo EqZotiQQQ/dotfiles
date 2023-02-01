@@ -1,10 +1,12 @@
 local wibox = require("wibox")
 local beautiful = require('beautiful')
+local table = require("table")
 
 local panel_size = require("configs.panel").panel_size
 
 local audio = require("widgets.screen.cava.details.audio")
-
+local util = require("common.util")
+local string = require("string")
 
 local get_script_location = require("common.awesome_common").get_script_location
 local d = require("dbg")
@@ -15,16 +17,16 @@ local widget = {}
 function widget.get_widget(widgets_args)
     local args = widgets_args or {}
 
-    local thickness = args.thickness or 2
-    local main_color = args.main_color or beautiful.fg_color
+    local thickness = args.thickness or 1
+    local main_color = args.main_color or beautiful.fg_urgent
     local bg_color = args.r or '#ffffff11'
-    local mute_color = args.mute_color or beautiful.fg_urgent
+    local mute_color = args.mute_color or beautiful.bg_urgent
     local size = args.size or panel_size - 10
 
     return wibox.widget {
         {
             id = "icon",
-            image = ICON_DIR .. 'audio-volume-high-symbolic.svg',
+            -- image = ICON_DIR .. 'audio-volume-high-symbolic.svg',
             resize = true,
             widget = wibox.widget.imagebox,
         },

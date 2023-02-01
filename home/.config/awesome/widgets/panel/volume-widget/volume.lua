@@ -23,7 +23,6 @@ local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
 
 local function GET_VOLUME_CMD(device)
     local cmd = 'amixer -D ' .. device .. ' sget Master'
-    d.notify_persistent(cmd)
     return cmd
 end
 
@@ -175,7 +174,6 @@ local function rebuild_popup()
     end)
 end
 
-
 local function init(user_args)
 
     local args = user_args or {}
@@ -258,8 +256,17 @@ local function init(user_args)
 
     audio.connect_signal(
         "audio::mute",
+
         function ()
             volume.widget:mute()
+        end
+    )
+
+    audio.connect_signal(
+        "audio::unmute",
+
+        function ()
+            volume.widget:unmute()
         end
     )
     return volume

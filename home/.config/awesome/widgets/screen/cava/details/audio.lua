@@ -203,10 +203,14 @@ function audio:sink_status_update()
                     self.emit_signal("audio::volume")
                 end
 
-                if self.mute[sink] ~= mute then
-                    self.mute[sink] = mute
-                    self.emit_signal("audio::mute")
-                end
+                -- d.notify(mute)
+                -- if self.mute[sink] ~= mute then
+                --     self.emit_signal("audio::mute")
+                --     self.mute[sink] = mute
+                -- else
+                --     self.emit_signal("audio::unmute")
+                --     self.mute[sink] = mute
+                -- end
             end
         end
     )
@@ -234,16 +238,30 @@ function audio:volume_set(volume, sink)
     end
 end
 
+function audio:volume_mute_impl(stdout)
+    local is_mute = stdout:sub(7, 7)
+    if is_mute == "y" then
+        self.emit_signal("audio::unmute")
+    else
+        self.emit_signal("audio::mute")
+    end
+end
+
 --- Mute audio method
 -- @tparam[opt="toggle"] string val "toggle", "true" or "false"
 -- @tparam[opt=default] number sink Sink number
 function audio:volume_mute(val, sink)
     local sink = sink or self.sink
     local val = val and tostring(val) or "toggle"
-
+    -- d.notify(sink)
     if sink ~= nil then
+        local get_cmd = "pactl get-sink-mute "..sink
+        local a = awful.spawn.easy_async(get_cmd,
+            function(stdout)
+                audio:volume_mute_impl(stdout)
+            end)
         local cmd = "pactl set-sink-mute "..sink.." "..val
-        self.emit_signal("audio::mute")
+        -- d.notify_persistent(cmd)
         awful.spawn(cmd)
     end
 end

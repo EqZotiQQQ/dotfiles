@@ -114,12 +114,18 @@ end
 
 util.file.delete = os.remove
 
-util.string_to_hex = function (hex_value)
-    return tonumber(hex_value, 16)
+local d = require("dbg")
+
+util.color_string_to_hex_int = function(color)
+    local hex_string = color:sub(2)
+    local hex_integer = tonumber(hex_string, 16)
+    return hex_integer
 end
 
-util.hex_to_string = function (value)
-    return tostring(value)
+util.hex_int_to_color_string = function(hex_integer)
+    local hex_string = tostring(hex_integer)
+    return '#'..hex_string
 end
+
 
 return util
