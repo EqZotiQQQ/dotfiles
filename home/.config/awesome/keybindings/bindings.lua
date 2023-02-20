@@ -45,6 +45,7 @@ local set_general_keyboard_bindings = function (mymainmenu)
         awful.key({ modkey,       }, "Return", function () awful.spawn(terminal)              end,{description = "open a terminal", group = "launcher"}),
         awful.key({ modkey, ctrl  }, "r",     awesome_common.restart,                             {description = "reload awesome", group = "awesome"}),
         awful.key({ modkey, shift }, "q",     awesome_common.quit,                                {description = "quit awesome", group = "awesome"}),
+        awful.key({ modkey, shift }, "s",     awesome_common.suspend,                             {description = "suspend system. Doesn't logout!", group = "awesome"}),
         awful.key({ modkey,       }, "l",     function () awful.tag.incmwfact( 0.05)          end,{description = "increase master width factor", group = "layout"}),
         awful.key({ modkey,       }, "h",     function () awful.tag.incmwfact(-0.05)          end,{description = "decrease master width factor", group = "layout"}),
         awful.key({ modkey, shift }, "h",     function () awful.tag.incnmaster( 1, nil, true) end,{description = "increase the number of master clients", group = "layout"}),

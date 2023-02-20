@@ -37,8 +37,8 @@ for key     kcap   seq        mode   widget (
     shome   kHOM   $'\E[1;2H' select   beginning-of-line
     shome2  x      $'\E[1;2~' select   beginning-of-line
 
-    left    kcub1  $'\EOD'    deselect backward-char
-    right   kcuf1  $'\EOC'    deselect forward-char
+   # left    kcub1  $'\EOD'    deselect backward-char
+   # right   kcuf1  $'\EOC'    deselect forward-char
 
     end     kend   $'\EOF'    deselect end-of-line
     end2    x      $'\E4~'    deselect end-of-line

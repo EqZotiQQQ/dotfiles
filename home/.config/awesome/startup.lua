@@ -23,7 +23,7 @@ end
 functions.run_always = function ()
     -- awful.spawn.once("telegram-desktop")
     awful.spawn.once("flameshot")
-    -- awful.spawn.once("picom")
+    awful.spawn.once("picom")
 
     -- Keyboard layout
     awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
