@@ -8,7 +8,7 @@ local themes = {
 }
 
 local wallpapers = {
-    blue_colored_cosy_willage = home.."/Pictures/1.jpg"
+    blue_colored_cosy_willage = home.."/Pictures/blue_black_gradient.jpg"
 }
 
 local high_level_theme_config = {
