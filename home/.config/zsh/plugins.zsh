@@ -14,6 +14,7 @@ zinit light "zdharma-continuum/fast-syntax-highlighting"
 zinit light "zsh-users/zsh-autosuggestions"
 zinit light "romkatv/powerlevel10k"
 zinit light "ael-code/zsh-colored-man-pages"
+zinit light "RobertDeRose/virtualenv-autodetect"
 
 zinit wait lucid for \
  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
