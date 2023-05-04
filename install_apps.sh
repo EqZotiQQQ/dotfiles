@@ -4,6 +4,7 @@ git submodule update --init --recursive
 
 mkdir -p ${HOME}/open_source
 
+sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt update
 sudo apt upgrade -y
 
@@ -27,8 +28,10 @@ sudo apt install -y \
 
 # Py tools
 sudo apt install -y \
-    python3-pip \
-    python3.10-distutils
+    python3-pip python3.10-distutils \
+    python3.8 python3.8-dev python3.8-venv python3.8-distutils python3.8-dbg \
+    graphviz
+
 
 
 # lua

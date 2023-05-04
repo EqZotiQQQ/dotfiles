@@ -12,6 +12,10 @@ Plug 'vim-airline/vim-airline'
 Plug 'kien/ctrlp.vim'
 Plug 'scrooloose/nerdTree'
 
+Plug 'rktjmp/highlight-current-n.nvim'
+
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'nvim-tree/nvim-tree.lua'
 " ------------------ Colorscheme ------------------
 
 Plug 'dkasak/gruvbox'

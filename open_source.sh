@@ -67,10 +67,11 @@ rofi() {
     # launcher
     sudo apt install -y rofi
 
-    rofi_theme="${OPEN_SOURCE_DIR}/rofi-themes-collection"
-    git clone https://github.com/lr-tech/rofi-themes-collection.git "${rofi_theme}"
-    mkdir -p ~/.local/share/rofi/themes/
-    cp -r "${rofi_theme}/themes" ~/.local/share/rofi/themes/
+    rofi_theme_download_dir="${OPEN_SOURCE_DIR}/rofi-themes-collection"
+    rofi_themes_dst_dir="~/.local/share/rofi/themes/"
+    git clone https://github.com/lr-tech/rofi-themes-collection.git "${rofi_theme_download_dir}"
+    mkdir -p "${rofi_themes_dst_dir}"
+    cp -r "${rofi_theme_download_dir}/themes/*" "${rofi_themes_dst_dir}"
 
     echo run -> rofi-theme-selector
     echo "Choose Alt + a on selected node"
