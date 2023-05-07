@@ -1,3 +1,5 @@
+local d = require("dbg")
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
@@ -5,14 +7,12 @@ local gears = require("gears")
 
 local panel_positions = require("presets.panel_position")
 local panel_orientations = require("presets.panel_orientations")
-
 local taglist_mouse_bindings = require("keybindings.taglist_mouse_bindings")
 local tasklist_mouse_bindings = require("keybindings.tasklist_mouse_bindings")
 local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
 
-local panel_config = require("configs.panel")
+local tray = require("configs.tray")
 
-local d = require("dbg")
 
 local init_panel = function(current_screen, panel_widgets, screen_widgets)
     for name, value in pairs(screen_widgets) do
@@ -28,7 +28,7 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
         {
             type = "linear",
             from = {0, 0},
-            to = {panel_config.panel_size, 0},
+            to = {tray.size, 0},
             stops = {
                 {0, beautiful.bg_focus.."f0"},
                 {1, beautiful.bg_focus.."00"}
@@ -37,8 +37,8 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
     )
 
     local panel_orientation =
-        (panel_config.actual_position == panel_positions.left or
-            panel_config.actual_position == panel_positions.right)
+        (tray.position == panel_positions.left or
+        tray.position == panel_positions.right)
         and panel_orientations.vertical
         or panel_orientations.horizontal
 
@@ -48,7 +48,7 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
         filter = awful.widget.taglist.filter.noempty,
         buttons = taglist_mouse_bindings,
         style = {
-            align = panel_config.align,
+            align = tray.align,
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
@@ -62,7 +62,7 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
         filter = awful.widget.tasklist.filter.currenttags,
         buttons = tasklist_mouse_bindings,
         style = {
-            align = panel_config.align,
+            align = tray.align,
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
@@ -78,14 +78,14 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
 
     local panel_properties = {
         screen = current_screen,
-        position = panel_config.actual_position,
+        position = tray.position,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if panel_config.actual_position == panel_positions.left or panel_config.actual_position == panel_positions.right then
-        panel_properties.width = panel_config.panel_size
+    if tray.position == panel_positions.left or tray.position == panel_positions.right then
+        panel_properties.width = tray.panel_size
     else
-        panel_properties.height = panel_config.panel_size
+        panel_properties.height = tray.panel_size
     end
 
     -- create new panel

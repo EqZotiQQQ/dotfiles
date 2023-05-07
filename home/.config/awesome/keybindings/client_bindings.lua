@@ -1,5 +1,5 @@
 local awful = require("awful")
-local modkey = require("configs.config_defaults").modkey
+local modkey = require("configs.general").modkey
 local gears = require("gears")
 
 local bindings = gears.table.join(

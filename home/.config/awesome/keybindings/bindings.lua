@@ -2,9 +2,9 @@ local awful = require("awful")
 local menubar = require("menubar")
 local gears = require("gears")
 
-local modkey = require("configs.config_defaults").modkey
-local terminal = require("configs.config_defaults").terminal
-local panel_size = require("configs.panel").panel_size
+local modkey = require("configs.general").modkey
+local terminal = require("configs.general").terminal
+local panel_size = require("configs.tray").size
 local awesome_common = require("common.awesome_common")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local volume_bindings = require("keybindings.volume_widget_bindings")
@@ -24,7 +24,7 @@ local set_general_keyboard_bindings = function (mymainmenu)
         awful.key({ modkey, }, "j",       function () awful.client.focus.byidx( 1)end,             {description = "focus next by index", group = "client"}),
         awful.key({ modkey, }, "k",       function () awful.client.focus.byidx(-1)end,             {description = "focus previous by index", group = "client"}),
         awful.key({ modkey, }, "w",       function () mymainmenu:show() end,                       {description = "show main menu", group = "awesome"}),
-        awful.key({ modkey, }, "l", function()   awful.spawn.easy_async_with_shell("lock.sh") end, {description = "lockscreen", group = "awesome"}),
+        awful.key({ modkey, }, "l",       function () awful.spawn.easy_async_with_shell("lock.sh") end, {description = "lockscreen", group = "awesome"}),
 
         -- Layout manipulation
         awful.key({ modkey, shift }, "j", function () awful.client.swap.byidx(  1)    end,      {description = "swap with next client by index", group = "client"}),

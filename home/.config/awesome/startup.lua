@@ -19,7 +19,7 @@ functions.work_tools = function()
 end
 functions.general_tools = function()
     if (hour < 9 and hour > 18) or wday > 6 then
-        awful.spawn.once("discord")
+        -- awful.spawn.once("discord")
     end
 end
 functions.run_always = function ()

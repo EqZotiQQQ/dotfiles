@@ -13,20 +13,23 @@
 
 -- return widgets
 
-local cava_widget = require("widgets.screen.cava.cava")
-local panel_config = require("configs.panel")
-
+local cava_widget = require("widgets.cava.cava")
+local tray = require("configs.tray")
+local cava = require("configs.cava")
+local d = require("dbg")
 local screen_widgets = {}
+
+d.n("tray")
 
 screen_widgets.init_cava = function(current_screen)
      return cava_widget(
         current_screen,
         {
-            bars = panel_config.cava_config.bars,
-            enable_interpolation = panel_config.cava_config.interpolation,
-            size = panel_config.panel_size,
-            position = panel_config.actual_position,
-            update_time = panel_config.cava_config.update_time,
+            bars = cava.bars,
+            enable_interpolation = cava.interpolation,
+            size = tray.size,
+            position = tray.position,
+            update_time = cava.update_time,
         }
     )
 end

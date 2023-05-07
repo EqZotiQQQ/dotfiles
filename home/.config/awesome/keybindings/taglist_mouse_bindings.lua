@@ -3,7 +3,7 @@ local awful = require("awful")
 
 local client = _G.client
 
-local modkey = require("configs.config_defaults").modkey
+local modkey = require("configs.general").modkey
 
 local taglist_buttons = gears.table.join(
     awful.button({ }, 1, function(t) t:view_only() end),

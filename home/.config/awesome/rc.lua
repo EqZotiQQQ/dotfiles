@@ -55,7 +55,8 @@ do
     )
 end
 
-beautiful.init(theme_management.get_theme())
+local theme = theme_management.get_theme()
+beautiful.init(theme)
 
 awful.layout.layouts = {
     awful.layout.suit.tile,
@@ -63,8 +64,8 @@ awful.layout.layouts = {
     awful.layout.suit.max,
 }
 
-local config_defaults = require("configs.config_defaults")
-menubar.utils.terminal = config_defaults.terminal
+local general = require("configs.general")
+menubar.utils.terminal = general.terminal
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", theme_management.set_wallpaper)
@@ -73,7 +74,6 @@ local init_screen = require("screen.init_screen")
 
 local panel_widgets_ = require("widgets.panel_widgets")
 local screen_widgets_ = require("widgets.screen_widgets")
-
 local textclock_widget = panel_widgets_.init_textclock_widget()
 local cpu_widget = panel_widgets_.init_cpu_widget()
 local volume_widget = panel_widgets_.init_volume_widget()
@@ -84,19 +84,22 @@ local panel_widgets = {
     volume_widget.widget
 }
 
-awful.screen.connect_for_each_screen(function(this_screen)
-    theme_management.set_wallpaper(this_screen)
+awful.screen.connect_for_each_screen(
+    function(this_screen)
+        theme_management.set_wallpaper(this_screen)
 
-    -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
+        -- Each screen has its own tag table.
+        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
 
-    local cava = screen_widgets_.init_cava(this_screen)
-    local screen_widgets = {
-        cava = cava
-    }
+        local cava = screen_widgets_.init_cava(this_screen)
 
-    init_screen(this_screen, panel_widgets, screen_widgets)
-end)
+        local screen_widgets = {
+            cava = cava,
+        }
+
+        init_screen(this_screen, panel_widgets, screen_widgets)
+    end
+)
 
 
 -- {{{ Bindings
