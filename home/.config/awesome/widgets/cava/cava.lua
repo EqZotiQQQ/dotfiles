@@ -4,18 +4,23 @@
 -- @module widget.desktop.cava
 ---------------------------------------------------------------------------
 
+local d = require("dbg")
+
 local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 
 
 -- local get_script_location = require("common.awesome_common").get_script_location
+d.p("bcava widget ")
 local audio = require("widgets.cava.details.audio")
+d.p("cava widget ")
 
 
-local cava = require("configs.cava")
+local cava_confdig = require("configs.cava")
 
-local d = require("dbg")
+
+-- d.p(audio)
 
 local cava_max = audio.cava.max_value
 
@@ -84,12 +89,12 @@ function cava.new(current_screen, properties)
     local cava_widget = gears.table.join(properties, wibox.widget.base.make_widget())
     cava_widget.val = {}
 
-    cava_widget.update_time = cava.update_time
+    cava_widget.refresh_rate = cava_confdig.refresh_rate
 
     cava_widget.draw = cava_widget.enable_interpolation and draw_interpolated or draw
 
-    local cava_shift = cava.overlap_panel and properties.size or properties.size * 2
-    local cava_shift_horizontal = cava.overlap_panel and 0 or properties.size
+    local cava_shift = cava_confdig.overlap_panel and properties.size or properties.size * 2
+    local cava_shift_horizontal = cava_confdig.overlap_panel and 0 or properties.size
 
     -- positioning
     if cava_widget.position == "top" then
@@ -163,8 +168,6 @@ function cava.new(current_screen, properties)
         width  = properties.w,
         height = properties.h,
     })
-
-    -- d.p(cava_widget)
 
     local widget = wibox.container.rotate(cava_widget, properties.rotation)
 

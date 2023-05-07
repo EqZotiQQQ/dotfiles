@@ -10,7 +10,7 @@ local naughty = require("naughty")
 local gears = require("gears")
 local util = require("common.util")
 local posix = require("posix")
-
+local cava_config = require("configs.cava")
 
 local d = require("dbg")
 
@@ -35,24 +35,27 @@ local audio = {
 local signals = {}
 
 function audio.init_pulse_subscription()
-    audio.subscription_pid = awful.spawn.with_line_callback("pactl subscribe", {
-        stdout = function(line)
-            local event, object, id = line:match([[Event '(%a+)' on ([a-z\-]+) #(%d)]])
-            local object = object:gsub('-', '_')
-            local id = tonumber(id)
-            if audio.on_event[object] ~= nil and audio.on_event[object][event] ~= nil then
-                audio.on_event[object][event](id)
-            end
-        end,
-        stderr = function(line)
-            -- TODO: Reconnect on error?
-            naughty.notify({
+    audio.subscription_pid = awful.spawn.with_line_callback(
+        "pactl subscribe",
+        {
+            stdout = function(line)
+                local event, object, id = line:match([[Event '(%a+)' on ([a-z\-]+) #(%d)]])
+                local object = object:gsub('-', '_')
+                local id = tonumber(id)
+                if audio.on_event[object] ~= nil and audio.on_event[object][event] ~= nil then
+                    audio.on_event[object][event](id)
+                end
+            end,
+            stderr = function(line)
+                -- TODO: Reconnect on error?
+                naughty.notify({
                     preset = naughty.config.presets.critical,
                     title = "Audio",
                     text = line,
                 })
-        end
-    })
+            end
+        }
+    )
 end
 
 -- Event actions
@@ -116,18 +119,16 @@ gradient_color_2 = '#F50057'
 ]]
 
 function audio.cava:init()
-    d.n("audio.cava:init")
     if self.initialized then return end
 
     self.config = {
-        framerate = 600,
-        bars = 150,
+        framerate = cava_config.frequency,
+        bars = cava_config.bars,
     }
 
     local cava_config = self.config_template
         :gsub("<framerate>", self.config.framerate)
         :gsub("<bars>", self.config.bars)
-    d.n(self.config.bars)
     util.file.new("/tmp/cava_config", cava_config)
     self.pid = awful.spawn("cava -p /tmp/cava_config")
     local update_time = 1 / self.config.framerate

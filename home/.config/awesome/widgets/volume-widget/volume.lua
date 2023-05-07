@@ -7,6 +7,8 @@
 -- @copyright 2020 Pavel Makhov
 -------------------------------------------------
 
+local d = require("dbg")
+
 local awful = require("awful")
 local wibox = require("wibox")
 local spawn = require("awful.spawn")
@@ -15,9 +17,13 @@ local beautiful = require("beautiful")
 local watch = require("awful.widget.watch")
 local utils = require("widgets.volume-widget.utils")
 local mouse = _G.mouse
-local audio = require("widgets.cava.details.audio")
 
-local d = require("dbg")
+d.p("bvol widget ")
+local audio = require("widgets.cava.details.audio")
+d.p("vol widget ")
+
+
+-- d.n(audio)
 
 local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
 

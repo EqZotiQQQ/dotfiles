@@ -1,10 +1,12 @@
+local d = require("dbg")
+
 local awful = require("awful")
 local gears = require("gears")
 local modkey = require("configs.general").modkey
 
+d.p("bvol widget bindings")
 local audio = require("widgets.cava.details.audio")
-
-local d = require("dbg")
+d.p("vol widget bindings")
 
 local function init_volume_widget_bindings()
     return gears.table.join(

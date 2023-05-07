@@ -180,7 +180,7 @@ local function new(user_args)
                     popup,
                     {
                         margins = {
-                            top = tray.panel_size
+                            top = tray.size
                         },
                         parent = awful.screen.focused()
                     }
@@ -190,7 +190,7 @@ local function new(user_args)
                     popup,
                     {
                         margins = {
-                            top = tray.panel_size,
+                            top = tray.size,
                             right = 10
                         },
                         parent = awful.screen.focused()
@@ -212,7 +212,7 @@ local function new(user_args)
                     popup,
                     {
                         margins = {
-                            top = tray.panel_size
+                            top = tray.size
                         },
                         parent = awful.screen.focused()
                     }

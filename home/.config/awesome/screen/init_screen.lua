@@ -83,9 +83,9 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
     }
 
     if tray.position == panel_positions.left or tray.position == panel_positions.right then
-        panel_properties.width = tray.panel_size
+        panel_properties.width = tray.size
     else
-        panel_properties.height = tray.panel_size
+        panel_properties.height = tray.size
     end
 
     -- create new panel
