@@ -40,3 +40,6 @@ if __name__ == '__main__':
 
     if settings.install_ubuntu_apps:
         ret = subprocess.call("./install_apps.sh", shell=True)
+    
+    if settings.install_manjaro_apps:
+        ret = subprocess.call("./install_manjaro_apps.sh", shell=True)

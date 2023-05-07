@@ -1,5 +1,5 @@
 #!/bin/zsh
-#
+
 plugins=(virtualenv)
 
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status virtualenv)
@@ -11,3 +11,4 @@ if [ -d "${HOME}/shared" ]; then
         source $file
     done
 fi
+

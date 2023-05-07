@@ -9,6 +9,7 @@ config_default = pathlib.Path.home()
 class AppSettings:
     reset_symlinks: bool
     install_ubuntu_apps: bool
+    install_manjaro_apps: bool
     config_directory: pathlib.Path
     config_destination: pathlib.Path
 
@@ -34,6 +35,11 @@ class AppSettings:
             help="Install apps for development for Ubuntu"
         )
         parser.add_argument(
+            "--manjaro-apps",
+            action="store_true",
+            help="Install apps for development for Manjaro"
+        )
+        parser.add_argument(
             "--clean-install",
             action="store_true",
             help="Install apps, configure symlinks. --reset-symlinks + --ubuntu-apps"
@@ -41,9 +47,13 @@ class AppSettings:
 
     @staticmethod
     def from_args(args):
+        if args.manjaro_apps and args.ubuntu_apps:
+            # TODO select distro
+            raise 42
         return AppSettings(
-            reset_symlinks=args.reset_symlinks or args.clean_install,
-            install_ubuntu_apps=args.ubuntu_apps or args.clean_install,
+            reset_symlinks=args.reset_symlinks,
+            install_ubuntu_apps=args.ubuntu_apps,
+            install_manjaro_apps=args.manjaro_apps,
             config_directory=args.path,
             config_destination=config_default,
         )
