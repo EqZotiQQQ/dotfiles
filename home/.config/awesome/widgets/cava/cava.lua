@@ -10,11 +10,7 @@ local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 
-
--- local get_script_location = require("common.awesome_common").get_script_location
-d.p("bcava widget ")
-local audio = require("widgets.cava.details.audio")
-d.p("cava widget ")
+local audio = require("system.audio")
 
 
 local cava_confdig = require("configs.cava")
@@ -84,7 +80,6 @@ end
 
 
 function cava.new(current_screen, properties)
-    d.n("cava.new")
     local properties = gears.table.join(cava.defaults, properties or {})
     local cava_widget = gears.table.join(properties, wibox.widget.base.make_widget())
     cava_widget.val = {}

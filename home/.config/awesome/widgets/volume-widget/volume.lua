@@ -18,12 +18,8 @@ local watch = require("awful.widget.watch")
 local utils = require("widgets.volume-widget.utils")
 local mouse = _G.mouse
 
-d.p("bvol widget ")
-local audio = require("widgets.cava.details.audio")
-d.p("vol widget ")
+local audio = require("system.audio")
 
-
--- d.n(audio)
 
 local LIST_DEVICES_CMD = [[sh -c "pacmd list-sinks; pacmd list-sources"]]
 

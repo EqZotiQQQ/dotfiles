@@ -4,6 +4,7 @@
 -- @module system.audio
 ---------------------------------------------------------------------------
 
+local d = require("dbg")
 local awful = require("awful")
 local posix_signal = require("posix.signal")
 local naughty = require("naughty")
@@ -11,8 +12,6 @@ local gears = require("gears")
 local util = require("common.util")
 local posix = require("posix")
 local cava_config = require("configs.cava")
-
-local d = require("dbg")
 
 local tonumber = tonumber
 local tostring = tostring
@@ -99,17 +98,10 @@ data_format = binary
 ascii_max_range = 1000
 bit_format = 16bit
 [smoothing]
-integral = 70
+integral = 30
 monstercat = 1
 waves = 0
 gravity = 100
-[color]
-background = green
-foreground = cyan
-gradient = 1
-gradient_count = 2
-gradient_color_1 = '#1DE9B6'
-gradient_color_2 = '#F50057'
 [eq]
 1 = 1
 2 = 1
@@ -122,18 +114,17 @@ function audio.cava:init()
     if self.initialized then return end
 
     self.config = {
-        framerate = cava_config.frequency,
+        update_time = cava_config.update_time,
         bars = cava_config.bars,
     }
 
     local cava_config = self.config_template
-        :gsub("<framerate>", self.config.framerate)
+        :gsub("<framerate>", 1 / self.config.update_time)
         :gsub("<bars>", self.config.bars)
     util.file.new("/tmp/cava_config", cava_config)
     self.pid = awful.spawn("cava -p /tmp/cava_config")
-    local update_time = 1 / self.config.framerate
     self.update_timer = gears.timer.start_new(
-        update_time,
+        self.config.update_time,
         function()
             local success, msg = pcall(self.parse_fifo, self)
             if success then
@@ -161,11 +152,11 @@ function audio.cava:parse_fifo()
     if not cava_data then return false, errmsg end
 
     self.read_buf = self.read_buf..cava_data
-
     while #self.read_buf / 2 >= self.config.bars do
         self.raw_val = {}
         for byte = 1, self.config.bars do
-            local high_byte = bit.rol(self.read_buf:byte(byte * 2), 8)
+            local high_byte = util.read_high_byte(self.read_buf:byte(byte * 2))
+            -- local high_byte = self.read_buf:byte(byte * 2) << 8
             local low_byte = self.read_buf:byte(byte * 2 - 1)
             table.insert(self.raw_val, high_byte + low_byte)
         end
@@ -265,7 +256,6 @@ end
 function audio:volume_mute(val, sink)
     local sink = sink or self.sink
     local val = val and tostring(val) or "toggle"
-    -- d.notify(sink)
     if sink ~= nil then
         local get_cmd = "pactl get-sink-mute "..sink
         local a = awful.spawn.easy_async(get_cmd,
@@ -273,7 +263,6 @@ function audio:volume_mute(val, sink)
                 audio:volume_mute_impl(stdout)
             end)
         local cmd = "pactl set-sink-mute "..sink.." "..val
-        -- d.notify_persistent(cmd)
         awful.spawn(cmd)
     end
 end

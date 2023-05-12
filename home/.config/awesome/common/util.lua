@@ -4,6 +4,8 @@
 --
 -- @module util
 ---------------------------------------------------------------------------
+local d = require("dbg")
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -73,10 +75,22 @@ end
 
 function util.math.round(x) return x + 0.5 - (x + 0.5) % 1 end
 
-if _G._VERSION == "Lua 5.3" then
-    util.bit.rol = _G.bit32.lrotate
-else
-    util.bit.rol = _G.bit.rol
+-- if _G._VERSION == "Lua 5.4" then
+--     util.bit.rol = _G.bit32.lrotate
+-- elseif _G._VERSION == "Lua 5.3" then
+--     util.bit.rol = _G.bit32.lrotate
+-- else
+--     util.bit.rol = _G.bit.rol
+-- end
+
+function util.read_high_byte(buff)
+    if _G._VERSION == "Lua 5.4" then
+        return buff << 8
+    elseif _G._VERSION == "Lua 5.3" then
+        return _G.bit32.lrotate.rol(buff, 8)
+    else
+        return _G.bit.rol(buff, 8)
+    end
 end
 
 function util.string.trim(str)

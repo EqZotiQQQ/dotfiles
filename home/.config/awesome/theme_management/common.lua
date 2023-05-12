@@ -1,9 +1,10 @@
+local d = require("dbg")
+
 local beautiful = require("beautiful")
 local gears = require("gears")
 
 local theme_config = require("configs.theme")
 
-local d = require("dbg")
 
 local functions = {}
 

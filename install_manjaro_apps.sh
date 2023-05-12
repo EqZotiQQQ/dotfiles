@@ -13,7 +13,7 @@ sudo pacman -Syy --needed \
     lua-posix cmake make \
     feh pavucontrol discord
 
-pacman -S base-devel fftw ncurses alsa-lib iniparser pulseaudio autoconf-archive
+sudo pacman -S base-devel fftw ncurses alsa-lib iniparser pulseaudio autoconf-archive
 
 sudo pacman -Syy --needed \
     docker \

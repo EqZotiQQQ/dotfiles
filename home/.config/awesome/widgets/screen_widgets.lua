@@ -13,7 +13,7 @@ screen_widgets.init_cava = function(current_screen)
             enable_interpolation = cava.interpolation,
             size = tray.size,
             position = tray.position,
-            update_time = cava.frequency,
+            update_time = cava.update_time,
         }
     )
 end

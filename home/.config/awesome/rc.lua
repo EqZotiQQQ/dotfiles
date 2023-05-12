@@ -1,3 +1,5 @@
+local d = require("dbg")
+
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
@@ -12,13 +14,12 @@ require("awful.hotkeys_popup.keys")
 
 local theme_management = require("theme_management.common")
 
-
-local d = require("dbg")
-
 local awesome = _G.awesome
 local client = _G.client
 local root = _G.root
 local screen = _G.screen
+
+require("system")
 
 awesome.set_preferred_icon_size(512)
 
@@ -101,6 +102,7 @@ awful.screen.connect_for_each_screen(
     end
 )
 
+local gtk_variable = beautiful.gtk.get_theme_variables
 
 -- {{{ Bindings
 local menu = require("menu")
@@ -200,6 +202,6 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 local startups = require("startup")
-for _, func in pairs(startups) do
-    func()
+for _, startup_item_init in pairs(startups) do
+    startup_item_init()
 end
