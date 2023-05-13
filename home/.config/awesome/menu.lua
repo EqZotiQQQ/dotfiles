@@ -18,9 +18,9 @@ local myawesomemenu = {
 local menu_awesome = { "awesome", myawesomemenu, beautiful.awesome_icon }
 local menu_terminal = { "open terminal", general.terminal }
 
-local mymainmenu = freedesktop.menu.build({
+local menu = freedesktop.menu.build({
     before = { menu_awesome },
     after =  { menu_terminal }
 })
 
-return mymainmenu
+return menu

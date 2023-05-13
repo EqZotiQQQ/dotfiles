@@ -7,12 +7,12 @@ require("awful.autofocus")
 local wibox = require("wibox")
 
 local beautiful = require("beautiful")
-
+beautiful.init(require("themes"))
 local naughty = require("naughty")
 local menubar = require("menubar")
 require("awful.hotkeys_popup.keys")
-
-local theme_management = require("theme_management.common")
+require("modules.notifications")
+local themes = require("themes.common")
 
 local awesome = _G.awesome
 local client = _G.client
@@ -20,44 +20,8 @@ local root = _G.root
 local screen = _G.screen
 
 require("system")
-
+require("modules.volume-osd")
 awesome.set_preferred_icon_size(512)
-
-
-if awesome.startup_errors then
-    naughty.notify(
-        {
-            preset = naughty.config.presets.critical,
-            title = "Oops, there were errors during startup!",
-            text = awesome.startup_errors
-        }
-    )
-end
-
-do
-    local in_error = false
-    awesome.connect_signal(
-        "debug::error",
-        function (err)
-            if in_error then return end
-            in_error = true
-            d.notify_persistent(
-                "Oops, an error happened!\n"..tostring(err)
-            )
-            -- naughty.notify(
-            --     {
-            --         preset = naughty.config.presets.critical,
-            --         title = "Oops, an error happened!",
-            --         text = tostring(err)
-            --     }
-            -- )
-            in_error = false
-        end
-    )
-end
-
-local theme = theme_management.get_theme()
-beautiful.init(theme)
 
 awful.layout.layouts = {
     awful.layout.suit.tile,
@@ -67,9 +31,9 @@ awful.layout.layouts = {
 
 local general = require("configs.general")
 menubar.utils.terminal = general.terminal
-
+d.notify(42)
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", theme_management.set_wallpaper)
+screen.connect_signal("property::geometry", themes.set_wallpaper)
 
 local init_screen = require("screen.init_screen")
 
@@ -87,7 +51,7 @@ local panel_widgets = {
 
 awful.screen.connect_for_each_screen(
     function(this_screen)
-        theme_management.set_wallpaper(this_screen)
+        themes.set_wallpaper(this_screen)
 
         -- Each screen has its own tag table.
         awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])

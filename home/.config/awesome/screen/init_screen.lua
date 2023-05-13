@@ -5,8 +5,6 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local gears = require("gears")
 
-local panel_positions = require("presets.panel_position")
-local panel_orientations = require("presets.panel_orientations")
 local taglist_mouse_bindings = require("keybindings.taglist_mouse_bindings")
 local tasklist_mouse_bindings = require("keybindings.tasklist_mouse_bindings")
 local layout_mouse_bindings = require("keybindings.layout_mouse_bindings")
@@ -37,10 +35,10 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
     )
 
     local panel_orientation =
-        (tray.position == panel_positions.left or
-        tray.position == panel_positions.right)
-        and panel_orientations.vertical
-        or panel_orientations.horizontal
+        (tray.position == "left" or
+        tray.position == "right")
+        and "vertical"
+        or "horizontal"
 
     -- Create a taglist widget
     current_screen.taglist = awful.widget.taglist {
@@ -82,7 +80,7 @@ local init_panel = function(current_screen, panel_widgets, screen_widgets)
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    if tray.position == panel_positions.left or tray.position == panel_positions.right then
+    if tray.position == "left" or tray.position == "right" then
         panel_properties.width = tray.size
     else
         panel_properties.height = tray.size

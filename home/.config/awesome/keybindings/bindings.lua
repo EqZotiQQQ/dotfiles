@@ -7,7 +7,6 @@ local terminal = require("configs.general").terminal
 local panel_size = require("configs.tray").size
 local awesome_common = require("common.awesome_common")
 local hotkeys_popup = require("awful.hotkeys_popup")
-local volume_bindings = require("keybindings.volume_widget_bindings")
 
 local client = _G.client
 
@@ -17,14 +16,15 @@ local screenshot_path = "~/Pictures/Screenshots/"
 
 local set_general_keyboard_bindings = function (mymainmenu)
     local bindings = gears.table.join(
-        awful.key({ modkey, }, "s",       hotkeys_popup.show_help,                                 {description = "show help", group="awesome"}),
-        awful.key({ modkey, }, "Left",    awful.tag.viewprev,                                      {description = "view previous", group = "tag"}),
-        awful.key({ modkey, }, "Right",   awful.tag.viewnext,                                      {description = "view next", group = "tag"}),
-        awful.key({ modkey, }, "Escape",  awful.tag.history.restore,                               {description = "go back", group = "tag"}),
-        awful.key({ modkey, }, "j",       function () awful.client.focus.byidx( 1)end,             {description = "focus next by index", group = "client"}),
-        awful.key({ modkey, }, "k",       function () awful.client.focus.byidx(-1)end,             {description = "focus previous by index", group = "client"}),
-        awful.key({ modkey, }, "w",       function () mymainmenu:show() end,                       {description = "show main menu", group = "awesome"}),
-        awful.key({ modkey, }, "l",       function () awful.spawn.easy_async_with_shell("lock.sh") end, {description = "lockscreen", group = "awesome"}),
+        awful.key({ modkey, }, "s",       hotkeys_popup.show_help,                                 {description = "show help",                  group="awesome"}),
+        awful.key({ modkey, }, "w",       function () mymainmenu:show() end,                       {description = "show main menu",             group = "awesome"}),
+        awful.key({ modkey, }, "l",       function () awful.spawn.easy_async_with_shell("lock.sh") end, {description = "lockscreen",            group = "awesome"}),
+        awful.key({ modkey, }, "k",       function () awful.spawn.easy_async_with_shell("pkill -KILL -u `whoami`") end, {description = "log out",               group = "awesome"}),
+        awful.key({ modkey, }, "Left",    awful.tag.viewprev,                                      {description = "view previous",              group = "tag"}),
+        awful.key({ modkey, }, "Right",   awful.tag.viewnext,                                      {description = "view next",                  group = "tag"}),
+        awful.key({ modkey, }, "Escape",  awful.tag.history.restore,                               {description = "go back",                    group = "tag"}),
+        awful.key({ modkey, }, "j",       function () awful.client.focus.byidx( 1)end,             {description = "focus next by index",        group = "client"}),
+        awful.key({ modkey, }, "k",       function () awful.client.focus.byidx(-1)end,             {description = "focus previous by index",    group = "client"}),
 
         -- Layout manipulation
         awful.key({ modkey, shift }, "j", function () awful.client.swap.byidx(  1)    end,      {description = "swap with next client by index", group = "client"}),
@@ -76,11 +76,6 @@ local set_general_keyboard_bindings = function (mymainmenu)
         awful.key({ modkey       }, "Print",     function()      awful.spawn.with_shell("flameshot gui")                                        end, {description = "Interactive screenshot to clipboard",  group = "media" }),
         awful.key({ "Mod1"       }, "Print",     function()      awful.spawn.with_shell("flameshot full --path "..screenshot_path)        end, {description = "Take a screenshot of all screens to file",  group = "media" }),
         awful.key({ "Mod1", ctrl }, "Print",     function()      awful.spawn.with_shell("flameshot full --clipboard")                           end, {description = "Take a screenshot of all screens to clipboard",  group = "media" })
-
-        -- -- Audio Control
-        -- awful.key({ modkey }, "]", function() volume_widget:inc(5)   end, {description = "Increase sound by 5 percent",  group = "media" }),
-        -- awful.key({ modkey }, "[", function() volume_widget:dec(5)   end, {description = "Decrease sound by 5 percent",  group = "media" }),
-        -- awful.key({ modkey }, "\\",function() volume_widget:toggle() end, {description = "Mute out sound",               group = "media" })
     )
 
     -- local volume_bindigns = volume_bindings(volume_widget)
