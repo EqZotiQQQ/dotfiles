@@ -5,7 +5,7 @@ local gears = require('gears')
 local wibox = require('wibox')
 local beautiful = require('beautiful')
 local dpi = beautiful.xresources.apply_dpi
-local icons = require('themes.icons')
+local icons = require('theme.icons')
 
 local osd_header = wibox.widget {
 	text = 'Volume',

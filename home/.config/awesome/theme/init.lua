@@ -2,9 +2,9 @@ local d = require("dbg")
 
 local gtable = require('gears.table')
 
-local default_theme = require("themes.default")
+local default_theme = require("theme.default")
 
-local improved_theme = require("themes.improved_default")
+local improved_theme = require("theme.improved_default")
 
 local final_theme = {}
 gtable.crush(final_theme, default_theme.theme)

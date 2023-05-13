@@ -7,7 +7,7 @@ local gears = require('gears')
 local beautiful = require('beautiful')
 
 local filesystem = gears.filesystem
-local theme_dir = filesystem.get_configuration_dir().."/themes/"
+local theme_dir = filesystem.get_configuration_dir().."/theme/"
 
 local theme_assets = require("beautiful.theme_assets")
 local xresources = require("beautiful.xresources")

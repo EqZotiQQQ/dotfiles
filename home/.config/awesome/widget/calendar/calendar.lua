@@ -16,7 +16,7 @@ local naughty = require("naughty")
 
 local tray = require("tray")
 
-local calendar_theme = require("widget.calendar.details.themes")
+local calendar_theme = require("widget.calendar.details.theme")
 
 local calendar_widget = {}
 

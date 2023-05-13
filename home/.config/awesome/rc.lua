@@ -7,12 +7,12 @@ require("awful.autofocus")
 local wibox = require("wibox")
 
 local beautiful = require("beautiful")
-beautiful.init(require("themes"))
+beautiful.init(require("theme"))
 local naughty = require("naughty")
 local menubar = require("menubar")
 require("awful.hotkeys_popup.keys")
 require("modules.notifications")
-local themes = require("themes.common")
+local themes = require("theme.common")
 
 local awesome = _G.awesome
 local client = _G.client
