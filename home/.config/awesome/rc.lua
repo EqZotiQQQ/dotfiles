@@ -73,7 +73,7 @@ local menu = require("menu")
 local set_mouse_bindings = require("keybindings.mouse_bindings")
 local mouse_bindings = set_mouse_bindings(menu)
 
-local set_keyboard_bindings = require("keybindings.bindings")
+local set_keyboard_bindings = require("keybindings.global")
 local keyboard_bindings = set_keyboard_bindings(menu)
 
 local add_tags_bindings = require("keybindings.panel_bindings")
