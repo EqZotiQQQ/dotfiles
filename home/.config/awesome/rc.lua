@@ -31,7 +31,6 @@ awful.layout.layouts = {
 
 local general = require("configs.general")
 menubar.utils.terminal = general.terminal
-d.notify(42)
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", themes.set_wallpaper)
 
@@ -65,8 +64,6 @@ awful.screen.connect_for_each_screen(
         init_screen(this_screen, panel_widgets, screen_widgets)
     end
 )
-
-local gtk_variable = beautiful.gtk.get_theme_variables
 
 -- {{{ Bindings
 local menu = require("menu")
