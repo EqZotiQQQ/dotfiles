@@ -15,7 +15,7 @@ local spawn = require("awful.spawn")
 local gears = require("gears")
 local beautiful = require("beautiful")
 local watch = require("awful.widget.watch")
-local utils = require("widgets.volume-widget.utils")
+local utils = require("widget.volume-widget.utils")
 local mouse = _G.mouse
 
 local audio = require("system.audio")
@@ -45,8 +45,8 @@ end
 
 
 local widget_types = {
-    arc = require("widgets.volume-widget.widgets.arc-widget"),
-    vertical_bar = require("widgets.volume-widget.widgets.vertical-bar-widget")
+    arc = require("widget.volume-widget.widgets.arc-widget"),
+    vertical_bar = require("widget.volume-widget.widgets.vertical-bar-widget")
 }
 local volume = {}
 

@@ -1,6 +1,6 @@
-local volume_widget = require("widgets.volume-widget.volume")
-local clock_widget = require("widgets.textclock.textclock")
-local cpu_widget = require("widgets.cpu-widget.cpu-widget")
+local volume_widget = require("widget.volume-widget.volume")
+local clock_widget = require("widget.textclock.textclock")
+local cpu_widget = require("widget.cpu-widget.cpu-widget")
 local d = require("dbg")
 
 local panel_widgets = {}

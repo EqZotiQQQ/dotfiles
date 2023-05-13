@@ -21,7 +21,7 @@ local CMD = [[sh -c "grep '^cpu.' /proc/stat; ps -eo '%p|%c|%C|' -o "%mem" -o '|
 local CMD_slim = [[grep --max-count=1 '^cpu.' /proc/stat]]
 
 local HOME_DIR = os.getenv("HOME")
-local WIDGET_DIR = HOME_DIR .. '/.config/awesome/widgets/cpu-widget'
+local WIDGET_DIR = HOME_DIR .. '/.config/awesome/widget/cpu-widget'
 
 local tray = require("configs.tray")
 

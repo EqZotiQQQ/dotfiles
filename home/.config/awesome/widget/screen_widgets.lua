@@ -1,6 +1,6 @@
 local d = require("dbg")
 
-local cava_widget = require("widgets.cava.cava")
+local cava_widget = require("widget.cava.cava")
 local tray = require("configs.tray")
 local cava = require("configs.cava")
 local screen_widgets = {}

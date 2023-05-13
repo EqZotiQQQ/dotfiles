@@ -37,8 +37,8 @@ screen.connect_signal("property::geometry", themes.set_wallpaper)
 
 local init_screen = require("screen.init_screen")
 
-local panel_widgets_ = require("widgets.panel_widgets")
-local screen_widgets_ = require("widgets.screen_widgets")
+local panel_widgets_ = require("widget.panel_widgets")
+local screen_widgets_ = require("widget.screen_widgets")
 local textclock_widget = panel_widgets_.init_textclock_widget()
 local cpu_widget = panel_widgets_.init_cpu_widget()
 local volume_widget = panel_widgets_.init_volume_widget()
