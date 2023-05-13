@@ -10,4 +10,7 @@ local general = {
     modkey     = modkey
 }
 
+local menubar = require("menubar")
+menubar.utils.terminal = general.terminal
+
 return general

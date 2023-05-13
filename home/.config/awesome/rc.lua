@@ -8,11 +8,9 @@ local wibox = require("wibox")
 
 local beautiful = require("beautiful")
 beautiful.init(require("theme"))
-local naughty = require("naughty")
-local menubar = require("menubar")
-require("awful.hotkeys_popup.keys")
+
 require("modules.notifications")
-local themes = require("theme.common")
+local theme_utils = require("theme.utils")
 
 local awesome = _G.awesome
 local client = _G.client
@@ -23,47 +21,10 @@ require("system")
 require("modules.volume-osd")
 awesome.set_preferred_icon_size(512)
 
-awful.layout.layouts = {
-    awful.layout.suit.tile,
-    awful.layout.suit.floating,
-    awful.layout.suit.max,
-}
-
-local general = require("configs.general")
-menubar.utils.terminal = general.terminal
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", themes.set_wallpaper)
+screen.connect_signal("property::geometry", theme_utils.set_wallpaper)
 
-local init_screen = require("screen.init_screen")
-
-local panel_widgets_ = require("widget.panel_widgets")
-local screen_widgets_ = require("widget.screen_widgets")
-local textclock_widget = panel_widgets_.init_textclock_widget()
-local cpu_widget = panel_widgets_.init_cpu_widget()
-local volume_widget = panel_widgets_.init_volume_widget()
-
-local panel_widgets = {
-    textclock_widget,
-    cpu_widget,
-    volume_widget.widget
-}
-
-awful.screen.connect_for_each_screen(
-    function(this_screen)
-        themes.set_wallpaper(this_screen)
-
-        -- Each screen has its own tag table.
-        awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, this_screen, awful.layout.layouts[1])
-
-        local cava = screen_widgets_.init_cava(this_screen)
-
-        local screen_widgets = {
-            cava = cava,
-        }
-
-        init_screen(this_screen, panel_widgets, screen_widgets)
-    end
-)
+require("layout")
 
 -- {{{ Bindings
 local menu = require("menu")
@@ -90,8 +51,7 @@ root.keys(keyboard_bindings)
 
 -- {{{ Rules
 -- Rules to apply to new clients (through the "manage" signal).
-local create_rules = require("rules")
-awful.rules.rules = create_rules()
+require("rules")
 -- }}}
 
 -- {{{ Signals
