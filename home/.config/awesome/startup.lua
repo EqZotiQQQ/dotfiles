@@ -28,7 +28,7 @@ startups.run_always = function ()
     awful.spawn.once("picom")
 
     -- Keyboard layout
-    awful.spawn.spawn("setxkbmap -layout us,ru, -option 'grp:ctrl_shift_toggle'")
+    awful.spawn.spawn("setxkbmap -layout us,ru -option 'grp:ctrl_shift_toggle'")
 end
 
 for _, startup_item_init in pairs(startups) do

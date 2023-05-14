@@ -131,6 +131,7 @@ awful.screen.connect_for_each_screen(
             -- local cpu_temp = require("widget.cpu_info")("temp")
             local cpu_freq = require("widget.cpu_info")("freq", "average")
             local audio = require("widget.audio")(current_screen)
+            local kblayout = require("widget.kblayout")(current_screen)
             local left_widgets = gears.table.join(
                 {
                     layout = wibox.layout.fixed[panel_orientation],
@@ -146,6 +147,7 @@ awful.screen.connect_for_each_screen(
                     cpu_freq,
                     -- cpu_temp,
                     systray,
+                    kblayout,
                     keyboardlayout,
                 },
                 {
