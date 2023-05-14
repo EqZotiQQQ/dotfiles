@@ -18,8 +18,6 @@ local set_general_keyboard_bindings = function (mymainmenu)
     local bindings = gears.table.join(
         awful.key({ modkey, }, "s",       hotkeys_popup.show_help,                                 {description = "show help",                  group="awesome"}),
         awful.key({ modkey, }, "w",       function () mymainmenu:show() end,                       {description = "show main menu",             group = "awesome"}),
-        awful.key({ modkey, }, "l",       function () awful.spawn.easy_async_with_shell("lock.sh") end, {description = "lockscreen",            group = "awesome"}),
-        awful.key({ modkey, }, "k",       function () awful.spawn.easy_async_with_shell("pkill -KILL -u `whoami`") end, {description = "log out",               group = "awesome"}),
         awful.key({ modkey, }, "Left",    awful.tag.viewprev,                                      {description = "view previous",              group = "tag"}),
         awful.key({ modkey, }, "Right",   awful.tag.viewnext,                                      {description = "view next",                  group = "tag"}),
         awful.key({ modkey, }, "Escape",  awful.tag.history.restore,                               {description = "go back",                    group = "tag"}),
@@ -42,9 +40,11 @@ local set_general_keyboard_bindings = function (mymainmenu)
             {description = "go back", group = "client"}),
 
         -- Standard program
-        awful.key({ modkey,       }, "Return", function () awful.spawn(terminal)              end,{description = "open a terminal", group = "launcher"}),
-        awful.key({ modkey, ctrl  }, "r",     awesome_common.restart,                             {description = "reload awesome", group = "awesome"}),
-        awful.key({ modkey, shift }, "q",     awesome_common.quit,                                {description = "quit awesome", group = "awesome"}),
+        awful.key({ modkey,       }, "Return",function () awful.spawn(terminal)              end, {description = "open a terminal", group = "launcher"}),
+        awful.key({ modkey,       }, "l",     awesome_common.lock,                                {description = "lockscreen",      group = "awesome"}),
+        awful.key({ modkey,       }, "k",     awesome_common.log_out ,                            {description = "log out",         group = "awesome"}),
+        awful.key({ modkey, ctrl  }, "r",     awesome_common.restart,                             {description = "reload awesome",  group = "awesome"}),
+        awful.key({ modkey, shift }, "q",     awesome_common.quit,                                {description = "quit awesome",    group = "awesome"}),
         awful.key({ modkey, shift }, "s",     awesome_common.suspend,                             {description = "suspend system. Doesn't logout!", group = "awesome"}),
         awful.key({ modkey,       }, "l",     function () awful.tag.incmwfact( 0.05)          end,{description = "increase master width factor", group = "layout"}),
         awful.key({ modkey,       }, "h",     function () awful.tag.incmwfact(-0.05)          end,{description = "decrease master width factor", group = "layout"}),

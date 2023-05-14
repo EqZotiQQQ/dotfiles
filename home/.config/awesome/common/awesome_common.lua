@@ -24,4 +24,12 @@ awesome_common.get_script_location = function()
     return debug.getinfo(2, "S").source:sub(2):match("(.*/)")
 end
 
+awesome_common.log_out = function()
+    awful.spawn.easy_async_with_shell("pkill -KILL -u `whoami`")
+end
+
+awesome_common.lock = function ()
+    awful.spawn.easy_async_with_shell("lock.sh")
+end
+
 return awesome_common
