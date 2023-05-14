@@ -18,7 +18,7 @@ local icondir = awful.util.getdir("config") .. "theme/icons/network/"
 
 -- Insert your interfaces here, get the from ip a
 local interfaces = {
-  -- wlan_interface = 'enp6s0',
+  -- wlan_interface = '',
   lan_interface = 'enp6s0',
 }
 

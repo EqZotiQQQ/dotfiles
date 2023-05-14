@@ -123,6 +123,9 @@ awful.screen.connect_for_each_screen(
     
         if current_screen.index == 1 then
             local network = require("widget.network")()
+            local cpu_usage = require("widget.cpu_info")("usage")
+            -- local cpu_temp = require("widget.cpu_info")("temp")
+            local cpu_freq = require("widget.cpu_info")("freq", "average")
             local left_widgets = gears.table.join(
                 {
                     layout = wibox.layout.fixed[panel_orientation],
@@ -134,6 +137,9 @@ awful.screen.connect_for_each_screen(
                 {
                     layout = wibox.layout.fixed[panel_orientation],
                     network,
+                    cpu_usage,
+                    cpu_freq,
+                    -- cpu_temp,
                     systray,
                     keyboardlayout,
                 },
