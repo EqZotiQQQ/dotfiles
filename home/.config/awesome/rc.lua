@@ -51,7 +51,7 @@ root.keys(keyboard_bindings)
 
 -- {{{ Rules
 -- Rules to apply to new clients (through the "manage" signal).
-require("rules")
+require("core.rules")
 -- }}}
 
 -- {{{ Signals
