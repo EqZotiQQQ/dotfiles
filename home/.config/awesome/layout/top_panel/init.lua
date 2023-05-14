@@ -122,12 +122,15 @@ awful.screen.connect_for_each_screen(
         local keyboardlayout = awful.widget.keyboardlayout()
         local date = require("widget.date")()
         local clock = require("widget.clock")()
+        require("core.volume_osd")(current_screen)
+        require("core.volume_controller")(current_screen)
     
         if current_screen.index == 1 then
             local network = require("widget.network")()
             local cpu_usage = require("widget.cpu_info")("usage")
             -- local cpu_temp = require("widget.cpu_info")("temp")
             local cpu_freq = require("widget.cpu_info")("freq", "average")
+            local audio = require("widget.audio")(current_screen)
             local left_widgets = gears.table.join(
                 {
                     layout = wibox.layout.fixed[panel_orientation],
@@ -148,7 +151,8 @@ awful.screen.connect_for_each_screen(
                 {
                     -- textclock_widget,
                     -- cpu_widget,
-                    -- volume_widget.widget,
+                    volume_widget.widget,
+                    audio,
                     date,
                     clock,
                 },

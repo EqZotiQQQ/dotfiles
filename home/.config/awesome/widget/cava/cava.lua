@@ -16,8 +16,6 @@ local audio = require("system.audio")
 local cava_confdig = require("configs.cava")
 
 
--- d.p(audio)
-
 local cava_max = audio.cava.max_value
 
 local cava = {}
