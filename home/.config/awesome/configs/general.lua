@@ -12,5 +12,5 @@ local general = {
 
 local menubar = require("menubar")
 menubar.utils.terminal = general.terminal
-
+awesome.set_preferred_icon_size(512)
 return general
