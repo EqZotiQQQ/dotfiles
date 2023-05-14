@@ -9,7 +9,7 @@ sudo pacman -Syy --needed \
     fzf rofi picom \
     rustup luajit lua51 \
     lua luarocks bash-language-server \
-    flameshot neovim htop awesome \
+    flameshot neovim htop \
     lua-posix cmake make \
     feh pavucontrol discord
 
@@ -59,7 +59,7 @@ cd paru
 makepkg -si
 
 echo "Required 800010003-5"
-paru -S snx
+paru -S snx awesome-git ffmpeg-git xorg-server-xephyr
 sudo modprobe tun
 echo "Go to bagazhnik and take binary file. Put it to ${HOME}/.cache/paru/clone/snx then execute from root" 
 
