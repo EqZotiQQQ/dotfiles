@@ -120,6 +120,8 @@ awful.screen.connect_for_each_screen(
 
         local layout_box = current_screen.layoutbox
         local keyboardlayout = awful.widget.keyboardlayout()
+        local date = require("widget.date")()
+        local clock = require("widget.clock")()
     
         if current_screen.index == 1 then
             local network = require("widget.network")()
@@ -144,9 +146,11 @@ awful.screen.connect_for_each_screen(
                     keyboardlayout,
                 },
                 {
-                    textclock_widget,
-                    cpu_widget,
-                    volume_widget.widget,
+                    -- textclock_widget,
+                    -- cpu_widget,
+                    -- volume_widget.widget,
+                    date,
+                    clock,
                 },
                 {
                     layout_box,

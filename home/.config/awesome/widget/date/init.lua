@@ -1,6 +1,6 @@
-------------------------------
--- This is the clock widget --
-------------------------------
+-----------------------------
+-- This is the date widget --
+-----------------------------
 
 -- Awesome Libs
 local awful = require("awful")
@@ -11,19 +11,19 @@ local wibox = require("wibox")
 require("core.signals")
 
 -- Icon directory path
-local icondir = awful.util.getdir("config") .. "theme/icons/clock/"
+local icondir = awful.util.getdir("config") .. "theme/icons/date/"
 
--- Returns the clock widget
+-- Returns the date widget
 return function()
 
-  local clock_widget = wibox.widget {
+  local date_widget = wibox.widget {
     {
       {
         {
           {
             {
               id = "icon",
-              image = gears.color.recolor_image(icondir .. "clock.svg", color["Grey900"]),
+              image = gears.color.recolor_image(icondir .. "calendar.svg", color["Grey900"]),
               widget = wibox.widget.imagebox,
               resize = false
             },
@@ -39,10 +39,9 @@ return function()
           id = "label",
           align = "center",
           valign = "center",
-          format = "%H:%M",
-          widget = wibox.widget.textclock
+          widget = wibox.widget.textbox
         },
-        id = "clock_layout",
+        id = "date_layout",
         layout = wibox.layout.fixed.horizontal
       },
       id = "container",
@@ -50,7 +49,7 @@ return function()
       right = dpi(8),
       widget = wibox.container.margin
     },
-    bg = color["Orange200"],
+    bg = color["Teal200"],
     fg = color["Grey900"],
     shape = function(cr, width, height)
       gears.shape.rounded_rect(cr, width, height, 5)
@@ -58,7 +57,36 @@ return function()
     widget = wibox.container.background
   }
 
-  Hover_signal(clock_widget, color["Orange200"], color["Grey900"])
+  local set_date = function()
+    date_widget.container.date_layout.label:set_text(os.date("%a, %b %d"))
+  end
 
-  return clock_widget
+  -- Updates the date every minute, dont blame me if you miss silvester
+  gears.timer {
+    timeout = 60,
+    autostart = true,
+    call_now = true,
+    callback = function()
+      set_date()
+    end
+  }
+
+  -- Signals
+  Hover_signal(date_widget, color["Teal200"], color["Grey900"])
+
+  date_widget:connect_signal(
+    "mouse::enter",
+    function()
+      awesome.emit_signal("widget::calendar_osd:stop", true)
+    end
+  )
+
+  date_widget:connect_signal(
+    "mouse::leave",
+    function()
+      awesome.emit_signal("widget::calendar_osd:rerun", true)
+    end
+  )
+
+  return date_widget
 end
