@@ -37,12 +37,6 @@ awful.screen.connect_for_each_screen(
             cava = cava,
         }
 
-        local panel_widgets = {
-            textclock_widget,
-            cpu_widget,
-            volume_widget.widget
-        }
-
         for name, value in pairs(screen_widgets) do
             current_screen[name] = value
         end
@@ -121,33 +115,68 @@ awful.screen.connect_for_each_screen(
         current_screen.panel = awful.wibar(panel_properties)
     
         local systray = current_screen.systray
-    
+
+        
+
         local layout_box = current_screen.layoutbox
         local keyboardlayout = awful.widget.keyboardlayout()
     
-        local right_widgets = gears.table.join(
-            { -- Right widgets
-                layout = wibox.layout.fixed[panel_orientation],
-                systray,
-                keyboardlayout,
-            },
-            panel_widgets,
-            {
-                -- net_widget,
-                layout_box,
-                -- panel_widgets.textclock_widget,
+        if current_screen.index == 1 then
+            local network = require("widget.network")()
+            local left_widgets = gears.table.join(
+                {
+                    layout = wibox.layout.fixed[panel_orientation],
+                    current_screen.taglist,
+                }
+            )
+        
+            local right_widgets = gears.table.join(
+                {
+                    layout = wibox.layout.fixed[panel_orientation],
+                    network,
+                    systray,
+                    keyboardlayout,
+                },
+                {
+                    textclock_widget,
+                    cpu_widget,
+                    volume_widget.widget,
+                },
+                {
+                    layout_box,
+                }
+            )
+
+            current_screen.panel:setup {
+                layout = wibox.layout.align[panel_orientation],
+                left_widgets,
+                current_screen.tasklist, -- Middle widget
+                right_widgets
             }
-        )
-    
-        current_screen.panel:setup {
-            layout = wibox.layout.align[panel_orientation],
-            { -- Left widgets
-                layout = wibox.layout.fixed[panel_orientation],
-                -- screen.mytaglist,
-                current_screen.taglist,
-            },
-            current_screen.tasklist, -- Middle widget
-            right_widgets
-        }
+        else -- second, third, ... monitors
+            local left_widgets = gears.table.join(
+                {
+                    layout = wibox.layout.fixed[panel_orientation],
+                    current_screen.taglist,
+                }
+            )
+        
+            local right_widgets = gears.table.join(
+                {
+                    layout = wibox.layout.fixed[panel_orientation],
+                },
+                {},
+                {
+                    layout_box,
+                }
+            )
+
+            current_screen.panel:setup {
+                layout = wibox.layout.align[panel_orientation],
+                left_widgets,
+                current_screen.tasklist, -- Middle widget
+                right_widgets
+            }
+        end
     end
 )
