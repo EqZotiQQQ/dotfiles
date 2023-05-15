@@ -1,3 +1,5 @@
+local d = require("dbg")
+
 local _, freedesktop = pcall(require, "freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local general = require("configs.general")
@@ -7,6 +9,8 @@ local beautiful = require("beautiful")
 
 -- Awesome stack
 local awesome = _G.awesome
+
+d.n(freedesktop)
 
 local myawesomemenu = {
     { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },

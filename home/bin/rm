@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+
+trash_dir="${HOME}/trash"
+[ ! -d "${trash_dir}" ] && mkdir -p "${trash_dir}"
+
+for var in "$@"
+do
+    if [[ $var == -* ]]; then
+        $var
+    else
+        mv $var ${trash_dir}
+    fi
+done
+

@@ -28,7 +28,7 @@ fi
 
 source "${ZINIT_HOME}/bin/zinit.zsh"
 source "${ZDOTDIR}/plugins.zsh"
-source "${ZDOTDIR}/p10k_1.zsh"
+source "${ZDOTDIR}/powerlevel10k.zsh"
 
 
 # Load basic settings
@@ -40,3 +40,17 @@ done
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
+
+HISTFILE=~/.zhistory
+HISTSIZE=10000
+SAVEHIST=10000
+
+# USE_POWERLINE="true"
+# # Source manjaro-zsh-configuration
+# if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+#   source /usr/share/zsh/manjaro-zsh-config
+# fi
+# # Use manjaro zsh prompt
+# if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+#   source /usr/share/zsh/manjaro-zsh-prompt
+# fi
