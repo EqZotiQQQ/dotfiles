@@ -10,8 +10,6 @@ local beautiful = require("beautiful")
 -- Awesome stack
 local awesome = _G.awesome
 
-d.n(freedesktop)
-
 local myawesomemenu = {
     { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
     { "manual", general.terminal .. " -e man awesome" },

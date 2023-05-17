@@ -116,12 +116,11 @@ awful.screen.connect_for_each_screen(
     
         local systray = current_screen.systray
 
-        
-
         local layout_box = current_screen.layoutbox
         local keyboardlayout = awful.widget.keyboardlayout()
         local date = require("widget.date")()
         local clock = require("widget.clock")()
+
         require("core.volume_osd")(current_screen)
         require("core.volume_controller")(current_screen)
     
