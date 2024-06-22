@@ -16,7 +16,6 @@ local icondir = awful.util.getdir("config") .. "theme/icons/audio/"
 
 -- Returns the volume_osd
 return function(s)
-
   local volume_osd_widget = wibox.widget {
     {
       {

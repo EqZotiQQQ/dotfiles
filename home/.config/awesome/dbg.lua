@@ -11,6 +11,9 @@ local naughty = require("naughty")
 local d = {
     stopwatch = {}
 }
+
+local dbg_enabled = false
+
 d.mt = {}
 
 local function notify(t1, t2, conf)
@@ -33,23 +36,29 @@ local function notify(t1, t2, conf)
 end
 
 function d.notify(t1, t2)
-    notify(t1, t2, {
-        title = "Debug",
-    })
+    if dbg_enabled then
+        notify(t1, t2, {
+            title = "Debug",
+        })
+    end
 end
 
 function d.notify_err(t1, t2)
-    notify(t1, t2, {
-        title = "Error",
-        preset = naughty.config.presets.critical
-    })
+    if dbg_enabled then
+        notify(t1, t2, {
+            title = "Error",
+            preset = naughty.config.presets.critical
+        })
+    end
 end
 
 function d.notify_persistent(t1, t2)
-    notify(t1, t2, {
-        title = "Debug",
-        preset = { timeout = 0 }
-    })
+    if dbg_enabled then
+        notify(t1, t2, {
+            title = "Debug",
+            preset = { timeout = 0 }
+        })
+    end
 end
 
 function d.start(name, config)

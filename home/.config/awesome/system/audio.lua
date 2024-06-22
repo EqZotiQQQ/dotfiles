@@ -17,6 +17,8 @@ local tonumber = tonumber
 local tostring = tostring
 local bit = util.bit
 
+d.n("audio module")
+
 local audio = {
     volume = {},
     mute = {},
@@ -34,6 +36,7 @@ local audio = {
 local signals = {}
 
 function audio.init_pulse_subscription()
+    d.n("audio.init_pulse_subscription()")
     audio.subscription_pid = awful.spawn.with_line_callback(
         "pactl subscribe",
         {
@@ -62,24 +65,28 @@ audio.on_event.sink = {}
 audio.on_event.sink_input = {}
 
 function audio.on_event.sink.change(id)
+    d.n("audio.on_event.sink.change("..id..")")
     if id ~= nil then
         audio:sink_status_update()
     end
 end
 
 function audio.on_event.sink.remove(id)
+    d.n("audio.on_event.sink.remove("..id..")")
     if id == audio.sink then
         audio:init_default_sink()
     end
 end
 
 function audio.on_event.sink.new(id)
+    d.n("audio.on_event.sink.new("..id..")")
     if id == audio.sink then
         audio:init_default_sink()
     end
 end
 
 function audio.on_event.sink_input.change(_)
+    d.n("audio.on_event.sink.change()")
     audio:init_default_sink()
 end
 
@@ -111,6 +118,7 @@ gravity = 100
 ]]
 
 function audio.cava:init()
+    d.n("audio.sink.init()")
     if self.initialized then return end
 
     self.config = {
@@ -138,6 +146,7 @@ function audio.cava:init()
 end
 
 function audio.cava:parse_fifo()
+    -- d.n("audio.sink.parse_fifo()")
     local errmsg
     if not self.fifo then
         -- Closed in destructor
@@ -178,6 +187,7 @@ function audio.cava:update()
 end
 
 function audio:init_default_sink()
+    d.n("audio.sink.init_default_sink()")
     awful.spawn.easy_async("pactl list sinks short",
         function(out)
             local old_sink = self.sink
@@ -190,6 +200,7 @@ function audio:init_default_sink()
 end
 
 function audio:sink_status_update()
+    d.n("audio.sink.sink_status_update()")
     awful.spawn.easy_async(
         "pactl list sinks",
         function(out)
@@ -223,6 +234,7 @@ end
 -- @tparam[opt=default] number sink Sink number
 -- @treturn number volume level in percentage
 function audio:volume_get(sink)
+    d.n("audio:volume_get("..sink..")")
     local sink = sink or self.sink
     if sink ~= nil then
         return self.volume[sink]
@@ -235,6 +247,7 @@ end
 -- @tparam number volume Volume level in percentage
 -- @tparam[opt=default] number sink Sink number
 function audio:volume_set(volume, sink)
+    d.n("audio:volume_set()")
     local sink = sink or self.sink
     if sink ~= nil then
         awful.spawn("pactl set-sink-volume "..sink.." "..volume)
@@ -242,6 +255,7 @@ function audio:volume_set(volume, sink)
 end
 
 function audio:volume_mute_impl(stdout)
+    d.n("audio:volume_mute_impl(...)")
     local is_mute = stdout:sub(7, 7)
     if is_mute == "y" then
         self.emit_signal("audio::unmute")
@@ -254,6 +268,7 @@ end
 -- @tparam[opt="toggle"] string val "toggle", "true" or "false"
 -- @tparam[opt=default] number sink Sink number
 function audio:volume_mute(val, sink)
+    d.n("audio:volume_mute("..val..", "..sink..")")
     local sink = sink or self.sink
     local val = val and tostring(val) or "toggle"
     if sink ~= nil then
@@ -275,6 +290,7 @@ end
 -- @tparam string name Event name
 -- @tparam function callback Callback function
 function audio.connect_signal(name, callback)
+    d.n("audio.connect_signal(...)")
     signals[name] = signals[name] or {}
     table.insert(signals[name], callback)
 end
@@ -283,6 +299,7 @@ end
 -- @tparam string name Event name
 -- @tparam function callback Callback function
 function audio.disconnect_signal(name, callback)
+    d.n("audio.disconnect_signal(...)")
     signals[name] = signals[name] or {}
 
     for k, v in ipairs(signals[name]) do
@@ -294,6 +311,7 @@ function audio.disconnect_signal(name, callback)
 end
 
 function audio.emit_signal(name, ...)
+    -- d.n("audio.emit_signal(...)")
     signals[name] = signals[name] or {}
 
     for _, cb in ipairs(signals[name]) do
@@ -304,6 +322,7 @@ end
 audio.mt = {}
 
 function audio.mt:__gc()
+    d.n("audio.mt:__gc()")
     posix_signal.kill(audio.subscription_pid)
     posix_signal.kill(audio.cava.pid)
     if audio.cava.fifo then

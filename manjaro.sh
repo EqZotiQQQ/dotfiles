@@ -19,9 +19,11 @@ paru -S --skipreview --noconfirm visual-studio-code-bin kitty rofi lua picom-git
 
 paru -S --skipreview --noconfirm cava-git pycharm-professional i3lock-color flameshot lua53 5.3.6-1 
 
-paru -S --skipreview --noconfirm awesome-git xorg-server-xephyr awesome-freedesktop python38
+paru -S --skipreview --noconfirm awesome-git xorg-server-xephyr awesome-freedesktop python38 
 
-paru -S --skipreview --noconfirm  telegram-desktop-git 
+paru -S --skipreview --noconfirm telegram-desktop-git 
+
+paru -S --skipreview --noconfirm jdk-openjdk
 
 cd /tmp
 git clone https://aur.archlinux.org/yay.git
@@ -36,6 +38,7 @@ sudo usermod -aG docker $USER
 sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
 
 git config --global merge.tool vimdiff
+git config --global core.editor nvim
 
 mkdir -p ${HOME}/Pictures/Screenshots
 
@@ -51,17 +54,3 @@ mkdir -p "${rofi_themes_dst_dir}"
 cp -r "${rofi_theme_download_dir}/themes/" "${rofi_themes_dst_dir}"
 echo run -> rofi-theme-selector
 echo "Choose Alt + a on selected node"
-
-
-echo "Required 800010003-5"
-paru -S --skipreview snx
-
-sudo modprobe tun
-echo "Go to bagazhnik and take binary file. Put it to ${HOME}/.cache/paru/clone/snx then execute from root" 
-
-ssh-keygen -t rsa
-# To install SNX - install 
-
-git config --global merge.tool vimdiff
-
-# Configure automount sudo mount -t ntfs /dev/sdb1(autodetect part-s) /mnt
