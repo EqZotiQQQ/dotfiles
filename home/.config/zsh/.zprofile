@@ -1,1 +1,3 @@
+#!/bin/zsh
 
+echo '.zprofile'

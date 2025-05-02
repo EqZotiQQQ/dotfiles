@@ -1,11 +1,3 @@
-# load zinit or download if missing
-export ZINIT_HOME="${ZDOTDIR}/zinit"
-if [[ ! -a "${ZINIT_HOME}/bin/zinit.zsh" ]]; then
-   git clone https://github.com/zdharma-continuum/zinit.git "${ZINIT_HOME}/bin"
-fi
-
-source "${ZINIT_HOME}/bin/zinit.zsh"
-
 ###########################
 #  Fish-like suggestions  #
 ###########################
@@ -31,13 +23,3 @@ zinit wait lucid for \
     zsh-users/zsh-completions \
  atload"!_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions
-
-# -----------------------------------------
-# 🧩 FZF integration (with key bindings and fuzzy history)
-# -----------------------------------------
-zinit ice lucid atload"source $HOME/.fzf.zsh"
-zinit light junegunn/fzf
-
-# # Optional: fzf-tab for enhanced completion UI
-zinit ice depth=1 lucid
-zinit light Aloxaf/fzf-tab
