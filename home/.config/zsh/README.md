@@ -1,3 +1,25 @@
+# Bindings
+## 🎹 Keyboard Bindings
+```
+Ctrl + A / Ctrl + E       -> move to beginning/end of line
+Ctrl + U                  -> delete to beginning
+Ctrl + K                  -> delete to end
+Ctrl + W                  -> delete word backward
+Alt + F / Alt + B         -> move forward/backward one word
+
+Word movement with Ctrl+Left / Ctrl+Right
+
+Ctrl + R                  -> fzf search
+Ctrl + L                  -> clear screen
+Ctrl + Left               -> to start of line
+Ctrl + Right              -> to end of line
+Shift + Alt + Right       -> forward word
+Shift + Alt + Left        -> bacward word
+Ctrl + Shift + Delete     -> delete line
+```
+
+
+# Files
 Файлы конфигурации Zsh запускаются в определённом порядке в зависимости от типа сессии: **login shell**, **interactive shell**, **non-interactive shell**, **remote shell** и т.п.
 
 Вот полный список основных конфигурационных файлов и порядок их загрузки:
@@ -32,6 +54,7 @@
 2. `.zshrc`
 #### 🔸 Non-interactive, non-login shell (например, скрипт):
 1. `.zshenv`
+# Shell types
 ### 🟢 **Login shell**
 **Это оболочка, запускаемая при логине в систему.**  
 Обычно первый shell при входе по tty, ssh, или запуске `zsh -l`.
@@ -82,24 +105,3 @@
 - `.zprofile`
 - `.zshrc` (если interactive)
 - `.zlogin`
-
-# Bindings
-
-## 🎹 Keyboard Bindings
-```
-Ctrl + A / Ctrl + E       -> move to beginning/end of line
-Ctrl + U                  -> delete to beginning
-Ctrl + K                  -> delete to end
-Ctrl + W                  -> delete word backward
-Alt + F / Alt + B         -> move forward/backward one word
-
-Word movement with Ctrl+Left / Ctrl+Right
-
-Ctrl + R                  -> fzf search
-Ctrl + L                  -> clear screen
-Ctrl + Left               -> to start of line
-Ctrl + Right              -> to end of line
-Shift + Alt + Right       -> forward word
-Shift + Alt + Left        -> bacward word
-Ctrl + Shift + Delete     -> delete line
-```
