@@ -83,3 +83,23 @@
 - `.zshrc` (если interactive)
 - `.zlogin`
 
+# Bindings
+
+## 🎹 Keyboard Bindings
+```
+Ctrl + A / Ctrl + E       -> move to beginning/end of line
+Ctrl + U                  -> delete to beginning
+Ctrl + K                  -> delete to end
+Ctrl + W                  -> delete word backward
+Alt + F / Alt + B         -> move forward/backward one word
+
+Word movement with Ctrl+Left / Ctrl+Right
+
+Ctrl + R                  -> fzf search
+Ctrl + L                  -> clear screen
+Ctrl + Left               -> to start of line
+Ctrl + Right              -> to end of line
+Shift + Alt + Right       -> forward word
+Shift + Alt + Left        -> bacward word
+Ctrl + Shift + Delete     -> delete line
+```

@@ -34,7 +34,6 @@ bindkey "\e[1;5C" forward-word
 
 # Define fuzzy history widget
 fzf-history-widget() {
-  echo 42
   BUFFER=$(history -n 1 | tac | fzf --height 40% --reverse --border --tiebreak=index --no-sort)
   CURSOR=$#BUFFER
   zle redisplay
@@ -51,3 +50,15 @@ if (( $+commands[fzf] )); then
   # Load fzf key bindings if installed via git
   [[ -f ~/.fzf/shell/key-bindings.zsh ]] && source ~/.fzf/shell/key-bindings.zsh
 fi
+
+
+# Ctrl+⬅️ / Ctrl+➡️ Move by word
+bindkey "^[[1;4D"  beginning-of-line   # Ctrl+Left  -> to start of line
+bindkey "^[[1;4C"  end-of-line         # Ctrl+Right  -> to end of line
+
+
+bindkey "^\e[1;5C" forward-word        # Shift+Alt+Right  -> forward word
+bindkey "^\e[1;5D" backward-word       # Shift+Alt+Left -> bacward word
+
+bindkey "^[[3;6~" backward-kill-line   # Ctrl + Shift + Delete -> delete line
+

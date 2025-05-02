@@ -45,11 +45,11 @@ if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
 fi
 
 source "${ZINIT_HOME}/bin/zinit.zsh"
-source "${ZDOTDIR}/plugins.zsh"
-# source "${ZDOTDIR}/bindings.zsh"
+source "${ZDOTDIR}/settings/plugins.zsh"
+source "${ZDOTDIR}/settings/bindings.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
-[[ ! -f "${ZDOTDIR}/.p10k.zsh" ]] || source "${ZDOTDIR}/.p10k.zsh"
+[[ ! -f "${ZDOTDIR}/settings/p10k.zsh" ]] || source "${ZDOTDIR}/settings/p10k.zsh"
 
 # Load aliases
 for file in ${ZDOTDIR}/aliases/*; do
