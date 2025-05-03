@@ -1,0 +1,73 @@
+{
+    // Основные настройки редактора
+    "editor.fontSize": 14, // Размер шрифта
+    "editor.lineHeight": 22, // Высота строки
+    "editor.tabSize": 4, // Количество пробелов для табуляции
+    "editor.insertSpaces": true, // Использовать пробелы вместо табуляции
+    "editor.wordWrap": "on", // Автоматический перенос строк
+    "editor.minimap.enabled": false, // Включить миникарту (мини-версию редактора в правой части окна)
+    "editor.autoClosingBrackets": "always", // Автоматически закрывать скобки
+    "editor.autoClosingQuotes": "always", // Автоматически закрывать кавычки
+    "editor.formatOnSave": true, // Автоматическое форматирование при сохранении
+    "editor.rulers": [
+        160
+    ], // Линия на 80 символах для ограничения длины строки
+    // Настройки темы
+    "workbench.colorTheme": "Visual Studio 2017 Dark - C++", // Тема интерфейса
+    // Настройки для расширений
+    // "python.pythonPath": "path/to/your/python",  // Путь к интерпретатору Python
+    // "eslint.enable": true,                      // Включить поддержку ESLint для JavaScript/TypeScript
+    // "eslint.run": "onSave",                     // Запускать ESLint при сохранении
+    // Настройки автозавершения
+    "editor.suggestOnTriggerCharacters": true, // Автозавершение по триггерным символам
+    "editor.snippetSuggestions": "inline", // Показывать сниппеты при автозавершении
+    // Настройки для работы с Git
+    "git.enabled": true, // Включить поддержку Git
+    "git.autorefresh": true, // Автоматическое обновление статуса Git
+    // Настройки для работы с терминалом
+    "terminal.integrated.fontSize": 12, // Размер шрифта в терминале
+    "terminal.integrated.shell.linux": "/bin/zsh", // Путь к оболочке для Linux
+    "terminal.integrated.shell.osx": "/bin/zsh", // Путь к оболочке для macOS
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe", // Путь к оболочке для Windows
+    // Прочие настройки
+    "files.autoSave": "onFocusChange", // Автосохранение при изменении окна
+    "files.autoSaveDelay": 1000, // Задержка автосохранения в миллисекундах
+    "files.exclude": {
+        "**/.git": true, // Исключить папку .git
+        "**/.DS_Store": true // Исключить файлы .DS_Store
+    },
+    "search.exclude": {
+        "**/node_modules": true, // Исключить папку node_modules
+        "**/.git": true // Исключить папку .git
+    },
+    "explorer.confirmDelete": false,
+    "editor.mouseWheelZoom": true,
+    // Настройки для Lua
+    "Lua.codeLens.enable": true,
+    "[lua]": {
+        "editor.defaultFormatter": "sumneko.lua", // Использование форматтера Lua от расширения "sumneko.lua"
+        "editor.formatOnSave": true, // Форматирование Lua при сохранении
+        "editor.tabSize": 4, // Устанавливает ширину табуляции для Lua (4 пробела)
+        "editor.insertSpaces": true, // Использовать пробелы вместо табуляции для Lua
+    },
+    // Настройки расширений
+    "lua.format.enable": true, // Включить форматирование Lua
+    "lua.format.settings": {
+        "indent_width": 4, // Ширина отступа (количество пробелов для табуляции)
+        "continuation_indent_width": 4, // Отступ для продолжений строк
+        "align_args": true, // Выравнивание аргументов в функциях
+        "align_local_variables": true, // Выравнивание локальных переменных
+        "break_before_binary_operator": true, // Переносить строки перед бинарными операторами
+        "brace_style": "end_of_line", // Стиль размещения скобок
+        "space_after_while": false, // Пробел после ключевого слова while
+        "space_after_if": false, // Пробел после ключевого слова if
+        "space_after_for": false, // Пробел после ключевого слова for
+        "space_after_function": true, // Пробел после ключевого слова function
+        "use_tab": false, // Использовать пробелы вместо табуляции
+        "compact": false, // Не использовать компактный стиль
+        "wrap_comment": false, // Не переносить длинные комментарии
+        "max_line_length": 100, // Максимальная длина строки для комментариев
+        "quote_style": "double" // Стиль кавычек: "single" (одинарные), "double" (двойные)
+    },
+    "editor.fontFamily": "'iosevka', 'monospace', monospace"
+}
