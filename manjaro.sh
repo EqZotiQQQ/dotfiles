@@ -37,7 +37,7 @@ paru -S --skipreview --noconfirm cmake make bash-language-server luarocks
 paru -S --skipreview --noconfirm zsh kitty rofi picom-git terminator fzf
 
 # editors, interprers
-paru -S --skipreview --noconfirm visual-studio-code-bin pycharm-professional neovim lua lua53 python38
+paru -S --skipreview --noconfirm visual-studio-code-bin pycharm-professional neovim lua lua53 lua51 python38
 
 # default items replacement
 paru -S --skipreview --noconfirm exa bat duf ripgrep
@@ -93,14 +93,10 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 sudo setfacl --modify user:`whoami`:rw /var/run/docker.sock
 
-# Git configuration
-git config --global merge.tool vimdiff
-git config --global core.editor nvim
-
 # lua modules
-sudo luarocks --lua-version 5.3 install lua-lsp ;\
-sudo luarocks --lua-version 5.3 install luaposix ;\
-sudo luarocks --lua-version 5.1 install luafilesystem ;\
+sudo luarocks --lua-version 5.3 install lua-lsp
+sudo luarocks --lua-version 5.3 install luaposix
+sudo luarocks --lua-version 5.1 install luafilesystem
 sudo luarocks --lua-version 5.1 install bit32
 
 # Rofi themes
