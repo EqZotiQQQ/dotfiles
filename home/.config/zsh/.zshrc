@@ -56,6 +56,12 @@ for file in ${ZDOTDIR}/aliases/*; do
   source ${file}
 done
 
+
+# Load functions
+for file in ${ZDOTDIR}/functions/*; do
+  source ${file}
+done
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
