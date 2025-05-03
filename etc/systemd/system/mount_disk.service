@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount /dev/nvme1n1p2 to ~//windows_fs_mount_point
+After=network.target
+
+[Service]
+ExecStart=/home/eqzotiqqq/.local/bin/mount_disk.sh
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

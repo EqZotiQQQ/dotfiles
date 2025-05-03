@@ -2,12 +2,14 @@ import argparse
 import dataclasses
 import pathlib
 
-config_default = pathlib.Path.home()
+DEFAULT_USER_LOCATION = pathlib.Path.home()
 
 
 @dataclasses.dataclass
 class AppSettings:
-    reset_symlinks: bool
+    symlinks: bool
+    update_symlinkgs: bool
+    overwrite: bool
     install_ubuntu_apps: bool
     install_manjaro_apps: bool
     config_directory: pathlib.Path
@@ -24,10 +26,22 @@ class AppSettings:
             help="Path to top level config directory",
         )
         parser.add_argument(
-            "-r",
-            "--reset-symlinks",
+            "-s",
+            "--symlinks",
             action="store_true",
-            help=f"Reinit symlinks for {config_default}"
+            help=f"Display symlinks destionation for {DEFAULT_USER_LOCATION}. To do real update you should also use -f"
+        )
+        parser.add_argument(
+            "-f",
+            "--force-symlink-update",
+            action="store_true",
+            help="Without this option real symlinks won't be created. Only destination will be shown",
+        )
+        parser.add_argument(
+            "-o",
+            "--overwrite-existing-files",
+            action="store_true",
+            help="Overwrite existing files. Watch out!",
         )
         parser.add_argument(
             "--ubuntu-apps",
@@ -51,9 +65,11 @@ class AppSettings:
             # TODO select distro
             raise 42
         return AppSettings(
-            reset_symlinks=args.reset_symlinks,
+            symlinks=args.symlinks,
+            update_symlinkgs=args.force_symlink_update,
+            overwrite=args.overwrite_existing_files,
             install_ubuntu_apps=args.ubuntu_apps,
             install_manjaro_apps=args.manjaro_apps,
             config_directory=args.path,
-            config_destination=config_default,
+            config_destination=DEFAULT_USER_LOCATION,
         )
