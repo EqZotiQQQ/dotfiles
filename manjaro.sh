@@ -49,7 +49,7 @@ paru -S --skipreview --noconfirm pavucontrol cava-git feh
 paru -S --skipreview --noconfirm htop flameshot i3lock-color
 
 # desctop env, WM
-paru -S --skipreview --noconfirm awesome-git awesome-freedesktop xorg-server-xephyr
+paru -S --skipreview --noconfirm awesome-luajit-git awesome-freedesktop xorg-server-xephyr
 
 # browser, communiction
 paru -S --skipreview --noconfirm discord telegram-desktop-git google-chrome
