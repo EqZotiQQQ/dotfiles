@@ -5,7 +5,6 @@ DISK='/dev/nvme1n1p2'
 SYMLINK="${HOME}/windows_fs_mount_point"
 
 if lsblk | grep -q "$DISK_NAME"; then
-    umount $DISK
     MOUNT_OUTPUT=$(udisksctl mount -b "$DISK" 2>&1)
 
     if [ $? -ne 0 ]; then
@@ -23,6 +22,10 @@ if lsblk | grep -q "$DISK_NAME"; then
     [ -L "$SYMLINK" ] && rm "$SYMLINK"
 
     ln -s "$MOUNT_POINT" "$SYMLINK"
+
+    echo "ln -s $MOUNT_POINT $SYMLINK"
 else
     echo "Disk ${DISK} not found!"
 fi
+
+echo "Mount done!"
