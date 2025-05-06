@@ -11,6 +11,8 @@ Screenshot tool: Flameshot
 
 Used to mount disc with windows that contains icloud with obsidian
 ```bash
-sudo systemctl enable mount_disk.service
-sudo systemctl start mount_disk.service
+systemctl --user daemon-reexec
+systemctl --user daemon-reload
+systemctl --user enable mount_disk.service
+systemctl --user start mount_disk.service
 ```
