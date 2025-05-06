@@ -101,4 +101,5 @@
         "tag" // Добавь все глобальные переменные awesomeWM
     ],
     "Lua.workspace.checkThirdParty": true,
+    "explorer.confirmDragAndDrop": false,
 }

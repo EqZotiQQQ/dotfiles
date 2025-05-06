@@ -1,9 +1,8 @@
-local close_to_default_taskbar = require("widgets.close_to_default_taskbar")
-local left_taskbar = require("widgets.my_taskbar")
+local taskbar = require("widgets.taskbar")
 
 local widgets = {
-    taskbar = left_taskbar,
-    close_to_default_taskbar = close_to_default_taskbar,
+    taskbar = taskbar.my_taskbar,
+    close_to_default_taskbar = taskbar.close_to_default_taskbar,
 }
 
 local screen_widgets = {}

@@ -1,10 +1,11 @@
 -- debug/init.lua
 -- Simple logging/debugging utility for AwesomeWM
+local wibox = require("wibox")
 
-local M = {}
+local dbg_module = {}
 
 -- Print message with optional tag
-function M.screen_out(msg, tag)
+function dbg_module.screen_out(msg, tag)
     local prefix = "[DEBUG]"
     if tag then
         prefix = "[" .. tag .. "]"
@@ -13,7 +14,7 @@ function M.screen_out(msg, tag)
 end
 
 -- Dump contents of a table (recursively, with optional depth)
-function M.stdout(tbl, indent)
+function dbg_module.stdout(tbl, indent)
     indent = indent or 0
     local spacing = string.rep("  ", indent)
 
@@ -26,7 +27,7 @@ function M.stdout(tbl, indent)
         local key = tostring(k)
         if type(v) == "table" then
             print(spacing .. key .. " = {")
-            M.dump(v, indent + 1)
+            dbg_module.dump(v, indent + 1)
             print(spacing .. "}")
         else
             print(spacing .. key .. " = " .. tostring(v))
@@ -34,6 +35,14 @@ function M.stdout(tbl, indent)
     end
 end
 
-M.log = M.stdout
+dbg_module.log = dbg_module.stdout
 
-return M
+function dbg_module.wrap_widget(widget)
+    local highlighted_widget = wibox.container.margin(
+        wibox.container.background(widget, "purple"),
+        2, 2, 2, 2 -- left, right, top, bottom (ширина рамки)
+    )
+    return highlighted_widget
+end
+
+return dbg_module

@@ -1,4 +1,5 @@
 local awful = require("awful")
+local gears = require("gears")
 
 local bindings = {}
 
@@ -33,7 +34,7 @@ bindings.layout_control = {
     )
 }
 
-bindings.tags_navigation = {
+bindings.tags_mouse_navigation = {
     awful.button(
         {},
         1,

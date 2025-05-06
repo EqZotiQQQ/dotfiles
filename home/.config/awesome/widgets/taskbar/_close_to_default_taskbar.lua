@@ -2,7 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
-local mouse_bindings = require("widgets.mouse_bindings")
+local bindings = require("widgets.taskbar.bindings")
 local theme = require("themes.default.theme")
 
 local m = {}
@@ -21,7 +21,7 @@ function m.create_tasklist(screen)
         awful.widget.tasklist {
             screen = screen,
             filter = awful.widget.tasklist.filter.currenttags,
-            buttons = mouse_bindings.tasklist_bindings
+            buttons = bindings.client.tasklist_bindings
         }
     return mytasklist
 end
@@ -32,7 +32,7 @@ function m.create_taglist(screen)
         awful.widget.taglist {
             screen  = screen,
             filter  = awful.widget.taglist.filter.all,
-            buttons = mouse_bindings.tags_navigation,
+            buttons = bindings.client.tags_mouse_navigation,
             layout  = {
                 spacing = 5,
                 layout  = wibox.layout.fixed.vertical,
@@ -47,7 +47,7 @@ function m.create_layout_box(screen)
     local mylayoutbox =
         awful.widget.layoutbox {
             screen = screen,
-            buttons = mouse_bindings.layout_control
+            buttons = bindings.client.layout_control
         }
     return mylayoutbox
 end

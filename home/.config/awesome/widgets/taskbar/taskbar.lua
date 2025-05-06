@@ -3,7 +3,8 @@ local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
 local theme = require("themes.default.theme")
-local mouse_bindings = require("widgets.mouse_bindings")
+local client_bindings = require("widgets.taskbar.client_bindings")
+local dbg = require("dbg")
 
 local taglist_table = {}
 
@@ -19,6 +20,7 @@ function taglist_table.create_tag_list(screen)
         screen          = screen,
         filter          = awful.widget.taglist.filter.all,
         align           = "top",
+        buttons         = client_bindings.tags_mouse_navigation,
         layout          = {
             spacing = 5,
             layout  = wibox.layout.fixed.vertical,
@@ -36,7 +38,7 @@ function taglist_table.create_tag_list(screen)
             widget = wibox.container.background,
         },
     }
-    return taglist
+    return dbg.wrap_widget(taglist)
 end
 
 function taglist_table.create_layout_box(screen)

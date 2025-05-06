@@ -19,4 +19,7 @@ tags.init_signals()
 local widgets = require("widgets")
 widgets.init_panel()
 
+local bindings = require("keys")
+bindings.init_glob_bindings()
+
 debug.stdout("done")
