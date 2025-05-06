@@ -1,5 +1,5 @@
 require("awful.autofocus")
-require("theme")
+require("home.config.awesome.themes.init")
 require("core.notifications")
 require("system")
 require("layout")

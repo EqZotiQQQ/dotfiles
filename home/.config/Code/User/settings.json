@@ -11,9 +11,7 @@
     "editor.formatOnSave": true, // Автоматическое форматирование при сохранении
     "editor.rulers": [
         160
-    ], // Линия на 80 символах для ограничения длины строки
-    // Настройки темы
-    "workbench.colorTheme": "Visual Studio 2017 Dark - C++", // Тема интерфейса
+    ], // Тема интерфейса
     // Настройки для расширений
     // "python.pythonPath": "path/to/your/python",  // Путь к интерпретатору Python
     // "eslint.enable": true,                      // Включить поддержку ESLint для JavaScript/TypeScript
@@ -51,8 +49,8 @@
         "editor.insertSpaces": true, // Использовать пробелы вместо табуляции для Lua
     },
     // Настройки расширений
-    "lua.format.enable": true, // Включить форматирование Lua
-    "lua.format.settings": {
+    "Lua.format.enable": true, // Включить форматирование Lua
+    "Lua.format.config": {
         "indent_width": 4, // Ширина отступа (количество пробелов для табуляции)
         "continuation_indent_width": 4, // Отступ для продолжений строк
         "align_args": true, // Выравнивание аргументов в функциях
@@ -69,5 +67,38 @@
         "max_line_length": 100, // Максимальная длина строки для комментариев
         "quote_style": "double" // Стиль кавычек: "single" (одинарные), "double" (двойные)
     },
-    "editor.fontFamily": "'iosevka', 'monospace', monospace"
+    "editor.fontFamily": "'iosevka', 'monospace', monospace",
+    "Lua.typeFormat.config": {
+        "auto_complete_end": "true",
+        "format_line": "true",
+        "auto_complete_table_sep": "true"
+    },
+    "Lua.type.weakNilCheck": true,
+    "Lua.type.checkTableShape": true,
+    "Lua.hint.setType": true,
+    "Lua.hint.enable": true,
+    "Lua.format.defaultConfig": {
+        "default_config": "~/.luarc.json"
+    },
+    "Lua.workspace.userThirdParty": [
+        "/usr/share/awesome/lib"
+    ],
+    "Lua.runtime.path": [
+        "?.lua",
+        "?/init.lua",
+        "/usr/share/awesome/lib"
+    ],
+    "Lua.workspace.library": [
+        "/usr/share/awesome/lib" // Путь к библиотекам awesome (зависит от дистрибутива)
+    ],
+    "Lua.runtime.version": "LuaJIT", // Awesome использует LuaJIT
+    "Lua.diagnostics.globals": [
+        "awesome",
+        "client",
+        "screen",
+        "root",
+        "mouse",
+        "tag" // Добавь все глобальные переменные awesomeWM
+    ],
+    "Lua.workspace.checkThirdParty": true,
 }
