@@ -53,11 +53,6 @@ class AppSettings:
             action="store_true",
             help="Install apps for development for Manjaro"
         )
-        parser.add_argument(
-            "--clean-install",
-            action="store_true",
-            help="Install apps, configure symlinks. --reset-symlinks + --ubuntu-apps"
-        )
 
     @staticmethod
     def from_args(args):

@@ -4,6 +4,7 @@ import pathlib
 import os
 
 base_dir = f"{os.environ['HOME']}/awesome_cfg"
+base_dir = pathlib.Path(__file__).parent / "home/.config/awesome"
 
 structure = {
     "": ["rc.lua", "config.lua", "theme.lua"],
@@ -46,6 +47,8 @@ for folder, files in structure.items():
     dir_path.mkdir(parents=True, exist_ok=True)
     for file in files:
         file_path = dir_path / file
+        if file_path.exists():
+            continue
         content_key = pathlib.Path(folder) / file if folder else file
         with open(file_path, "w") as f:
             f.write(file_contents.get(content_key, "-- placeholder\n"))
