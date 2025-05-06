@@ -64,5 +64,5 @@ done
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"
-git config --global interactive.diffFilter "diff-so-fancy --patch"
+export AWESOME_THEMES_PATH="${HOME}/.config/awesome/themes"
+export EDITOR="nvim"
