@@ -37,12 +37,17 @@ end
 
 dbg_module.log = dbg_module.stdout
 
-function dbg_module.wrap_widget(widget)
-    local highlighted_widget = wibox.container.margin(
-        wibox.container.background(widget, "purple"),
-        2, 2, 2, 2 -- left, right, top, bottom (ширина рамки)
-    )
+function dbg_module.wrap_widget(widget, color)
+    if color == nil then
+        color = "red"
+    end
+    local highlighted_widget = wibox.container.background(widget)
+    highlighted_widget.border_width = 1
+    highlighted_widget.border_color = color
+    highlighted_widget.bg = nil
     return highlighted_widget
 end
+
+dbg_module.w = dbg_module.wrap_widget
 
 return dbg_module

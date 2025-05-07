@@ -17,7 +17,7 @@ local tags = require("tags")
 tags.init_signals()
 
 local widgets = require("widgets")
-widgets.init_panel()
+widgets.init_screen_widgets()
 
 local bindings = require("keys")
 bindings.init_glob_bindings()

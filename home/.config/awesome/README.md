@@ -5,7 +5,6 @@ widget file structure:
 - widgets
 -- widget_1
 --- init.lua
---- object.lua
 --- glob_bindings.lua
 --- client_bindings.lua
 
