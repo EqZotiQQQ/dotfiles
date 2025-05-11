@@ -1,10 +1,6 @@
--- local awful = require("awful")
-
 local config = require("config")
 local awful = require("awful")
 local debug = require("dbg")
-
-debug.stdout(config)
 
 local theme = require("themes")
 theme.init_module()
@@ -17,9 +13,12 @@ local tags = require("tags")
 tags.init_signals()
 
 local widgets = require("widgets")
-widgets.init_screen_widgets()
+widgets.init_taskbar_widgets()
 
 local bindings = require("keys")
 bindings.init_glob_bindings()
+
+local sys_monitor = require("system")
+sys_monitor.init_system_monitors()
 
 debug.stdout("done")

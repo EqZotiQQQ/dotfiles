@@ -9,6 +9,7 @@ widget file structure:
 --- client_bindings.lua
 
 
+
 # Я заебался постоянно выписывать что за сигнал и зачем он нужен
 
 # request::default_layouts

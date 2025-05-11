@@ -27,11 +27,40 @@ function dbg_module.stdout(tbl, indent)
         local key = tostring(k)
         if type(v) == "table" then
             print(spacing .. key .. " = {")
-            dbg_module.dump(v, indent + 1)
+            dbg_module.stdout(v, indent + 1)
             print(spacing .. "}")
         else
             print(spacing .. key .. " = " .. tostring(v))
         end
+    end
+end
+
+function dbg_module.stdout2(tbl, indent)
+    if type(tbl) == "table" and next(tbl) ~= nil then
+        if not indent then indent = 0 end
+        local toprint = string.rep(" ", indent) .. "{\r\n"
+        indent = indent + 2
+        for k, v in pairs(tbl) do
+            toprint = toprint .. string.rep(" ", indent)
+            if (type(k) == "number") then
+                toprint = toprint .. "[" .. k .. "] = "
+            elseif (type(k) == "string") then
+                toprint = toprint .. k .. "= "
+            end
+            if (type(v) == "number") then
+                toprint = toprint .. v .. ",\r\n"
+            elseif (type(v) == "string") then
+                toprint = toprint .. "\"" .. v .. "\",\r\n"
+            elseif (type(v) == "table") then
+                toprint = toprint .. dbg_module.stdout2(v, indent + 2) .. ",\r\n"
+            else
+                toprint = toprint .. "\"" .. tostring(v) .. "\",\r\n"
+            end
+        end
+        toprint = toprint .. string.rep(" ", indent - 2) .. "}"
+        return toprint
+    else
+        return nil
     end
 end
 
