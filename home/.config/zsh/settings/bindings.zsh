@@ -63,3 +63,6 @@ bindkey "^\e[1;5D" backward-word       # Shift+Alt+Left -> bacward word
 bindkey "^[[3;6~" backward-kill-line   # Ctrl + Shift + Delete -> delete line
 
 bindkey "^[[3~" delete-char
+
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line 
