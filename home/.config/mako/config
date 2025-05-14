@@ -1,0 +1,37 @@
+# Цвета и стиль
+background-color=#282c34
+text-color=#ffffff
+border-color=#61afef
+border-size=2
+border-radius=8
+width=350
+height=120
+margin=20
+padding=10
+
+# Позиция и слой
+anchor=top-right
+layer=overlay
+
+# Иконки
+icons=1
+max-icon-size=48
+
+# Таймауты
+default-timeout=5000
+ignore-timeout=0
+
+# История и отображение
+max-history=10
+max-visible=2
+sort=-time
+
+# Действия по кликам
+on-button-left=invoke-default-action
+on-button-middle=dismiss
+on-button-right=dismiss-all
+
+# Воспроизвести звук при уведомлении
+on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/message.oga
+
+font=iosevka
