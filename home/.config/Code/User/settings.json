@@ -102,4 +102,6 @@
     ],
     "Lua.workspace.checkThirdParty": true,
     "explorer.confirmDragAndDrop": false,
+    "workbench.colorTheme": "Gruvbox Dark Hard",
+    "workbench.iconTheme": "material-icon-theme",
 }

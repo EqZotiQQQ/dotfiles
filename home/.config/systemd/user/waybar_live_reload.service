@@ -1,0 +1,11 @@
+[Unit]
+Description=Reload waybar on config content change
+After=graphical-session.target
+
+[Service]
+ExecStart=/home/eqzotiqqq/.local/scripts/waybar_live_reload.sh
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=default.target

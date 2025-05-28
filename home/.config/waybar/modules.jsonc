@@ -1,0 +1,194 @@
+{
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "on-scroll-up": "hyprctl dispatch workspace r-1",
+        "on-scroll-down": "hyprctl dispatch workspace r+1",
+        "show-special": true,
+        "persistent-workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": [],
+            "6": [],
+            "7": [],
+            "8": [],
+            "9": [],
+            "10": []
+        }
+    },
+    "cpu": {
+        "format": "{usage}% 󰍛",
+        "interval": 1,
+        "min-length": 5,
+        "format-alt-click": "click",
+        "format-alt": "{icon0}{icon1}{icon2}{icon3} {usage:>2}% 󰍛",
+        "format-icons": [
+            "▁",
+            "▂",
+            "▃",
+            "▄",
+            "▅",
+            "▆",
+            "▇",
+            "█"
+        ],
+        "on-click-right": "gnome-system-monitor"
+    },
+    "disk": {
+        "interval": 30,
+        "path": "/",
+        "format": "{used}/{total}({percentage_used}%) 󰋊",
+        "tooltip-format": "{used} used out of {total} on {path} ({percentage_used}%)"
+    },
+    "power-profiles-daemon": {
+        "format": "{icon} ",
+        "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+        "tooltip": true,
+        "format-icons": {
+            "default": "",
+            "performance": "",
+            "balanced": "",
+            "power-saver": ""
+        }
+    },
+    "memory": {
+        "interval": 1,
+        "format": "{used:0.1f}GB/{total:0.1f}G",
+        "format-alt": "{percentage}% 󰾆",
+        "format-alt-click": "click",
+        "tooltip": true,
+        "tooltip-format": "{used:0.1f}GB/{total:0.1f}G",
+        "on-click-right": "$HOME/.local/scripts/waybar_scripts.sh --btop"
+    },
+    "temperature": {
+        "interval": 10,
+        "tooltip": true,
+        "hwmon-path": [
+            "/sys/class/hwmon/hwmon1/temp1_input",
+            "/sys/class/thermal/thermal_zone0/temp"
+        ],
+        "critical-threshold": 82,
+        "format-critical": "{temperatureC}°C {icon}",
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": [
+            "󰈸"
+        ],
+        "on-click-right": "$HOME/.local/scripts/waybar_scripts.sh --nvtop"
+    },
+    "clock": {
+        "interval": 1,
+        "format": " {:%I:%M %p   %Y, %d %B, %A}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "year",
+            "mode-mon-col": 3,
+            "weeks-pos": "right",
+            "on-scroll": 1,
+            "format": {
+                "months": "<span color='#ffead3'><b>{}</b></span>",
+                "days": "<span color='#ecc6d9'><b>{}</b></span>",
+                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+            }
+        }
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "{icon} 󰂰 {volume}%",
+        "format-muted": "󰖁",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                "",
+                "󰕾",
+                ""
+            ],
+            "ignored-sinks": [
+                "Easy Effects Sink"
+            ]
+        },
+        "on-click-right": "pavucontrol -t 3",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "scroll-step": 5,
+        "tooltip-format": "{icon} {desc} | {volume}%",
+        "smooth-scrolling-threshold": 1
+    },
+    "pulseaudio#microphone": {
+        "format": "{format_source}",
+        "format-source": " {volume}%",
+        "format-source-muted": "",
+        "on-click-right": "pavucontrol -t 4",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 5%-",
+        "tooltip-format": "{source_desc} | {source_volume}%",
+        "scroll-step": 5
+    },
+    "network": {
+        "format": "{ifname}",
+        "format-wifi": "{icon}",
+        "format-ethernet": "󰌘",
+        "format-disconnected": "󰌙",
+        "tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
+        "format-linked": "󰈁 {ifname} (No IP)",
+        "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+        "tooltip-format-ethernet": "{ifname} 󰌘",
+        "tooltip-format-disconnected": "󰌙 Disconnected",
+        "max-length": 30,
+        "format-icons": [
+            "󰤯",
+            "󰤟",
+            "󰤢",
+            "󰤥",
+            "󰤨"
+        ],
+        "on-click-right": "$HOME/.local/scripts/waybar_scripts.sh --nmtui"
+    },
+    "network#speed": {
+        "interval": 1,
+        "format": "{ifname}",
+        "format-wifi": "{icon}  {bandwidthUpBytes}  {bandwidthDownBytes}",
+        "format-ethernet": "󰌘  {bandwidthUpBytes}  {bandwidthDownBytes}",
+        "format-disconnected": "󰌙",
+        "tooltip-format": "{ipaddr}",
+        "format-linked": "󰈁 {ifname} (No IP)",
+        "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+        "tooltip-format-ethernet": "{ifname} 󰌘",
+        "tooltip-format-disconnected": "󰌙 Disconnected",
+        "min-length": 24,
+        "max-length": 24,
+        "format-icons": [
+            "󰤯",
+            "󰤟",
+            "󰤢",
+            "󰤥",
+            "󰤨"
+        ]
+    },
+    "bluetooth": {
+        "format": " ",
+        "format-disabled": "󰂳",
+        "format-connected": "󰂱 {num_connections}",
+        "tooltip-format": " {device_alias}",
+        "tooltip-format-connected": "{device_enumerate}",
+        "tooltip-format-enumerate-connected": " {device_alias} 󰂄{device_battery_percentage}%",
+        "tooltip": true,
+        "on-click": "blueman-manager"
+    },
+    "hyprland/language": {
+        "format": "Lang: {}",
+        "format-en": "US",
+        "format-tr": "Russia",
+        "keyboard-name": "at-translated-set-2-keyboard",
+        "on-click": "hyprctl switchxkblayout $SET_KB next"
+    }
+}

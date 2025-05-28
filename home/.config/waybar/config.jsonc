@@ -1,0 +1,41 @@
+{
+    "layer": "top",
+    "position": "top",
+    // "mode": "hide",
+    "exclusive": true,
+    "passthrough": false,
+    "gtk-layer-shell": true,
+    "height": 0,
+    "spacing": 3,
+    "fixed-center": true,
+    "ipc": true,
+    "margin-top": 3,
+    "margin-left": 8,
+    "margin-right": 8,
+    "include": [
+        "$HOME/.config/waybar/modules.jsonc",
+        "$HOME/.config/waybar/custom.jsonc",
+        "$HOME/.config/waybar/groups.jsonc"
+    ],
+    "modules-left": [
+        "custom/separator#blank",
+        "hyprland/workspaces",
+        "custom/separator#blank",
+        "group/app_drawer",
+        "custom/separator#blank"
+    ],
+    "modules-center": [
+        "custom/separator#blank",
+        "clock",
+        "custom/separator#blank"
+    ],
+    "modules-right": [
+        "hyprland/language",
+        "group/audio",
+        "group/connections",
+        "custom/separator#blank",
+        "group/motherboard",
+        "custom/separator#blank",
+        "group/power"
+    ]
+}

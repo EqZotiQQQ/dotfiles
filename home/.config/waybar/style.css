@@ -1,0 +1,180 @@
+/*
+@define-color base #1e1e2e;
+@define-color mantle #181825;
+@define-color crust #11111b;
+
+@define-color text #cdd6f4;
+@define-color subtext0 #a6adc8;
+@define-color subtext1 #bac2de;
+
+@define-color surface0 #313244;
+@define-color surface1 #45475a;
+@define-color surface2 #585b70;
+
+@define-color overlay0 #6c7086;
+@define-color overlay1 #7f849c;
+@define-color overlay2 #9399b2;
+
+@define-color blue #89b4fa;
+@define-color lavender #b4befe;
+@define-color sapphire #74c7ec;
+@define-color sky #89dceb;
+@define-color teal #94e2d5;
+@define-color green #a6e3a1;
+@define-color yellow #f9e2af;
+@define-color peach #fab387;
+@define-color maroon #eba0ac;
+@define-color red #f38ba8;
+@define-color mauve #cba6f7;
+@define-color pink #f5c2e7;
+@define-color flamingo #f2cdcd;
+@define-color rosewater #f5e0dc;
+*/
+
+/* Waybar configuration */
+
+* {
+    font-family: "Iosevka";
+    font-weight: bold;
+    min-height: 0;
+    /* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
+    font-size: 100%;
+    font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
+}
+
+window#waybar {
+    transition-property: background-color;
+    transition-duration: 0.5s;
+    background: transparent;
+    border-radius: 10px;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+window#waybar.empty,
+window#waybar.empty #window {
+    background-color: transparent;
+    padding: 0px;
+    border: 0px;
+}
+
+/* Waybar module groups separation */
+.modules-left,
+.modules-center,
+.modules-right {
+    background: #727272;
+    border: 0.5px solid #6c7086;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-right: 4px;
+    padding-left: 4px;
+    border-radius: 10px;
+}
+
+.modules-left,
+.modules-right {
+    border: 1px solid #89b4fa;
+}
+
+
+/* hyprland/workspaces */
+
+/* Workspaces configuration */
+/* workspace item configuration */
+#taskbar button,
+#workspaces button {
+    color: #7f849c;
+    box-shadow: none;
+    text-shadow: none;
+    padding: 0px;
+    border-radius: 9px;
+    padding-left: 4px;
+    padding-right: 4px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.5s cubic-bezier(.55, -0.68, .48, 1.682);
+}
+
+/* transition config */
+#taskbar button:hover,
+#workspaces button:hover {
+    border-radius: 10px;
+    color: #fab387;
+    background-color: #313244;
+    /* padding-left: 2px;
+    padding-right: 2px; */
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.1s cubic-bezier(.55, -0.68, .48, 1.682);
+}
+
+#workspaces button.persistent {
+    color: #45475a;
+    border-radius: 10px;
+}
+
+/* Active workspace */
+#taskbar button.active,
+#workspaces button.active {
+    color: #ff5a5a;
+    border-radius: 10px;
+    /* padding-left: 8px;
+    padding-right: 8px; */
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+
+    /* border-radius: 6px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-style: solid;
+    border-left-style: none;
+    border-right-style: none;
+    border-width: 2px;
+    padding-right: 5px;
+    padding-left: 5px; */
+    border-color: #cdd6f4;
+}
+
+#workspaces button.urgent {
+    color: #f38ba8;
+    border-radius: 0px;
+}
+
+
+/* widgets */
+#language,
+#pulseaudio,
+#pulseaudio-microphone,
+#network,
+#bluetooth,
+#temperature,
+#power-profiles-daemon,
+#memory,
+#disk,
+#custom-power,
+#custom-quit,
+#custom-lock,
+#custom-menu,
+#custom-tty,
+#custom-browser,
+#custom-file_manager,
+#custom-reboot,
+#cpu {
+    border-radius: 5px 0px 0px 5px;
+    padding: 0px 5px;
+}
+
+/* custom/menu */
+#custom-menu {
+    color: #ff5a5a;
+    border-radius: 6px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-style: solid;
+    border-left-style: none;
+    border-right-style: none;
+    border-width: 2px;
+    border-color: #cdd6f4;
+    padding-right: 5px;
+    padding-left: 5px;
+}

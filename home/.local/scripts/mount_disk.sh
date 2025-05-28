@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DISK_NAME='nvme1n1p2'
-DISK='/dev/nvme1n1p2'
+DISK_NAME='nvme0n1p2'
+DISK='/dev/nvme0n1p2'
 SYMLINK="${HOME}/windows_fs_mount_point"
 
 if lsblk | grep -q "$DISK_NAME"; then

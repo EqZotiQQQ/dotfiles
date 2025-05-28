@@ -1,9 +1,9 @@
 [Unit]
-Description=Mount /dev/nvme1n1p2 to ~/windows_fs_mount_point as user
+Description=Mount /dev/nvme0n1p2 to ~/windows_fs_mount_point as user
 After=graphical-session.target
 
 [Service]
-ExecStart=/home/eqzotiqqq/.local/bin/mount_disk.sh
+ExecStart=/home/eqzotiqqq/.local/scripts/mount_disk.sh
 Type=oneshot
 RemainAfterExit=true
 
