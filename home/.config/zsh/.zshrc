@@ -56,12 +56,6 @@ for file in ${ZDOTDIR}/aliases/*; do
   source ${file}
 done
 
-
-# Load functions
-for file in ${ZDOTDIR}/functions/*; do
-  source ${file}
-done
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export AWESOME_THEMES_PATH="${HOME}/.config/awesome/themes"
