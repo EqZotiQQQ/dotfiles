@@ -24,7 +24,7 @@ class AppSettings:
             "--path",
             metavar="PATH",
             type=pathlib.Path,
-            default=pathlib.Path(__file__).parent / "home",
+            default=pathlib.Path(__file__).parent.parent / "home",
             help="Path to top level config directory",
         )
         parser.add_argument(

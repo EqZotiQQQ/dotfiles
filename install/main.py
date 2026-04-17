@@ -65,15 +65,17 @@ if __name__ == "__main__":
     except ValueError as e:
         parser.error(str(e))
 
+    install_dir = pathlib.Path(__file__).parent
+
     if settings.install_ubuntu_apps:
-        cmd = ["./ubuntu.sh"] + settings.ubuntu_opts
+        cmd = [str(install_dir / "ubuntu.sh")] + settings.ubuntu_opts
         ret = subprocess.call(cmd)
         if ret != 0:
             logging.error(f"ubuntu.sh exited with code {ret}")
             sys.exit(ret)
 
     if settings.install_manjaro_apps:
-        cmd = ["./manjaro.sh"] + settings.manjaro_opts
+        cmd = [str(install_dir / "manjaro.sh")] + settings.manjaro_opts
         ret = subprocess.call(cmd)
         if ret != 0:
             logging.error(f"manjaro.sh exited with code {ret}")
@@ -93,7 +95,7 @@ if __name__ == "__main__":
         total_skipped += s
         total_failed += f
 
-        etc_src = pathlib.Path(__file__).parent / "etc"
+        etc_src = pathlib.Path(__file__).parent.parent / "etc"
         if etc_src.exists():
             c, s, f = recursive_update_symlinks(
                 source=etc_src,

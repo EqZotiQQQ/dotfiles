@@ -10,25 +10,37 @@ The repo has two config trees:
 - `home/` — current active configs, symlinked into `~`
 - `home.legacy/` — archived configs (AwesomeWM era, X11-based), kept for reference
 
-## Deploying configs
+## Setup
 
-`main.py` manages symlinks recursively from `home/` → `~` and `etc/` → `/etc`:
+**Entry point** — `init_os_modules.sh` auto-detects the OS and wires everything together:
 
 ```bash
-# Preview what would be linked (dry run):
-python main.py -s
+# Fresh Manjaro install — desktop profile + symlinks:
+./init_os_modules.sh --profile desktop --symlinks
 
-# Create symlinks (actually apply):
-python main.py -s -f
+# Fresh Ubuntu install — workstation + build from source + symlinks:
+./init_os_modules.sh --os ubuntu --profile workstation --open-source --symlinks
 
-# Overwrite existing files:
-python main.py -s -f -o
+# Only set up dotfile symlinks (overwrite existing):
+./init_os_modules.sh --symlinks --overwrite
 
-# Install Manjaro packages (pacman/paru):
-python main.py --manjaro-apps
+# Individual components instead of a profile:
+./init_os_modules.sh --wm --editor --symlinks
 ```
 
-`-s` without `-f` only logs destinations without creating anything. Both flags are required to apply.
+**`install/`** — все скрипты установки и менеджер симлинков:
+- `install/manjaro.sh` — paru-based; profiles: `minimal`, `desktop`, `full`
+- `install/ubuntu.sh` — apt-based; profiles: `minimal`, `workstation`, `full`
+- `install/open_source.sh` — builds from source: `--i3lock`, `--rofi`, `--picom`, `--cava`
+- `install/main.py` + `install/app_settings.py` — менеджер симлинков
+
+**Симлинки напрямую** — `install/main.py` управляет `home/` → `~` и `etc/` → `/etc`:
+
+```bash
+python install/main.py -s        # dry-run
+python install/main.py -s -f     # применить
+python install/main.py -s -f -o  # применить + перезаписать существующие
+```
 
 ## Zsh config structure
 
