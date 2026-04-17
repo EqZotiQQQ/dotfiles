@@ -1,8 +1,4 @@
-# Changing/making/removing directory
-setopt auto_pushd
-setopt pushd_ignore_dups
-setopt pushdminus
-setopt auto_cd
+setopt auto_pushd pushd_ignore_dups pushdminus auto_cd
 
 alias -g ...='../..'
 alias -g ....='../../..'
@@ -21,12 +17,10 @@ alias 8='cd -8'
 alias 9='cd -9'
 
 alias md='mkdir -p'
-alias rd=rmdir
+alias rd='rmdir'
 alias d='dirs -v | head -10'
 
-
-# List directory contents
-alias lsa='ls -lah --long --all --group'
-alias l='ls -lah --long --all --group'
-alias ll='ls -lh'
-alias la='ls -lAh --long --all --group'
+alias l='ls --long --all --group'
+alias ll='ls --long'
+alias la='ls --long --almost-all'
+alias lsa='ls --long --all --group --header'
