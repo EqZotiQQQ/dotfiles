@@ -1,9 +1,0 @@
-High level configuration files
-
-Theme config file provide the ability to choose wallpaper
-
-Cava config file ...
-
-Tray config file ...
-
-General config file ...

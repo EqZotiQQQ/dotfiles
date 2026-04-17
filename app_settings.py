@@ -8,10 +8,12 @@ DEFAULT_USER_LOCATION = pathlib.Path.home()
 @dataclasses.dataclass
 class AppSettings:
     symlinks: bool
-    update_symlinkgs: bool
+    update_symlinks: bool
     overwrite: bool
     install_ubuntu_apps: bool
+    ubuntu_opts: list
     install_manjaro_apps: bool
+    manjaro_opts: list
     config_directory: pathlib.Path
     config_destination: pathlib.Path
 
@@ -46,25 +48,40 @@ class AppSettings:
         parser.add_argument(
             "--ubuntu-apps",
             action="store_true",
-            help="Install apps for development for Ubuntu"
+            help="Install apps for Ubuntu (pass --ubuntu-opts to forward flags to ubuntu.sh)"
+        )
+        parser.add_argument(
+            "--ubuntu-opts",
+            nargs=argparse.REMAINDER,
+            default=[],
+            metavar="OPTS",
+            help="Flags forwarded to ubuntu.sh (e.g. --workstation, --cpp --python)",
         )
         parser.add_argument(
             "--manjaro-apps",
             action="store_true",
-            help="Install apps for development for Manjaro"
+            help="Install apps for Manjaro (pass --manjaro-opts to forward flags to manjaro.sh)"
+        )
+        parser.add_argument(
+            "--manjaro-opts",
+            nargs=argparse.REMAINDER,
+            default=[],
+            metavar="OPTS",
+            help="Flags forwarded to manjaro.sh (e.g. --minimal, --wm --editor)",
         )
 
     @staticmethod
     def from_args(args):
         if args.manjaro_apps and args.ubuntu_apps:
-            # TODO select distro
-            raise 42
+            raise ValueError("--ubuntu-apps and --manjaro-apps are mutually exclusive")
         return AppSettings(
             symlinks=args.symlinks,
-            update_symlinkgs=args.force_symlink_update,
+            update_symlinks=args.force_symlink_update,
             overwrite=args.overwrite_existing_files,
             install_ubuntu_apps=args.ubuntu_apps,
+            ubuntu_opts=args.ubuntu_opts,
             install_manjaro_apps=args.manjaro_apps,
+            manjaro_opts=args.manjaro_opts,
             config_directory=args.path,
             config_destination=DEFAULT_USER_LOCATION,
         )
