@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# waybar-reload — kill and restart waybar
+
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+GREEN=$'\033[38;2;166;227;161m'
+RED=$'\033[38;2;243;139;168m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+
+ok()   { printf "  ${GREEN}✓${RESET}  %s\n" "$*"; }
+err()  { printf "  ${RED}✗${RESET}  %s\n" "$*"; exit 1; }
+info() { printf "  ${BLUE}·${RESET}  ${SUBTEXT}%s${RESET}\n" "$*"; }
+
+term_width() { tput cols 2>/dev/null || echo 80; }
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+
+w=$(term_width)
+title="Waybar Reload"
+echo
+printf "%$(( (w - ${#title}) / 2 ))s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr; echo
+
+if ! command -v waybar &>/dev/null; then err "waybar not found"; fi
+
+if pgrep -x waybar &>/dev/null; then
+  info "Stopping waybar…"
+  killall waybar 2>/dev/null
+  sleep 0.3
+  ok "Stopped"
+else
+  info "Waybar was not running"
+fi
+
+info "Starting waybar…"
+waybar &>/dev/null &
+disown
+sleep 0.5
+
+if pgrep -x waybar &>/dev/null; then
+  ok "Running (PID $(pgrep -x waybar | head -1))"
+else
+  err "Failed to start waybar"
+fi
+
+echo; hr
+printf "  ${GREEN}${BOLD}Done${RESET}\n\n"

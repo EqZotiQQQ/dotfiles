@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# waybar-watch — restart waybar on config/style changes (poll-based)
+
+CONF_DIR="${HOME}/.config/waybar"
+INTERVAL=1
+
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+GREEN=$'\033[38;2;166;227;161m'
+YELLOW=$'\033[38;2;249;226;175m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+
+info()    { printf "  ${BLUE}·${RESET}  ${SUBTEXT}%s${RESET}\n" "$*"; }
+ok()      { printf "  ${GREEN}✓${RESET}  %s\n" "$*"; }
+changed() { printf "  ${YELLOW}↻${RESET}  %b\n" "$*"; }
+
+term_width() { tput cols 2>/dev/null || echo 80; }
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+
+w=$(term_width)
+title="Waybar Watch"
+echo
+printf "%$(( (w - ${#title}) / 2 ))s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr
+echo
+info "Watching: ${CONF_DIR}"
+info "Interval: ${INTERVAL}s  ·  Ctrl-C to stop"
+echo; hr; echo
+
+get_hash() {
+  find "$CONF_DIR" -type f \( -name "*.jsonc" -o -name "*.json" -o -name "*.css" \) \
+    -exec stat --format="%n %Y %s" {} + 2>/dev/null | sort | md5sum
+}
+
+start_waybar() {
+  killall waybar 2>/dev/null
+  sleep 0.2
+  waybar &>/dev/null &
+  disown
+}
+
+# Ensure waybar is running initially
+if ! pgrep -x waybar &>/dev/null; then
+  info "Starting waybar…"
+  waybar &>/dev/null &
+  disown
+  sleep 0.5
+fi
+ok "Waybar running (PID $(pgrep -x waybar | head -1))"
+
+prev_hash="$(get_hash)"
+
+trap 'echo; info "Stopped."; echo; exit 0' INT TERM
+
+while true; do
+  sleep "$INTERVAL"
+  cur_hash="$(get_hash)"
+
+  if [[ "$cur_hash" != "$prev_hash" ]]; then
+    changed "Config changed — reloading… $(date '+%H:%M:%S')"
+    start_waybar
+    sleep 0.5
+    if pgrep -x waybar &>/dev/null; then
+      ok "Reloaded (PID $(pgrep -x waybar | head -1))"
+    else
+      printf "  ${RED}✗${RESET}  Failed to restart\n"
+    fi
+    prev_hash="$(get_hash)"
+  fi
+done

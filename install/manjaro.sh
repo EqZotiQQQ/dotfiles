@@ -142,12 +142,14 @@ install_wm() {
         waybar \
         mako \
         wofi \
-        rofi \
+        hyprpaper \
         wlogout \
         flameshot \
         i3lock-color \
         hyprpaper \
+        hyprshot \
         hypridle \
+        hyprpolkitagent \
         hyprlock \
         xdg-desktop-portal-hyprland
 }
@@ -178,6 +180,7 @@ install_apps() {
         obsidian \
         qbittorrent \
         nekobox \
+        dolphin \
         mpv
 }
 

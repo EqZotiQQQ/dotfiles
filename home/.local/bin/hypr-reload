@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# hypr-reload — reload Hyprland config and report errors
+
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+GREEN=$'\033[38;2;166;227;161m'
+RED=$'\033[38;2;243;139;168m'
+YELLOW=$'\033[38;2;249;226;175m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+
+ok()   { printf "  ${GREEN}✓${RESET}  %b\n" "$*"; }
+err()  { printf "  ${RED}✗${RESET}  %b\n" "$*"; }
+info() { printf "  ${BLUE}·${RESET}  ${SUBTEXT}%b${RESET}\n" "$*"; }
+
+term_width() { tput cols 2>/dev/null || echo 80; }
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+
+# ── title ─────────────────────────────────────────────────────
+w=$(term_width)
+title="Hyprland Reload"
+padding=$(( (w - ${#title}) / 2 ))
+echo
+printf "%${padding}s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr
+echo
+
+# ── check hyprctl ─────────────────────────────────────────────
+if ! command -v hyprctl &>/dev/null; then
+  err "hyprctl not found"; echo; exit 1
+fi
+
+if ! hyprctl monitors &>/dev/null 2>&1; then
+  err "Hyprland is not running"; echo; exit 1
+fi
+
+# ── reload ────────────────────────────────────────────────────
+info "Sending reload…"
+output="$(hyprctl reload 2>&1)"
+
+if [[ "$output" =~ ^[Oo][Kk]$ ]]; then
+  ok "Reload accepted"
+else
+  err "hyprctl reload: $output"
+  echo; exit 1
+fi
+
+# ── config errors ─────────────────────────────────────────────
+errors="$(hyprctl configerrors 2>&1)"
+
+if [[ -z "$errors" || "$errors" == "none" ]]; then
+  ok "No config errors"
+else
+  echo
+  printf "  ${RED}${BOLD}Config errors:${RESET}\n"
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && printf "  ${RED}│${RESET} ${YELLOW}%s${RESET}\n" "$line"
+  done <<< "$errors"
+  echo; hr
+  printf "  ${RED}${BOLD}Reload completed with errors${RESET}\n"
+  echo; exit 1
+fi
+
+echo; hr
+printf "  ${GREEN}${BOLD}Done${RESET}\n"
+echo

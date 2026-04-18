@@ -1,0 +1,55 @@
+# ── mako notification daemon ──────────────────────────────────
+# Theme: Catppuccin Mocha
+
+font=Iosevka Nerd Font 12
+
+# ── layout ────────────────────────────────────────────────────
+anchor=top-right
+layer=overlay
+margin=12
+padding=12,16
+width=380
+height=120
+border-size=2
+border-radius=8
+
+# ── colours ───────────────────────────────────────────────────
+background-color=#1e1e2edd
+text-color=#cdd6f4ff
+border-color=#cba6f7ff
+progress-color=over #313244ff
+
+# ── icons ─────────────────────────────────────────────────────
+icons=1
+icon-path=/usr/share/icons/Papirus-Dark:/usr/share/icons/hicolor
+max-icon-size=48
+icon-border-radius=4
+
+# ── behaviour ─────────────────────────────────────────────────
+markup=1
+actions=1
+history=1
+max-history=20
+max-visible=5
+sort=-time
+
+default-timeout=5000
+ignore-timeout=0
+
+# ── urgency overrides ─────────────────────────────────────────
+[urgency=low]
+border-color=#89b4faff
+default-timeout=3000
+
+[urgency=normal]
+border-color=#cba6f7ff
+default-timeout=5000
+
+[urgency=high]
+border-color=#f38ba8ff
+text-color=#f38ba8ff
+background-color=#1e1e2eff
+default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1

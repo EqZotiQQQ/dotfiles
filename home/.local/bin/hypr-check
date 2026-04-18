@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+# hypr-check — validate Hyprland config
+
+CONF="${1:-${HOME}/.config/hypr/hyprland.conf}"
+
+# ── Catppuccin Mocha palette ───────────────────────────────────
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+GREEN=$'\033[38;2;166;227;161m'
+RED=$'\033[38;2;243;139;168m'
+YELLOW=$'\033[38;2;249;226;175m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+
+errors=0
+warnings=0
+
+err()  { printf "  ${RED}✗${RESET}  %b\n" "$*"; (( errors++ )); }
+warn() { printf "  ${YELLOW}⚠${RESET}  %b\n" "$*"; (( warnings++ )); }
+ok()   { printf "  ${GREEN}✓${RESET}  %b\n" "$*"; }
+info() { printf "  ${BLUE}·${RESET}  ${SUBTEXT}%b${RESET}\n" "$*"; }
+
+term_width() { tput cols 2>/dev/null || echo 80; }
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+section() { echo; printf "  ${BOLD}${BLUE}▸ %s${RESET}\n" "$1"; }
+
+trim() { local s="$1"; s="${s#"${s%%[! ]*}"}"; s="${s%"${s##*[! ]}"}"; printf '%s' "$s"; }
+
+# ── Title ─────────────────────────────────────────────────────
+w=$(term_width)
+title="Hyprland Config Validator"
+padding=$(( (w - ${#title}) / 2 ))
+echo
+printf "%${padding}s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr
+
+# ── 1. File ───────────────────────────────────────────────────
+section "File"
+
+if [[ ! -f "$CONF" ]]; then
+  err "Not found: $CONF"; echo; exit 1
+fi
+ok "Found: ${SUBTEXT}$CONF"
+info "$(wc -l < "$CONF") lines"
+
+# ── 2. Brace balance ──────────────────────────────────────────
+section "Syntax — brace balance"
+
+depth=0
+lineno=0
+brace_ok=1
+
+while IFS= read -r line; do
+  (( lineno++ ))
+  code="${line%%#*}"   # strip inline comments
+  while IFS= read -rn1 ch; do
+    [[ "$ch" == '{' ]] && (( depth++ ))
+    if [[ "$ch" == '}' ]]; then
+      (( depth-- ))
+      if (( depth < 0 )); then
+        err "Line $lineno: unexpected '}'"
+        brace_ok=0; depth=0
+      fi
+    fi
+  done <<< "$code"
+done < "$CONF"
+
+if (( depth > 0 )); then
+  err "Unclosed block at end of file (depth=$depth)"; brace_ok=0
+fi
+[[ $brace_ok -eq 1 ]] && ok "All blocks closed"
+
+# ── 3. Variables ──────────────────────────────────────────────
+section "Variables"
+
+declare -A vars
+lineno=0
+
+while IFS= read -r line; do
+  (( lineno++ ))
+  [[ "$line" =~ ^[[:space:]]*# ]] && continue
+  if [[ "$line" =~ ^\$([A-Za-z_][A-Za-z_0-9]*)[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+    name="${BASH_REMATCH[1]}"
+    val="$(trim "${BASH_REMATCH[2]%%#*}")"
+    if [[ -n "${vars[$name]+x}" ]]; then
+      warn "\$$name redefined at line $lineno"
+    fi
+    vars["$name"]="$val"
+    ok "\$$name = ${SUBTEXT}$val"
+  fi
+done < "$CONF"
+
+[[ ${#vars[@]} -eq 0 ]] && info "No variables defined"
+
+# Check for undefined $vars referenced in bind lines
+lineno=0
+while IFS= read -r line; do
+  (( lineno++ ))
+  [[ "$line" =~ ^[[:space:]]*# ]] && continue
+  [[ "$line" =~ ^bind ]] || continue
+  rest="${line%%#*}"
+  while [[ "$rest" =~ \$([A-Za-z_][A-Za-z_0-9]*) ]]; do
+    vname="${BASH_REMATCH[1]}"
+    [[ -z "${vars[$vname]+x}" ]] && warn "Line $lineno: undefined \$$vname"
+    rest="${rest/"${BASH_REMATCH[0]}"/__checked__}"
+  done
+done < "$CONF"
+
+# ── 4. Source includes ────────────────────────────────────────
+section "Source includes"
+
+found_sources=0
+while IFS= read -r line; do
+  [[ "$line" =~ ^[[:space:]]*# ]] && continue
+  if [[ "$line" =~ ^[[:space:]]*source[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+    src="$(trim "${BASH_REMATCH[1]}")"
+    src="${src/#\~/$HOME}"
+    (( found_sources++ ))
+    if [[ -f "$src" ]]; then
+      ok "source: ${SUBTEXT}$src"
+    else
+      err "Missing: $src"
+    fi
+  fi
+done < "$CONF"
+
+[[ $found_sources -eq 0 ]] && info "No source includes"
+
+# ── 5. Bind format ────────────────────────────────────────────
+section "Keybind format"
+
+lineno=0
+bind_count=0
+bind_bad=0
+
+while IFS= read -r line; do
+  (( lineno++ ))
+  [[ "$line" =~ ^[[:space:]]*# ]] && continue
+  [[ "$line" =~ ^bind[lme]*[[:space:]]*= ]] || continue
+
+  (( bind_count++ ))
+  rest="$(trim "${line#*=}")"
+  IFS=',' read -r p_mods p_key p_disp _ <<< "$rest"
+  key="$(trim "$p_key")"
+  disp="$(trim "${p_disp%%#*}")"
+
+  if [[ -z "$key" ]]; then
+    err "Line $lineno: missing key — ${SUBTEXT}$line"; (( bind_bad++ ))
+  elif [[ -z "$disp" ]]; then
+    err "Line $lineno: missing dispatcher — ${SUBTEXT}$line"; (( bind_bad++ ))
+  fi
+done < "$CONF"
+
+if (( bind_count == 0 )); then
+  warn "No bind lines found"
+elif (( bind_bad == 0 )); then
+  ok "$bind_count bind(s) — all well-formed"
+else
+  warn "$bind_count bind(s), $bind_bad malformed"
+fi
+
+# ── 6. Live reload via hyprctl ────────────────────────────────
+section "Live validation"
+
+if ! command -v hyprctl &>/dev/null; then
+  info "hyprctl not found — skipping"
+elif ! hyprctl monitors &>/dev/null 2>&1; then
+  info "Hyprland not running — skipping live reload"
+else
+  output="$(hyprctl reload 2>&1)"
+  if [[ "$output" =~ ^[Oo][Kk]$ ]]; then
+    ok "hyprctl reload accepted"
+  else
+    while IFS= read -r oline; do
+      [[ -n "$(trim "$oline")" ]] && err "hyprctl: $oline"
+    done <<< "$output"
+  fi
+fi
+
+# ── Summary ───────────────────────────────────────────────────
+echo; hr
+if (( errors == 0 && warnings == 0 )); then
+  printf "  ${GREEN}${BOLD}All checks passed${RESET}\n"
+elif (( errors == 0 )); then
+  printf "  ${YELLOW}${BOLD}%d warning(s), no errors${RESET}\n" "$warnings"
+else
+  printf "  ${RED}${BOLD}%d error(s)${RESET}" "$errors"
+  (( warnings > 0 )) && printf ", ${YELLOW}%d warning(s)${RESET}" "$warnings"
+  printf "\n"
+fi
+echo
+
+(( errors > 0 )) && exit 1 || exit 0

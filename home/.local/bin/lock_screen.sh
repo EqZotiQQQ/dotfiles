@@ -1,7 +1,3 @@
-#!/bin/bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
-
-# For Hyprlock
-#pidof hyprlock || hyprlock -q 
-
-hyprlock
+#!/usr/bin/env bash
+# lock_screen.sh — lock via hyprlock (idempotent)
+pidof hyprlock || hyprlock

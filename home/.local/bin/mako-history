@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# mako-history — pretty notification history
+
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+TEAL=$'\033[38;2;148;226;213m'
+GREEN=$'\033[38;2;166;227;161m'
+RED=$'\033[38;2;243;139;168m'
+YELLOW=$'\033[38;2;249;226;175m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+PEACH=$'\033[38;2;250;179;135m'
+
+term_width() { tput cols 2>/dev/null || echo 80; }
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+thin_hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '╌%.0s' $(seq 1 "$w"))"
+}
+
+if ! makoctl mode &>/dev/null; then
+  echo "mako is not running" >&2; exit 1
+fi
+
+raw="$(makoctl history 2>&1)"
+
+if [[ -z "$raw" ]]; then
+  echo; printf "  ${SUBTEXT}No notification history${RESET}\n"; echo; exit 0
+fi
+
+# ── title ─────────────────────────────────────────────────────
+w=$(term_width)
+title="Notification History"
+padding=$(( (w - ${#title}) / 2 ))
+echo
+printf "%${padding}s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr
+
+# ── DND status ────────────────────────────────────────────────
+if makoctl mode | grep -q "do-not-disturb"; then
+  printf "  ${YELLOW}⏸  Do Not Disturb is ON${RESET}\n"
+  thin_hr
+fi
+
+# ── parse and render ──────────────────────────────────────────
+num=""
+summary=""
+appname=""
+urgency="normal"
+body=""
+
+render_entry() {
+  [[ -z "$num" ]] && return
+
+  case "$urgency" in
+    low)      urg_color="$BLUE";  urg_icon="○" ;;
+    critical) urg_color="$RED";   urg_icon="●" ;;
+    *)        urg_color="$MAUVE"; urg_icon="●" ;;
+  esac
+
+  echo
+  printf "  ${urg_color}${urg_icon}${RESET}  ${BOLD}%s${RESET}  ${DIM}${SURFACE}%s${RESET}\n" \
+    "$summary" "#$num"
+  printf "     ${SUBTEXT}%s${RESET}" "$appname"
+  [[ "$urgency" != "normal" ]] && printf "  ${urg_color}[%s]${RESET}" "$urgency"
+  printf "\n"
+  if [[ -n "$body" ]]; then
+    printf "     ${SUBTEXT}%s${RESET}\n" "$body"
+  fi
+}
+
+while IFS= read -r line; do
+  if [[ "$line" =~ ^Notification[[:space:]]+([0-9]+):[[:space:]]*(.*) ]]; then
+    render_entry
+    num="${BASH_REMATCH[1]}"
+    summary="${BASH_REMATCH[2]}"
+    appname=""
+    urgency="normal"
+    body=""
+  elif [[ "$line" =~ ^[[:space:]]+App\ name:[[:space:]]*(.*) ]]; then
+    appname="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^[[:space:]]+Urgency:[[:space:]]*(.*) ]]; then
+    urgency="${BASH_REMATCH[1]}"
+  elif [[ "$line" =~ ^[[:space:]]+Body:[[:space:]]*(.*) ]]; then
+    body="${BASH_REMATCH[1]}"
+  fi
+done <<< "$raw"
+
+render_entry
+
+echo; hr
+
+total=$(echo "$raw" | grep -c "^Notification")
+printf "  ${SUBTEXT}%d notification(s) in history${RESET}" "$total"
+
+if makoctl mode | grep -q "do-not-disturb"; then
+  printf "  ${YELLOW}· dnd on${RESET}"
+fi
+
+printf "\n\n"

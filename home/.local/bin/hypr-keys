@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# hypr-keys — beautiful keybindings cheatsheet for Hyprland
+
+CONF="${HOME}/.config/hypr/hyprland.conf"
+
+# ── Catppuccin Mocha palette ───────────────────────────────────
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+MAUVE=$'\033[38;2;203;166;247m'
+BLUE=$'\033[38;2;137;180;250m'
+TEAL=$'\033[38;2;148;226;213m'
+GREEN=$'\033[38;2;166;227;161m'
+YELLOW=$'\033[38;2;249;226;175m'
+SURFACE=$'\033[38;2;88;91;112m'
+SUBTEXT=$'\033[38;2;166;173;200m'
+
+# ── helpers ───────────────────────────────────────────────────
+term_width() { tput cols 2>/dev/null || echo 80; }
+
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+
+trim() {
+  local s="$1"
+  s="${s#"${s%%[! ]*}"}"
+  s="${s%"${s##*[! ]}"}"
+  printf '%s' "$s"
+}
+
+truncate_str() {
+  local s="$1" max="$2"
+  if (( ${#s} > max )); then
+    printf '%s…' "${s:0:$((max - 1))}"
+  else
+    printf '%s' "$s"
+  fi
+}
+
+# ── main ──────────────────────────────────────────────────────
+if [[ ! -f "$CONF" ]]; then
+  printf "${MAUVE}File not found: %s${RESET}\n" "$CONF" >&2
+  exit 1
+fi
+
+# Pass 1: collect $variables
+declare -A vars
+while IFS= read -r line; do
+  [[ "$line" =~ ^[[:space:]]*# ]] && continue
+  if [[ "$line" =~ ^\$([A-Za-z_][A-Za-z_0-9]*)[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+    val="${BASH_REMATCH[2]%%#*}"   # strip inline comment
+    vars["${BASH_REMATCH[1]}"]="$(trim "$val")"
+  fi
+done < "$CONF"
+
+expand() {
+  local s="$1" prev=""
+  while [[ "$s" != "$prev" ]]; do
+    prev="$s"
+    for k in "${!vars[@]}"; do s="${s//\$$k/${vars[$k]}}"; done
+  done
+  printf '%s' "$s"
+}
+
+# ── title ─────────────────────────────────────────────────────
+w=$(term_width)
+title="Hyprland Keybindings"
+padding=$(( (w - ${#title}) / 2 ))
+echo
+printf "%${padding}s${BOLD}${MAUVE}%s${RESET}\n" "" "$title"
+hr
+
+COL_KEY=38
+COL_ACT=42
+
+# ── Pass 2: render keybindings section ────────────────────────
+in_block=0
+pending_section=""
+header_printed=0
+
+while IFS= read -r line; do
+
+  # Detect start of KEYBINDINGS block
+  if [[ "$line" =~ ^###[[:space:]]*KEYBINDINGS ]]; then
+    in_block=1
+    echo
+    printf "  ${BOLD}${TEAL}%-*s  %s${RESET}\n" "$COL_KEY" "Shortcut" "Action"
+    hr
+    header_printed=1
+    continue
+  fi
+
+  # Detect start of next ### block → end of keybindings
+  if [[ $in_block -eq 1 && "$line" =~ ^###[[:space:]] && ! "$line" =~ KEYBINDINGS ]]; then
+    in_block=0
+    continue
+  fi
+
+  [[ $in_block -eq 0 ]] && continue
+
+  # Section comment
+  if [[ "$line" =~ ^#[[:space:]](.+)$ ]]; then
+    comment="${BASH_REMATCH[1]}"
+    # Skip wiki links, "See ...", "Example ...", "Requires ..."
+    [[ "$comment" =~ ^http || "$comment" =~ ^See[[:space:]] || "$comment" =~ ^Example || "$comment" =~ ^Requires ]] && continue
+    pending_section="$comment"
+    continue
+  fi
+
+  # bind / bindm / bindl / bindel lines
+  if [[ "$line" =~ ^(bind[lme]*)[[:space:]]*=[[:space:]]*(.*) ]]; then
+    rest="$(trim "${BASH_REMATCH[2]}")"
+
+    # Print pending section header
+    if [[ -n "$pending_section" ]]; then
+      echo
+      printf "  ${BOLD}${BLUE}▸ %s${RESET}\n" "$pending_section"
+      pending_section=""
+    fi
+
+    # Split: mods , key , dispatcher , params…
+    IFS=',' read -r p_mods p_key p_disp p_rest <<< "$rest"
+    mods="$(expand "$(trim "$p_mods")")"
+    key="$(trim "$p_key")"
+    dispatcher="$(trim "$p_disp")"
+    params="$(expand "$(trim "$p_rest")")"
+    # strip trailing inline comment from params
+    params="${params%%#*}"
+    params="$(trim "$params")"
+
+    # Format shortcut
+    if [[ -z "$mods" ]]; then
+      combo="$key"
+    else
+      combo="$mods + $key"
+    fi
+
+    # Format action
+    if [[ -n "$params" ]]; then
+      action="$dispatcher  ${SUBTEXT}→${RESET}${YELLOW}  $params"
+      plain_action="$dispatcher  →  $params"
+    else
+      action="$dispatcher"
+      plain_action="$dispatcher"
+    fi
+
+    combo_display="$(truncate_str "$combo" "$COL_KEY")"
+    action_display="$(truncate_str "$plain_action" "$COL_ACT")"
+
+    if [[ -n "$params" ]]; then
+      disp_part="$(trim "$dispatcher")"
+      params_part="$(truncate_str "$params" $(( COL_ACT - ${#disp_part} - 4 )) )"
+      action_display="${disp_part}  ${SUBTEXT}→${RESET}${YELLOW}  ${params_part}"
+    else
+      action_display="$dispatcher"
+    fi
+
+    printf "  ${GREEN}%-*s${RESET}  ${YELLOW}%s${RESET}\n" \
+      "$COL_KEY" "$combo_display" "$action_display"
+  fi
+
+done < "$CONF"
+
+echo

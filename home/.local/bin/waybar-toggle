@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# waybar-toggle — show/hide waybar (SIGUSR1), or start if not running
+
+if ! pgrep -x waybar &>/dev/null; then
+  waybar &>/dev/null &
+  disown
+  echo "started"
+else
+  pkill -SIGUSR1 waybar
+  echo "toggled"
+fi

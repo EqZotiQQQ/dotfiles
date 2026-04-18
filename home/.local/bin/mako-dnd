@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# mako-dnd — toggle do-not-disturb mode
+
+if ! makoctl mode &>/dev/null; then
+  echo "mako is not running" >&2; exit 1
+fi
+
+current="$(makoctl mode)"
+
+if echo "$current" | grep -q "do-not-disturb"; then
+  makoctl mode -r do-not-disturb
+  notify-send --urgency=low --app-name=mako "Do Not Disturb" "Notifications enabled"
+  echo "off"
+else
+  makoctl mode -a do-not-disturb
+  echo "on"
+fi

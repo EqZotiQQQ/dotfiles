@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# hyprpaper-set — pick a wallpaper via wofi and apply to all monitors
+#
+# Usage:
+#   hyprpaper-set              — open wofi picker from ~/Pictures/wallpapers/
+#   hyprpaper-set /path/to/img — apply directly without picker
+
+WALLPAPER_DIR="${WALLPAPER_DIR:-${HOME}/Pictures/wallpapers}"
+
+apply() {
+  local img="$1"
+  local monitors
+  mapfile -t monitors < <(hyprctl monitors -j | \
+    python3 -c "import sys,json; [print(m['name']) for m in json.load(sys.stdin)]")
+
+  hyprctl hyprpaper preload "$img"
+
+  for mon in "${monitors[@]}"; do
+    hyprctl hyprpaper wallpaper "$mon,$img"
+  done
+}
+
+# ── direct path ───────────────────────────────────────────────
+if [[ -n "$1" ]]; then
+  [[ ! -f "$1" ]] && { echo "File not found: $1" >&2; exit 1; }
+  apply "$1"; exit $?
+fi
+
+# ── pick via wofi ─────────────────────────────────────────────
+if [[ ! -d "$WALLPAPER_DIR" ]]; then
+  echo "Wallpaper dir not found: $WALLPAPER_DIR" >&2
+  echo "Create it or set WALLPAPER_DIR env var." >&2
+  exit 1
+fi
+
+mapfile -t images < <(
+  find "$WALLPAPER_DIR" -type f \( \
+    -iname "*.jpg" -o -iname "*.jpeg" -o \
+    -iname "*.png" -o -iname "*.webp"  \
+  \) | sort
+)
+
+[[ ${#images[@]} -eq 0 ]] && { echo "No images found in $WALLPAPER_DIR" >&2; exit 1; }
+
+selected=$(printf '%s\n' "${images[@]}" | \
+  awk -F/ '{print $NF, $0}' | \
+  wofi --dmenu --prompt "Wallpaper" --insensitive | \
+  awk '{print $NF}')
+
+[[ -z "$selected" ]] && exit 0
+
+apply "$selected"

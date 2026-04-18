@@ -1,0 +1,140 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 36,
+    "spacing": 4,
+    "margin-top": 6,
+    "margin-left": 10,
+    "margin-right": 10,
+    "exclusive": true,
+    "passthrough": false,
+
+    "modules-left": [
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "custom/dnd",
+        "hyprland/language",
+        "pulseaudio",
+        "network",
+        "cpu",
+        "temperature",
+        "memory",
+        "tray"
+    ],
+
+    // ── workspaces ──────────────────────────────────────────────
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "on-scroll-up": "hyprctl dispatch workspace e+1",
+        "on-scroll-down": "hyprctl dispatch workspace e-1",
+        "persistent-workspaces": {
+            "*": [1, 2, 3, 4, 5]
+        },
+        "sort-by-number": true
+    },
+
+    // ── active window ───────────────────────────────────────────
+    "hyprland/window": {
+        "max-length": 60,
+        "separate-outputs": true,
+        "rewrite": {
+            "(.*) — Mozilla Firefox": "  $1",
+            "(.*) - kitty": "  $1",
+            "": ""
+        }
+    },
+
+    // ── clock ───────────────────────────────────────────────────
+    "clock": {
+        "format": "  {:%H:%M}",
+        "format-alt": "  {:%a, %d %b %Y}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "on-scroll": 1,
+            "format": {
+                "today": "<b><u>{}</u></b>"
+            }
+        }
+    },
+
+    // ── keyboard layout ─────────────────────────────────────────
+    "hyprland/language": {
+        "format": "  {}",
+        "format-en": "EN",
+        "format-ru": "RU",
+        "keyboard-name": "at-translated-set-2-keyboard"
+    },
+
+    // ── audio ───────────────────────────────────────────────────
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  muted",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"],
+            "headphone": "󰋋",
+            "headset": "󰋎"
+        },
+        "on-click": "pavucontrol",
+        "scroll-step": 5,
+        "tooltip-format": "{desc}"
+    },
+
+    // ── network ─────────────────────────────────────────────────
+    "network": {
+        "format-wifi": "󰤨  {signalStrength}%",
+        "format-ethernet": "󰈀  {ifname}",
+        "format-disconnected": "󰌙",
+        "format-linked": "󰈀  {ifname} (no IP)",
+        "tooltip-format-wifi": "{essid}\n{ipaddr}/{cidr}\n{signalStrength}% signal",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}/{cidr}",
+        "tooltip-format-disconnected": "Disconnected",
+        "on-click": "nm-connection-editor",
+        "interval": 5
+    },
+
+    // ── cpu ─────────────────────────────────────────────────────
+    "cpu": {
+        "format": "  {usage}%",
+        "interval": 2,
+        "tooltip-format": "CPU: {usage}%\nLoad: {load}"
+    },
+
+    // ── temperature (k10temp / AMD) ──────────────────────────────
+    "temperature": {
+        "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 85,
+        "interval": 5,
+        "format": "{icon}  {temperatureC}°C",
+        "format-critical": "  {temperatureC}°C",
+        "format-icons": ["", "", "", "", ""]
+    },
+
+    // ── memory ──────────────────────────────────────────────────
+    "memory": {
+        "format": "  {percentage}%",
+        "interval": 5,
+        "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB"
+    },
+
+    // ── system tray ─────────────────────────────────────────────
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
+    },
+
+    // ── mako DND toggle ─────────────────────────────────────────
+    "custom/dnd": {
+        "exec": "makoctl mode | grep -q do-not-disturb && echo '󰂛' || echo '󰂚'",
+        "on-click": "mako-dnd",
+        "interval": 2,
+        "tooltip": false,
+        "format": "{}"
+    }
+}
