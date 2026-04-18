@@ -1,0 +1,5 @@
+#!/bin/bash
+pactl set-default-sink "$1"
+eww update audio-sinks="$(~/.config/eww/scripts/audio-sinks)"
+eww close sink-popup-window-0 2>/dev/null
+eww close sink-popup-window-1 2>/dev/null

@@ -1,6 +1,13 @@
 #!/bin/bash
-# Usage: popup-open <window-prefix>
+# Usage: popup-open <window-prefix> <pin-var>
 window_prefix=$1
+pin=$2
 
 monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .id')
 eww open "${window_prefix}-${monitor:-0}"
+
+pid_file="/tmp/eww_timer_${window_prefix//\//_}"
+[ -f "$pid_file" ] && kill "$(cat "$pid_file")" 2>/dev/null
+
+nohup ~/.config/eww/scripts/popup-auto-close "$window_prefix" "$pin" >/dev/null 2>&1 &
+echo $! > "$pid_file"

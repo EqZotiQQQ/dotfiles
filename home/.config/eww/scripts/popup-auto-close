@@ -1,0 +1,10 @@
+#!/bin/bash
+# Usage: popup-auto-close <window-prefix> <pin-var>
+window_prefix=$1
+pin=$2
+
+sleep 5
+[ "$(eww get "$pin")" != "true" ] && {
+    eww close "${window_prefix}-0" 2>/dev/null
+    eww close "${window_prefix}-1" 2>/dev/null
+}

@@ -72,12 +72,12 @@ $red:      #f38ba8;
 
 // ── per-module colors ─────────────────────────────────────────────────
 
-.language    { color: $teal; }
-.volume      { color: $green; }
-.network     { color: $blue; }
-.cpu         { color: $peach; }
-.temperature { color: $yellow; }
-.memory      { color: $mauve; }
+.language    { color: $teal;   min-width: 42px;  }
+.volume      { color: $green;  min-width: 72px;  }
+.network     { color: $blue;   min-width: 200px; }
+.cpu         { color: $peach;  min-width: 54px;  }
+.temperature { color: $yellow; min-width: 62px;  }
+.memory      { color: $mauve;  min-width: 54px;  }
 
 .dnd {
   color: $subtext;
@@ -115,6 +115,22 @@ $red:      #f38ba8;
   min-width: 48px;
 }
 
+.popup-mem-val {
+  color: $text;
+  font-size: 12px;
+  min-width: 90px;
+}
+
+.popup-proc-name {
+  min-width: 120px;
+}
+
+.popup-separator {
+  background: $surface0;
+  min-height: 1px;
+  margin: 4px 0;
+}
+
 .popup-bar {
   trough {
     background: $surface0;
@@ -131,6 +147,31 @@ $red:      #f38ba8;
     background: transparent;
     border: none;
     box-shadow: none;
+  }
+}
+
+.popup-bar-cache {
+  highlight { background: $teal; }
+}
+
+.popup-bar-swap {
+  highlight { background: $peach; }
+}
+
+// ── sink selector ──────────────────────────────────────────────────────
+
+.sink-btn {
+  background: transparent;
+  color: $subtext;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 13px;
+
+  &:hover { background: $surface0; color: $text; }
+
+  &.sink-btn-active {
+    color: $green;
+    font-weight: bold;
   }
 }
 

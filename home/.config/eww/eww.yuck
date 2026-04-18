@@ -24,8 +24,19 @@
   :initial "0"
   `free | awk '/Mem:/{printf "%d", $3/$2*100}'`)
 
-(defpoll cpu-cores :interval "1s"
+(defpoll audio-sinks :interval "5s"
   :initial "[]"
+  `~/.config/eww/scripts/audio-sinks`)
+
+(defpoll memory-details :interval "3s"
+  :initial '{
+    "total":"0G","used":"0G","cached":"0G","swap_used":"0G","swap_total":"0G",
+    "used_pct":0,"cache_pct":0,"swap_pct":0,"has_swap":false,"procs":[]
+  }'
+  `~/.config/eww/scripts/memory-details`)
+
+(defpoll cpu-cores :interval "1s"
+  :initial '{"cores":[],"procs":[]}'
   `~/.config/eww/scripts/cpu-cores`)
 
 (defpoll temperatures :interval "2s"
@@ -60,6 +71,8 @@
 (defvar volume-opacity 1)
 (defvar cpu-pin false)
 (defvar temp-pin false)
+(defvar ram-pin false)
+(defvar sink-pin false)
 
 ; ── widgets ───────────────────────────────────────────────────────────
 
@@ -120,37 +133,53 @@
 
 (defwidget volume-widget []
   (eventbox
-    :onclick "~/.config/eww/scripts/volume mute"
-    :onscroll "~/.config/eww/scripts/volume {}"
+    :onclick        "~/.config/eww/scripts/volume mute"
+    :onscroll       "~/.config/eww/scripts/volume {}"
+    :onrightclick   "~/.config/eww/scripts/popup-open sink-popup-window"
     (label :class "volume module"
            :text {volume-text}
            :style "opacity: ${volume-opacity}; transition: opacity 150ms ease;")))
+
+(defwidget sink-popup-widget []
+  (eventbox
+    :onhoverlost "eww close sink-popup-window-0 2>/dev/null; eww close sink-popup-window-1 2>/dev/null"
+    (box :orientation "v" :spacing 4 :class "popup-box"
+      (for sink in audio-sinks
+        (button
+          :class {sink.active ? "sink-btn sink-btn-active" : "sink-btn"}
+          :onclick "~/.config/eww/scripts/audio-sink-select '${sink.name}'"
+          {sink.active ? "  ${sink.desc}" : "   ${sink.desc}"})))))
 
 (defwidget network-widget []
   (label :class "network module" :text {network-text}))
 
 (defwidget cpu-widget []
   (eventbox
-    :onhover     "~/.config/eww/scripts/popup-open cpu-popup-window"
+    :onhover     "~/.config/eww/scripts/popup-open cpu-popup-window cpu-pin"
     :onhoverlost "~/.config/eww/scripts/popup-hover-out cpu-popup-window cpu-pin"
     :onclick     "~/.config/eww/scripts/popup-toggle cpu-popup-window cpu-pin"
     (label :class "cpu module" :text "  ${cpu-usage}%")))
 
 (defwidget temp-widget []
   (eventbox
-    :onhover     "~/.config/eww/scripts/popup-open temp-popup-window"
+    :onhover     "~/.config/eww/scripts/popup-open temp-popup-window temp-pin"
     :onhoverlost "~/.config/eww/scripts/popup-hover-out temp-popup-window temp-pin"
     :onclick     "~/.config/eww/scripts/popup-toggle temp-popup-window temp-pin"
     (label :class "temperature module" :text "  ${temperature}°C")))
 
 (defwidget cpu-popup-widget []
-  (box :orientation "v" :spacing 4 :class "popup-box"
-    (for core in cpu-cores
+  (box :orientation "v" :spacing 2 :class "popup-box"
+    (for core in {cpu-cores.cores}
       (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
         (label :class "popup-label" :xalign 0 :text "cpu${core.id}")
         (scale :class "popup-bar" :value {core.pct} :min 0 :max 100
                :hexpand true :active false :draw-value false)
-        (label :class "popup-pct" :xalign 1 :text "${core.pct}%")))))
+        (label :class "popup-pct" :xalign 1 :text "${core.pct}%")))
+    (box :class "popup-separator")
+    (for proc in {cpu-cores.procs}
+      (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+        (label :class "popup-label popup-proc-name" :xalign 0 :text {proc.name})
+        (label :class "popup-pct" :xalign 1 :text "${proc.pct}%")))))
 
 (defwidget temp-popup-widget []
   (box :orientation "v" :spacing 4 :class "popup-box"
@@ -160,7 +189,36 @@
         (label :class "popup-temp-val" :xalign 1 :text "${sensor.temp}°C")))))
 
 (defwidget memory-widget []
-  (label :class "memory module" :text "  ${memory-pct}%"))
+  (eventbox
+    :onhover     "~/.config/eww/scripts/popup-open ram-popup-window ram-pin"
+    :onhoverlost "~/.config/eww/scripts/popup-hover-out ram-popup-window ram-pin"
+    :onclick     "~/.config/eww/scripts/popup-toggle ram-popup-window ram-pin"
+    (label :class "memory module" :text "  ${memory-pct}%")))
+
+(defwidget ram-popup-widget []
+  (box :orientation "v" :spacing 2 :class "popup-box"
+    (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+      (label :class "popup-label" :text "RAM")
+      (scale :class "popup-bar" :value {memory-details.used_pct} :min 0 :max 100
+             :hexpand true :active false :draw-value false)
+      (label :class "popup-mem-val" :text "${memory-details.used} / ${memory-details.total}"))
+    (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+      (label :class "popup-label" :text "Cache")
+      (scale :class "popup-bar popup-bar-cache" :value {memory-details.cache_pct} :min 0 :max 100
+             :hexpand true :active false :draw-value false)
+      (label :class "popup-mem-val" :text {memory-details.cached}))
+    (box :visible {memory-details.has_swap}
+         :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+      (label :class "popup-label" :text "Swap")
+      (scale :class "popup-bar popup-bar-swap" :value {memory-details.swap_pct} :min 0 :max 100
+             :hexpand true :active false :draw-value false)
+      (label :class "popup-mem-val" :text "${memory-details.swap_used} / ${memory-details.swap_total}"))
+    (box :class "popup-separator")
+    (for proc in {memory-details.procs}
+      (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+        (label :class "popup-label popup-proc-name" :xalign 0 :text {proc.name})
+        (label :class "popup-mem-val" :xalign 1 :text {proc.mem})
+        (label :class "popup-pct"     :xalign 1 :text "${proc.pct}%")))))
 
 ; ── popups ────────────────────────────────────────────────────────────
 
@@ -187,6 +245,30 @@
   :geometry (geometry :x "8px" :y "44px" :anchor "top right")
   :stacking "fg" :focusable false
   (temp-popup-widget))
+
+(defwindow sink-popup-window-0
+  :monitor 0
+  :geometry (geometry :x "370px" :y "40px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (sink-popup-widget))
+
+(defwindow sink-popup-window-1
+  :monitor 1
+  :geometry (geometry :x "370px" :y "40px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (sink-popup-widget))
+
+(defwindow ram-popup-window-0
+  :monitor 0
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (ram-popup-widget))
+
+(defwindow ram-popup-window-1
+  :monitor 1
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (ram-popup-widget))
 
 ; ── square ────────────────────────────────────────────────────────────
 

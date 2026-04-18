@@ -2,7 +2,7 @@
 CACHE_DIR="/tmp/eww_cpu_cores"
 mkdir -p "$CACHE_DIR"
 
-result="["
+cores="["
 first=true
 
 while IFS=' ' read -r cpu user nice system idle iowait irq softirq _rest; do
@@ -22,9 +22,16 @@ while IFS=' ' read -r cpu user nice system idle iowait irq softirq _rest; do
 
     echo "$total $idle" > "$cache_file"
 
-    $first || result+=","
-    result+="{\"id\":$id,\"pct\":$pct}"
+    $first || cores+=","
+    cores+="{\"id\":$id,\"pct\":$pct}"
     first=false
 done < /proc/stat
+cores+="]"
 
-echo "${result}]"
+procs=$(ps aux --sort=-%cpu | awk 'NR>1 && NR<=6 {
+    cmd = $11; sub(/.*\//, "", cmd); if (length(cmd) > 16) cmd = substr(cmd, 1, 16)
+    gsub(/"/, "", cmd)
+    printf "%s{\"name\":\"%s\",\"pct\":\"%s\"}", (NR>2?",":""), cmd, $3
+}')
+
+printf '{"cores":%s,"procs":[%s]}\n' "$cores" "$procs"

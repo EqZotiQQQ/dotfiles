@@ -1,0 +1,55 @@
+#!/bin/bash
+
+total=$(    awk '/MemTotal/{print $2}'     /proc/meminfo)
+free=$(     awk '/MemFree/{print $2}'      /proc/meminfo)
+available=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
+buffers=$(  awk '/^Buffers/{print $2}'     /proc/meminfo)
+cached=$(   awk '/^Cached:/{print $2}'     /proc/meminfo)
+swap_total=$(awk '/SwapTotal/{print $2}'   /proc/meminfo)
+swap_free=$( awk '/SwapFree/{print $2}'    /proc/meminfo)
+
+used=$(( total - available ))
+cache=$(( buffers + cached ))
+swap_used=$(( swap_total - swap_free ))
+
+fmt() {
+    local kb=$1
+    if [ "$kb" -ge 1048576 ]; then
+        awk "BEGIN{printf \"%.1fG\", $kb/1048576}"
+    else
+        printf "%dM" $(( kb / 1024 ))
+    fi
+}
+
+pct() { [ "$2" -gt 0 ] && printf "%d" $(( $1 * 100 / $2 )) || printf "0"; }
+
+procs=$(ps aux --sort=-%mem | awk 'NR>1 && NR<=6 {
+    cmd = $11; sub(/.*\//, "", cmd); if (length(cmd) > 16) cmd = substr(cmd, 1, 16)
+    mem_mb = int($6 / 1024)
+    pct = int($4)
+    gsub(/"/, "", cmd)
+    printf "%s{\"name\":\"%s\",\"pct\":%d,\"mem\":\"%dM\"}", (NR>2?",":""), cmd, pct, mem_mb
+}')
+
+printf '{
+  "total":      "%s",
+  "used":       "%s",
+  "cached":     "%s",
+  "swap_used":  "%s",
+  "swap_total": "%s",
+  "used_pct":   %s,
+  "cache_pct":  %s,
+  "swap_pct":   %s,
+  "has_swap":   %s,
+  "procs":      [%s]
+}\n' \
+  "$(fmt $total)" \
+  "$(fmt $used)" \
+  "$(fmt $cache)" \
+  "$(fmt $swap_used)" \
+  "$(fmt $swap_total)" \
+  "$(pct $used $total)" \
+  "$(pct $cache $total)" \
+  "$(pct $swap_used $swap_total)" \
+  "$([ "$swap_total" -gt 0 ] && echo true || echo false)" \
+  "$procs"

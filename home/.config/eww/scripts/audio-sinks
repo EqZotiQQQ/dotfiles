@@ -1,0 +1,18 @@
+#!/bin/bash
+def_sink=$(pactl get-default-sink)
+
+pactl list sinks | awk -v def_sink="$def_sink" '
+/^\tName:/ {
+    name = $2
+}
+/^\tDescription:/ {
+    sub(/^\tDescription: /, "")
+    gsub(/"/, "'"'"'")
+    desc = $0
+    active = (name == def_sink) ? "true" : "false"
+    printf "%s{\"name\":\"%s\",\"desc\":\"%s\",\"active\":%s}", sep, name, desc, active
+    sep = ","
+    name = ""
+}
+END { print "" }
+' | awk 'BEGIN{printf "["} {printf $0} END{printf "]\n"}'
