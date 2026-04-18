@@ -1,15 +1,49 @@
 #!/bin/bash
-wifi=$(nmcli -t -f active,signal,ssid dev wifi 2>/dev/null | grep '^yes' | head -1)
-if [ -n "$wifi" ]; then
-    signal=$(echo "$wifi" | cut -d: -f2)
-    echo "󰤨  ${signal}%"
+
+CACHE="/tmp/eww_network_cache"
+
+fmt_speed() {
+    local b=$1
+    if   [ "$b" -ge 1048576 ]; then printf "%.1fM" "$(awk "BEGIN{printf \"%.1f\", $b/1048576}")"
+    elif [ "$b" -ge 1024 ];    then printf "%dK"   $(( b / 1024 ))
+    else                            printf "%dB"   "$b"
+    fi
+}
+
+iface=$(ip -o link show up | awk '{print $2}' | tr -d ':' | grep -v '^lo$' | head -1)
+
+if [ -z "$iface" ]; then
+    echo "󰌙"
     exit 0
 fi
 
-eth=$(ip -o link show up 2>/dev/null | grep -v 'lo\|wl' | head -1 | awk '{print $2}' | tr -d ':')
-if [ -n "$eth" ]; then
-    echo "󰈀  $eth"
-    exit 0
+rx_now=$(< "/sys/class/net/$iface/statistics/rx_bytes")
+tx_now=$(< "/sys/class/net/$iface/statistics/tx_bytes")
+time_now=$(date +%s)
+
+rx_speed=0
+tx_speed=0
+
+if [ -f "$CACHE" ]; then
+    # shellcheck source=/dev/null
+    source "$CACHE"
+    if [ "$iface_prev" = "$iface" ]; then
+        dt=$(( time_now - time_prev ))
+        [ "$dt" -gt 0 ] && {
+            rx_speed=$(( (rx_now - rx_prev) / dt ))
+            tx_speed=$(( (tx_now - tx_prev) / dt ))
+        }
+    fi
 fi
 
-echo "󰌙"
+printf "iface_prev=%s\nrx_prev=%d\ntx_prev=%d\ntime_prev=%d\n" \
+    "$iface" "$rx_now" "$tx_now" "$time_now" > "$CACHE"
+
+if [[ "$iface" == wl* ]]; then
+    signal=$(nmcli -t -f active,signal dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2)
+    prefix="󰤨  ${signal}%"
+else
+    prefix="󰈀  $iface"
+fi
+
+echo "$prefix  ↓$(fmt_speed $rx_speed) ↑$(fmt_speed $tx_speed)"

@@ -1,0 +1,30 @@
+#!/bin/bash
+CACHE_DIR="/tmp/eww_cpu_cores"
+mkdir -p "$CACHE_DIR"
+
+result="["
+first=true
+
+while IFS=' ' read -r cpu user nice system idle iowait irq softirq _rest; do
+    [[ "$cpu" =~ ^cpu[0-9] ]] || continue
+    id="${cpu#cpu}"
+
+    total=$(( user + nice + system + idle + iowait + irq + softirq ))
+    cache_file="$CACHE_DIR/core$id"
+
+    prev_total=0 prev_idle=0
+    [ -f "$cache_file" ] && read -r prev_total prev_idle < "$cache_file"
+
+    dt=$(( total - prev_total ))
+    di=$(( idle  - prev_idle  ))
+    pct=0
+    [ "$dt" -gt 0 ] && pct=$(( 100 * (dt - di) / dt ))
+
+    echo "$total $idle" > "$cache_file"
+
+    $first || result+=","
+    result+="{\"id\":$id,\"pct\":$pct}"
+    first=false
+done < /proc/stat
+
+echo "${result}]"

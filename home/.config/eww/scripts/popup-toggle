@@ -1,0 +1,11 @@
+#!/bin/bash
+# Usage: popup-toggle <window-prefix> <pin-var>
+window_prefix=$1
+pin=$2
+if [ "$(eww get "$pin")" = "true" ]; then
+    eww update "$pin=false"
+    eww close "${window_prefix}-0" 2>/dev/null
+    eww close "${window_prefix}-1" 2>/dev/null
+else
+    eww update "$pin=true"
+fi

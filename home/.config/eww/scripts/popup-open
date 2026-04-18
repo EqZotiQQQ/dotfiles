@@ -1,0 +1,6 @@
+#!/bin/bash
+# Usage: popup-open <window-prefix>
+window_prefix=$1
+
+monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .id')
+eww open "${window_prefix}-${monitor:-0}"

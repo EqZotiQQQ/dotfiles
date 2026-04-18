@@ -1,0 +1,23 @@
+#!/bin/bash
+result="["
+first=true
+
+for hwmon in /sys/class/hwmon/hwmon*; do
+    [ -d "$hwmon" ] || continue
+    device=$(cat "$hwmon/name" 2>/dev/null || echo "?")
+
+    for temp_input in "$hwmon"/temp*_input; do
+        [ -f "$temp_input" ] || continue
+        base="${temp_input%_input}"
+        label=$(cat "${base}_label" 2>/dev/null || basename "$base")
+        temp=$(awk '{printf "%d", $1/1000}' "$temp_input" 2>/dev/null)
+
+        if [ -z "$temp" ] || [ "$temp" -eq 0 ]; then continue; fi
+
+        $first || result+=","
+        result+="{\"device\":\"$device\",\"label\":\"$label\",\"temp\":$temp}"
+        first=false
+    done
+done
+
+echo "${result}]"

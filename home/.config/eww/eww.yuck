@@ -8,23 +8,31 @@
   :initial ""
   `date '+%a, %d %b %Y'`)
 
-(defpoll volume-text :interval "2s"
+(defpoll volume-text :interval "1s"
   :initial "󰕾  0%"
   `~/.config/eww/scripts/volume`)
 
-(defpoll cpu-usage :interval "2s"
+(defpoll cpu-usage :interval "1s"
   :initial "0"
   `~/.config/eww/scripts/cpu`)
 
-(defpoll temperature :interval "5s"
+(defpoll temperature :interval "1s"
   :initial "0"
   `awk '{printf "%d", $1/1000}' /sys/class/hwmon/hwmon2/temp1_input`)
 
-(defpoll memory-pct :interval "5s"
+(defpoll memory-pct :interval "1s"
   :initial "0"
   `free | awk '/Mem:/{printf "%d", $3/$2*100}'`)
 
-(defpoll network-text :interval "5s"
+(defpoll cpu-cores :interval "1s"
+  :initial "[]"
+  `~/.config/eww/scripts/cpu-cores`)
+
+(defpoll temperatures :interval "2s"
+  :initial "[]"
+  `~/.config/eww/scripts/temperatures`)
+
+(defpoll network-text :interval "1s"
   :initial "󰌙"
   `~/.config/eww/scripts/network`)
 
@@ -50,6 +58,8 @@
 
 (defvar show-date false)
 (defvar volume-opacity 1)
+(defvar cpu-pin false)
+(defvar temp-pin false)
 
 ; ── widgets ───────────────────────────────────────────────────────────
 
@@ -120,13 +130,63 @@
   (label :class "network module" :text {network-text}))
 
 (defwidget cpu-widget []
-  (label :class "cpu module" :text "  ${cpu-usage}%"))
+  (eventbox
+    :onhover     "~/.config/eww/scripts/popup-open cpu-popup-window"
+    :onhoverlost "~/.config/eww/scripts/popup-hover-out cpu-popup-window cpu-pin"
+    :onclick     "~/.config/eww/scripts/popup-toggle cpu-popup-window cpu-pin"
+    (label :class "cpu module" :text "  ${cpu-usage}%")))
 
 (defwidget temp-widget []
-  (label :class "temperature module" :text "  ${temperature}°C"))
+  (eventbox
+    :onhover     "~/.config/eww/scripts/popup-open temp-popup-window"
+    :onhoverlost "~/.config/eww/scripts/popup-hover-out temp-popup-window temp-pin"
+    :onclick     "~/.config/eww/scripts/popup-toggle temp-popup-window temp-pin"
+    (label :class "temperature module" :text "  ${temperature}°C")))
+
+(defwidget cpu-popup-widget []
+  (box :orientation "v" :spacing 4 :class "popup-box"
+    (for core in cpu-cores
+      (box :orientation "h" :spacing 8 :space-evenly false :class "popup-row"
+        (label :class "popup-label" :xalign 0 :text "cpu${core.id}")
+        (scale :class "popup-bar" :value {core.pct} :min 0 :max 100
+               :hexpand true :active false :draw-value false)
+        (label :class "popup-pct" :xalign 1 :text "${core.pct}%")))))
+
+(defwidget temp-popup-widget []
+  (box :orientation "v" :spacing 4 :class "popup-box"
+    (for sensor in temperatures
+      (box :orientation "h" :spacing 12 :space-evenly false :class "popup-row"
+        (label :class "popup-label" :xalign 0 :text "${sensor.device} ${sensor.label}")
+        (label :class "popup-temp-val" :xalign 1 :text "${sensor.temp}°C")))))
 
 (defwidget memory-widget []
   (label :class "memory module" :text "  ${memory-pct}%"))
+
+; ── popups ────────────────────────────────────────────────────────────
+
+(defwindow cpu-popup-window-0
+  :monitor 0
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (cpu-popup-widget))
+
+(defwindow cpu-popup-window-1
+  :monitor 1
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (cpu-popup-widget))
+
+(defwindow temp-popup-window-0
+  :monitor 0
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (temp-popup-widget))
+
+(defwindow temp-popup-window-1
+  :monitor 1
+  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (temp-popup-widget))
 
 ; ── square ────────────────────────────────────────────────────────────
 
@@ -156,7 +216,7 @@
     :width "100%"
     :height "36px"
     :anchor "top center")
-  :stacking "fg"
+  :stacking "bottom"
   :exclusive true
   :focusable false
   (bar))
@@ -169,7 +229,7 @@
     :width "100%"
     :height "36px"
     :anchor "top center")
-  :stacking "fg"
+  :stacking "bottom"
   :exclusive true
   :focusable false
   (bar))

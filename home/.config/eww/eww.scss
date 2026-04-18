@@ -84,6 +84,56 @@ $red:      #f38ba8;
   background: transparent;
 }
 
+// ── popups ────────────────────────────────────────────────────────────
+
+.popup-box {
+  background-color: $base;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 220px;
+}
+
+.popup-row {
+  min-height: 22px;
+}
+
+.popup-label {
+  color: $subtext;
+  font-size: 12px;
+  min-width: 56px;
+}
+
+.popup-pct {
+  color: $text;
+  font-size: 12px;
+  min-width: 36px;
+}
+
+.popup-temp-val {
+  color: $yellow;
+  font-size: 12px;
+  min-width: 48px;
+}
+
+.popup-bar {
+  trough {
+    background: $surface0;
+    border-radius: 4px;
+    min-height: 6px;
+  }
+  highlight {
+    background: $blue;
+    border-radius: 4px;
+  }
+  slider {
+    min-width: 0;
+    min-height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
 // ── square ────────────────────────────────────────────────────────────
 
 .square {
