@@ -1,0 +1,26 @@
+#!/bin/bash
+HYPR_SOCK="/tmp/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+
+get_window() {
+    data=$(hyprctl activewindow -j 2>/dev/null)
+    title=$(echo "$data" | jq -r '.title // ""')
+    class=$(echo "$data" | jq -r '.class // ""')
+
+    case "$class" in
+        firefox|Firefox)  echo "  $title" ;;
+        kitty)            echo "  $title" ;;
+        "")               echo "" ;;
+        *)                echo "$title" ;;
+    esac
+}
+
+get_window
+
+socat -u "UNIX-CONNECT:${HYPR_SOCK}" - | while IFS= read -r line; do
+    event="${line%%>>*}"
+    case "$event" in
+        activewindow|closewindow|openwindow)
+            get_window
+            ;;
+    esac
+done

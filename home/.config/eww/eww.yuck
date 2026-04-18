@@ -1,0 +1,175 @@
+; ── polls ────────────────────────────────────────────────────────────
+
+(defpoll clock-time :interval "1s"
+  :initial "00:00"
+  `date '+%H:%M'`)
+
+(defpoll clock-date :interval "60s"
+  :initial ""
+  `date '+%a, %d %b %Y'`)
+
+(defpoll volume-text :interval "2s"
+  :initial "󰕾  0%"
+  `~/.config/eww/scripts/volume`)
+
+(defpoll cpu-usage :interval "2s"
+  :initial "0"
+  `~/.config/eww/scripts/cpu`)
+
+(defpoll temperature :interval "5s"
+  :initial "0"
+  `awk '{printf "%d", $1/1000}' /sys/class/hwmon/hwmon2/temp1_input`)
+
+(defpoll memory-pct :interval "5s"
+  :initial "0"
+  `free | awk '/Mem:/{printf "%d", $3/$2*100}'`)
+
+(defpoll network-text :interval "5s"
+  :initial "󰌙"
+  `~/.config/eww/scripts/network`)
+
+(defpoll language :interval "1s"
+  :initial "EN"
+  `hyprctl devices -j | jq -r '[.keyboards[] | select(.main==true)][0].active_keymap' | grep -qi "russian" && echo "RU" || echo "EN"`)
+
+(defpoll dnd-status :interval "2s"
+  :initial "false"
+  `makoctl mode | grep -qx do-not-disturb && echo "true" || echo "false"`)
+
+; ── listens ───────────────────────────────────────────────────────────
+
+(deflisten workspaces
+  :initial '[{"id":1,"active":true,"occupied":true},{"id":2,"active":false,"occupied":false},{"id":3,"active":false,"occupied":false},{"id":4,"active":false,"occupied":false},{"id":5,"active":false,"occupied":false}]'
+  `~/.config/eww/scripts/workspaces`)
+
+(deflisten active-window
+  :initial ""
+  `~/.config/eww/scripts/active-window`)
+
+; ── state vars ────────────────────────────────────────────────────────
+
+(defvar show-date false)
+(defvar volume-opacity 1)
+
+; ── widgets ───────────────────────────────────────────────────────────
+
+(defwidget bar []
+  (centerbox :orientation "h" :class "bar"
+    (bar-left)
+    (bar-center)
+    (bar-right)))
+
+(defwidget bar-left []
+  (box :class "pill" :orientation "h" :spacing 4 :space-evenly false :halign "start"
+    (workspaces-widget)
+    (active-window-widget)))
+
+(defwidget bar-center []
+  (box :class "pill" :orientation "h" :halign "center"
+    (clock-widget)))
+
+(defwidget bar-right []
+  (box :class "pill" :orientation "h" :spacing 0 :space-evenly false :halign "end"
+    (dnd-widget)
+    (language-widget)
+    (volume-widget)
+    (network-widget)
+    (cpu-widget)
+    (temp-widget)
+    (memory-widget)))
+
+(defwidget workspaces-widget []
+  (box :orientation "h" :spacing 2 :space-evenly false
+    (for ws in workspaces
+      (button
+        :class {ws.active ? "ws-btn active" : ws.occupied ? "ws-btn occupied" : "ws-btn"}
+        :onclick "hyprctl dispatch workspace ${ws.id}"
+        "${ws.id}"))))
+
+(defwidget active-window-widget []
+  (label
+    :class "window-title"
+    :text {active-window}
+    :limit-width 50
+    :truncate true))
+
+(defwidget clock-widget []
+  (button
+    :class "clock module"
+    :onclick "eww update show-date=${show-date ? false : true}"
+    {show-date ? "  ${clock-date}" : "  ${clock-time}"}))
+
+(defwidget dnd-widget []
+  (button
+    :class "dnd module"
+    :onclick "mako-dnd"
+    {dnd-status == "true" ? "󰂛" : "󰂚"}))
+
+(defwidget language-widget []
+  (label :class "language module" :text "  ${language}"))
+
+(defwidget volume-widget []
+  (eventbox
+    :onclick "~/.config/eww/scripts/volume mute"
+    :onscroll "~/.config/eww/scripts/volume {}"
+    (label :class "volume module"
+           :text {volume-text}
+           :style "opacity: ${volume-opacity}; transition: opacity 150ms ease;")))
+
+(defwidget network-widget []
+  (label :class "network module" :text {network-text}))
+
+(defwidget cpu-widget []
+  (label :class "cpu module" :text "  ${cpu-usage}%"))
+
+(defwidget temp-widget []
+  (label :class "temperature module" :text "  ${temperature}°C"))
+
+(defwidget memory-widget []
+  (label :class "memory module" :text "  ${memory-pct}%"))
+
+; ── square ────────────────────────────────────────────────────────────
+
+(defwidget square []
+  (box :class "square"))
+
+(defwindow square
+  :monitor 0
+  :geometry (geometry
+    :x "40px"
+    :y "60px"
+    :width "80px"
+    :height "80px"
+    :anchor "top left")
+  :stacking "bg"
+  :exclusive false
+  :focusable false
+  (square))
+
+; ── window ────────────────────────────────────────────────────────────
+
+(defwindow bar
+  :monitor 0
+  :geometry (geometry
+    :x "0%"
+    :y "4px"
+    :width "100%"
+    :height "36px"
+    :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  :focusable false
+  (bar))
+
+(defwindow bar2
+  :monitor 1
+  :geometry (geometry
+    :x "0%"
+    :y "4px"
+    :width "100%"
+    :height "36px"
+    :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  :focusable false
+  (bar))

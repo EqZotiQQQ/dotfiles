@@ -1,0 +1,15 @@
+#!/bin/bash
+wifi=$(nmcli -t -f active,signal,ssid dev wifi 2>/dev/null | grep '^yes' | head -1)
+if [ -n "$wifi" ]; then
+    signal=$(echo "$wifi" | cut -d: -f2)
+    echo "󰤨  ${signal}%"
+    exit 0
+fi
+
+eth=$(ip -o link show up 2>/dev/null | grep -v 'lo\|wl' | head -1 | awk '{print $2}' | tr -d ':')
+if [ -n "$eth" ]; then
+    echo "󰈀  $eth"
+    exit 0
+fi
+
+echo "󰌙"

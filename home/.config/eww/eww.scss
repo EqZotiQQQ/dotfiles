@@ -1,0 +1,94 @@
+// Catppuccin Mocha
+$base:     #1e1e2e;
+$surface0: #313244;
+$overlay0: #6c7086;
+$text:     #cdd6f4;
+$subtext:  #a6adc8;
+$mauve:    #cba6f7;
+$blue:     #89b4fa;
+$teal:     #94e2d5;
+$green:    #a6e3a1;
+$yellow:   #f9e2af;
+$peach:    #fab387;
+$red:      #f38ba8;
+
+* {
+  font-family: "Iosevka Nerd Font", monospace;
+  font-size: 13px;
+  border: none;
+  outline: none;
+}
+
+.bar {
+  background: transparent;
+  margin: 0 6px;
+}
+
+.pill {
+  background-color: $base;
+  border-radius: 10px;
+  padding: 0 2px;
+  margin: 0 2px;
+}
+
+.module {
+  padding: 0 6px;
+  color: $text;
+}
+
+// ── workspaces ────────────────────────────────────────────────────────
+
+.ws-btn {
+  padding: 0 4px;
+  color: $overlay0;
+  background: transparent;
+  border-radius: 8px;
+
+  &.active {
+    color: $mauve;
+    font-weight: bold;
+  }
+
+  &.occupied {
+    color: $text;
+  }
+}
+
+// ── window title ──────────────────────────────────────────────────────
+
+.window-title {
+  color: $subtext;
+  font-style: italic;
+  padding: 0 6px;
+}
+
+// ── clock ─────────────────────────────────────────────────────────────
+
+.clock {
+  color: $blue;
+  font-weight: bold;
+  background: transparent;
+}
+
+// ── per-module colors ─────────────────────────────────────────────────
+
+.language    { color: $teal; }
+.volume      { color: $green; }
+.network     { color: $blue; }
+.cpu         { color: $peach; }
+.temperature { color: $yellow; }
+.memory      { color: $mauve; }
+
+.dnd {
+  color: $subtext;
+  background: transparent;
+}
+
+// ── square ────────────────────────────────────────────────────────────
+
+.square {
+  background-color: rgba(255, 0, 0, 0.25);
+  border-radius: 8px;
+  min-width: 500px;
+  min-height: 500px;
+}

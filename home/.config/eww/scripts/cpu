@@ -1,0 +1,14 @@
+#!/bin/bash
+read -r _ u1 n1 s1 i1 w1 r1 f1 _ < /proc/stat
+sleep 0.3
+read -r _ u2 n2 s2 i2 w2 r2 f2 _ < /proc/stat
+
+idle1=$((i1 + w1))
+idle2=$((i2 + w2))
+total1=$((u1 + n1 + s1 + i1 + w1 + r1 + f1))
+total2=$((u2 + n2 + s2 + i2 + w2 + r2 + f2))
+
+diff_idle=$(( idle2  - idle1  ))
+diff_total=$(( total2 - total1 ))
+
+printf "%d\n" $(( (diff_total - diff_idle) * 100 / diff_total ))

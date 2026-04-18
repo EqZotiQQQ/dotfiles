@@ -39,7 +39,7 @@ window#waybar.hidden {
 .modules-right {
     background-color: @base;
     border-radius: 10px;
-    padding: 0 4px;
+    padding: 0 2px;
 }
 
 /* ── shared module style ──────────────────────────────────── */
@@ -54,13 +54,13 @@ window#waybar.hidden {
 #memory,
 #tray,
 #custom-dnd {
-    padding: 0 10px;
+    padding: 0 6px;
     color: @text;
 }
 
 /* ── workspaces ───────────────────────────────────────────── */
 #workspaces button {
-    padding: 0 6px;
+    padding: 0 4px;
     color: @overlay0;
     background: transparent;
     border-radius: 8px;
@@ -142,7 +142,7 @@ window#waybar.hidden {
 
 /* ── tray ─────────────────────────────────────────────────── */
 #tray {
-    padding: 0 6px;
+    padding: 0 4px;
 }
 
 #tray > .passive {
@@ -156,7 +156,7 @@ window#waybar.hidden {
 /* ── DND ──────────────────────────────────────────────────── */
 #custom-dnd {
     color: @subtext;
-    padding: 0 8px;
+    padding: 0 6px;
 }
 
 #custom-dnd.dnd {

@@ -1,0 +1,27 @@
+#!/bin/bash
+HYPR_SOCK="/tmp/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+
+get_workspaces() {
+    active=$(hyprctl activeworkspace -j | jq '.id')
+    occupied=$(hyprctl workspaces -j | jq '[.[].id]')
+
+    printf '['
+    for i in 1 2 3 4 5; do
+        is_active=$([ "$i" -eq "$active" ] && echo true || echo false)
+        is_occupied=$(echo "$occupied" | jq "contains([$i])")
+        printf '{"id":%d,"active":%s,"occupied":%s}' "$i" "$is_active" "$is_occupied"
+        [ "$i" -lt 5 ] && printf ','
+    done
+    printf ']\n'
+}
+
+get_workspaces
+
+socat -u "UNIX-CONNECT:${HYPR_SOCK}" - | while IFS= read -r line; do
+    event="${line%%>>*}"
+    case "$event" in
+        workspace|createworkspace|destroyworkspace|activewindow|movewindow|openwindow|closewindow)
+            get_workspaces
+            ;;
+    esac
+done

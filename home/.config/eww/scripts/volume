@@ -1,0 +1,33 @@
+#!/bin/bash
+
+get() {
+    vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+
+    if echo "$vol" | grep -q MUTED; then
+        echo "󰝟  muted"
+        return
+    fi
+
+    pct=$(echo "$vol" | awk '{printf "%d", $2*100}')
+
+    if   [ "$pct" -lt 33 ]; then icon="󰕿"
+    elif [ "$pct" -lt 66 ]; then icon="󰖀"
+    else                          icon="󰕾"
+    fi
+
+    echo "$icon  ${pct}%"
+}
+
+update() {
+    eww update volume-opacity=0
+    sleep 0.08
+    eww update volume-text="$(get)"
+    eww update volume-opacity=1
+}
+
+case "$1" in
+    up)   wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+ && update ;;
+    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && update ;;
+    mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && update ;;
+    *)    get ;;
+esac
