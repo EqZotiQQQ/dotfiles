@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# show-keys — красивый вывод README.md для kitty
+# Использование: ./show-keys [путь/к/README.md]
+
+README="${HOME}/.config/kitty/README.md"
+
+# ── Catppuccin Mocha palette ───────────────────────────────────
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+
+# foreground colours (using 256-colour approximations of Catppuccin)
+MAUVE=$'\033[38;2;203;166;247m'   # #cba6f7  — h1 title
+BLUE=$'\033[38;2;137;180;250m'    # #89b4fa  — h2 headers
+TEAL=$'\033[38;2;148;226;213m'    # #94e2d5  — table header
+GREEN=$'\033[38;2;166;227;161m'   # #a6e3a1  — key cells
+YELLOW=$'\033[38;2;249;226;175m'  # #f9e2af  — action cells
+SURFACE=$'\033[38;2;88;91;112m'   # #585b70  — dividers / dim
+SUBTEXT=$'\033[38;2;166;173;200m' # #a6adc8  — blockquote / misc
+LAVENDER=$'\033[38;2;180;190;254m'# #b4befe  — inline code / pill
+
+# ── helpers ───────────────────────────────────────────────────
+term_width() { tput cols 2>/dev/null || echo 80; }
+
+hr() {
+  local w; w=$(term_width)
+  printf "${SURFACE}%s${RESET}\n" "$(printf '─%.0s' $(seq 1 "$w"))"
+}
+
+render_table_row() {
+  local raw="$1"
+  # strip leading/trailing pipes and split on ' | '
+  local cells
+  IFS='|' read -ra cells <<< "${raw#|}"
+  local col1="${cells[0]}" col2="${cells[1]}"
+  # trim whitespace
+  col1="${col1#"${col1%%[! ]*}"}"; col1="${col1%"${col1##*[! ]}"}"
+  col2="${col2#"${col2%%[! ]*}"}"; col2="${col2%"${col2##*[! ]}"}"
+  [[ -z "$col1" && -z "$col2" ]] && return
+  printf "  ${GREEN}%-32s${RESET}  ${YELLOW}%s${RESET}\n" "$col1" "$col2"
+}
+
+render_table_header() {
+  local raw="$1"
+  IFS='|' read -ra cells <<< "${raw#|}"
+  local col1="${cells[0]}" col2="${cells[1]}"
+  col1="${col1#"${col1%%[! ]*}"}"; col1="${col1%"${col1##*[! ]}"}"
+  col2="${col2#"${col2%%[! ]*}"}"; col2="${col2%"${col2##*[! ]}"}"
+  printf "  ${BOLD}${TEAL}%-32s  %s${RESET}\n" "$col1" "$col2"
+}
+
+# ── main render loop ──────────────────────────────────────────
+if [[ ! -f "$README" ]]; then
+  printf "${MAUVE}Файл не найден: %s${RESET}\n" "$README" >&2
+  exit 1
+fi
+
+echo
+
+in_table=0
+prev_blank=0
+
+while IFS= read -r line; do
+
+  # ── H1 ──────────────────────────────────────────────────────
+  if [[ "$line" =~ ^#[[:space:]](.+) ]]; then
+    local_title="${BASH_REMATCH[1]}"
+    w=$(term_width)
+    padding=$(( (w - ${#local_title}) / 2 ))
+    echo
+    printf "%${padding}s${BOLD}${MAUVE}%s${RESET}\n" "" "$local_title"
+    hr
+    in_table=0; continue
+  fi
+
+  # ── H2 ──────────────────────────────────────────────────────
+  if [[ "$line" =~ ^##[[:space:]](.+) ]]; then
+    echo
+    printf "  ${BOLD}${BLUE}%s${RESET}\n" "${BASH_REMATCH[1]}"
+    in_table=0; continue
+  fi
+
+  # ── H3 ──────────────────────────────────────────────────────
+  if [[ "$line" =~ ^'###'[[:space:]](.+) ]]; then
+    printf "\n  ${LAVENDER}▸ %s${RESET}\n" "${BASH_REMATCH[1]}"
+    in_table=0; continue
+  fi
+
+  # ── blockquote ──────────────────────────────────────────────
+  if [[ "$line" =~ ^\>[[:space:]](.+) ]]; then
+    printf "  ${SURFACE}│${RESET} ${SUBTEXT}%s${RESET}\n" "${BASH_REMATCH[1]}"
+    in_table=0; continue
+  fi
+
+  # ── table separator (|---|---| etc.) ────────────────────────
+  if [[ "$line" =~ ^\|[[:space:]]*[-:]+ ]]; then
+    in_table=1; continue
+  fi
+
+  # ── table row ───────────────────────────────────────────────
+  if [[ "$line" =~ ^\| ]]; then
+    if [[ $in_table -eq 0 ]]; then
+      render_table_header "$line"
+      in_table=1
+    else
+      render_table_row "$line"
+    fi
+    continue
+  fi
+
+  # leaving a table
+  [[ $in_table -eq 1 && ! "$line" =~ ^\| ]] && in_table=0
+
+  # ── horizontal rule ─────────────────────────────────────────
+  if [[ "$line" =~ ^---+$ ]]; then
+    hr; continue
+  fi
+
+  # ── bullet list ─────────────────────────────────────────────
+  if [[ "$line" =~ ^[[:space:]]*[\*\-][[:space:]](.+) ]]; then
+    # highlight `backtick` content
+    text="${BASH_REMATCH[1]}"
+    text=$(echo "$text" | sed "s/\`\([^\`]*\)\`/$(printf '\033[38;2;180;190;254m')\1$(printf '\033[0m')/g")
+    printf "  ${SURFACE}·${RESET} ${SUBTEXT}%s${RESET}\n" "$text"
+    continue
+  fi
+
+  # ── blank line ──────────────────────────────────────────────
+  if [[ -z "$line" ]]; then
+    [[ $prev_blank -eq 0 ]] && echo
+    prev_blank=1; continue
+  fi
+
+  prev_blank=0
+
+  # ── plain text (inline `code` highlight) ────────────────────
+  line=$(echo "$line" | sed "s/\`\([^\`]*\)\`/$(printf '\033[38;2;180;190;254m')\1$(printf '\033[0m')/g")
+  printf "  %s\n" "$line"
+
+done < "$README"
+
+echo
