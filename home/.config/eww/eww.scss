@@ -84,6 +84,28 @@ $red:      #f38ba8;
   background: transparent;
 }
 
+.power {
+  color: $red;
+  background: transparent;
+}
+
+// ── power menu ────────────────────────────────────────────────────────
+
+.power-btn {
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: $text;
+
+  &:hover { background: $surface0; }
+
+  &.power-btn-sleep    { &:hover { color: $blue;   } }
+  &.power-btn-logout   { &:hover { color: $yellow; } }
+  &.power-btn-reboot   { &:hover { color: $peach;  } }
+  &.power-btn-shutdown { &:hover { color: $red;    } }
+}
+
 // ── popups ────────────────────────────────────────────────────────────
 
 .popup-box {

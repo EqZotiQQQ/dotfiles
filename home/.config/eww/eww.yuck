@@ -73,6 +73,7 @@
 (defvar temp-pin false)
 (defvar ram-pin false)
 (defvar sink-pin false)
+(defvar power-pin false)
 
 ; ── widgets ───────────────────────────────────────────────────────────
 
@@ -99,7 +100,8 @@
     (network-widget)
     (cpu-widget)
     (temp-widget)
-    (memory-widget)))
+    (memory-widget)
+    (power-widget)))
 
 (defwidget workspaces-widget []
   (box :orientation "h" :spacing 2 :space-evenly false
@@ -121,6 +123,22 @@
     :class "clock module"
     :onclick "eww update show-date=${show-date ? false : true}"
     {show-date ? "  ${clock-date}" : "  ${clock-time}"}))
+
+(defwidget power-widget []
+  (eventbox
+    :onhover     "~/.config/eww/scripts/popup-open power-popup-window power-pin"
+    :onhoverlost "~/.config/eww/scripts/popup-hover-out power-popup-window power-pin"
+    :onclick     "~/.config/eww/scripts/popup-toggle power-popup-window power-pin"
+    (label :class "power module" :text "󰐥")))
+
+(defwidget power-popup-widget []
+  (eventbox
+    :onhoverlost "eww update power-pin=false; eww close power-popup-window-0 2>/dev/null; eww close power-popup-window-1 2>/dev/null"
+    (box :orientation "v" :spacing 4 :class "popup-box"
+      (button :class "power-btn power-btn-sleep"    :onclick "systemctl suspend"     "󰒲  Sleep")
+      (button :class "power-btn power-btn-logout"   :onclick "hyprctl dispatch exit" "󰍃  Logout")
+      (button :class "power-btn power-btn-reboot"   :onclick "systemctl reboot"      "󰜉  Reboot")
+      (button :class "power-btn power-btn-shutdown" :onclick "systemctl poweroff"    "󰐥  Shutdown"))))
 
 (defwidget dnd-widget []
   (button
@@ -222,27 +240,39 @@
 
 ; ── popups ────────────────────────────────────────────────────────────
 
+(defwindow power-popup-window-0
+  :monitor 0
+  :geometry (geometry :x "10px" :y "40px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (power-popup-widget))
+
+(defwindow power-popup-window-1
+  :monitor 1
+  :geometry (geometry :x "10px" :y "40px" :anchor "top right")
+  :stacking "fg" :focusable false
+  (power-popup-widget))
+
 (defwindow cpu-popup-window-0
   :monitor 0
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "152px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (cpu-popup-widget))
 
 (defwindow cpu-popup-window-1
   :monitor 1
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "152px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (cpu-popup-widget))
 
 (defwindow temp-popup-window-0
   :monitor 0
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "90px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (temp-popup-widget))
 
 (defwindow temp-popup-window-1
   :monitor 1
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "90px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (temp-popup-widget))
 
@@ -260,13 +290,13 @@
 
 (defwindow ram-popup-window-0
   :monitor 0
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "36px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (ram-popup-widget))
 
 (defwindow ram-popup-window-1
   :monitor 1
-  :geometry (geometry :x "8px" :y "44px" :anchor "top right")
+  :geometry (geometry :x "36px" :y "40px" :anchor "top right")
   :stacking "fg" :focusable false
   (ram-popup-widget))
 
