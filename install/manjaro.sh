@@ -150,6 +150,7 @@ install_wm() {
         hyprshot \
         hypridle \
         hyprpolkitagent \
+        cava \
         hyprlock \
         xdg-desktop-portal-hyprland
 }

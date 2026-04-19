@@ -51,6 +51,10 @@
   :initial "EN"
   `hyprctl devices -j | jq -r '[.keyboards[] | select(.main==true)][0].active_keymap' | grep -qi "russian" && echo "RU" || echo "EN"`)
 
+(deflisten cava-bars
+  :initial "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]"
+  `~/.config/eww/scripts/cava`)
+
 (defpoll dnd-status :interval "1s"
   :initial "false"
   `makoctl mode | grep -qx do-not-disturb && echo "true" || echo "false"`)
@@ -317,6 +321,50 @@
   :exclusive false
   :focusable false
   (square))
+
+; ── bottom panel ──────────────────────────────────────────────────────
+
+(defwidget cava-widget []
+  (box :class "cava" :orientation "h" :spacing 2 :hexpand true :halign "fill" :valign "end"
+    (for bar in cava-bars
+      (box :class "cava-bar-wrap" :orientation "v" :valign "end" :hexpand true
+        (box :class "cava-bar"
+             :style "min-height: ${bar * 3}px;")))))
+
+(defwidget bottom-panel []
+  (box :class "bottom-panel" :orientation "v" :valign "end"
+    (cava-widget)))
+
+(defwindow bottom-panel
+  :monitor 0
+  :geometry (geometry
+    :x "0%"
+    :y "4px"
+    :width "100%"
+    :height "360px"
+    :anchor "bottom center")
+  :stacking "bottom"
+  :exclusive true
+  :focusable false
+  (bottom-panel))
+
+; ── tray ──────────────────────────────────────────────────────────────
+
+(defwidget tray-widget []
+  (box :class "tray-panel" :orientation "v" :space-evenly false :halign "center"
+    (systray :orientation "v" :icon-size 18 :spacing 6)))
+
+(defwindow tray
+  :monitor 0
+  :geometry (geometry
+    :x "4px"
+    :y "44px"
+    :width "32px"
+    :anchor "top left")
+  :stacking "bottom"
+  :exclusive false
+  :focusable false
+  (tray-widget))
 
 ; ── window ────────────────────────────────────────────────────────────
 
