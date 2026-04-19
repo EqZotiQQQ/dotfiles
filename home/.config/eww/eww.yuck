@@ -51,7 +51,7 @@
   :initial "EN"
   `hyprctl devices -j | jq -r '[.keyboards[] | select(.main==true)][0].active_keymap' | grep -qi "russian" && echo "RU" || echo "EN"`)
 
-(defpoll dnd-status :interval "2s"
+(defpoll dnd-status :interval "1s"
   :initial "false"
   `makoctl mode | grep -qx do-not-disturb && echo "true" || echo "false"`)
 
@@ -125,7 +125,7 @@
 (defwidget dnd-widget []
   (button
     :class "dnd module"
-    :onclick "mako-dnd"
+    :onclick "~/.local/bin/mako-dnd"
     {dnd-status == "true" ? "󰂛" : "󰂚"}))
 
 (defwidget language-widget []

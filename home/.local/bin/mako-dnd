@@ -9,9 +9,14 @@ current="$(makoctl mode)"
 
 if echo "$current" | grep -q "do-not-disturb"; then
   makoctl mode -r do-not-disturb
+  sleep 0.1
   notify-send --urgency=low --app-name=mako "Do Not Disturb" "Notifications enabled"
+  eww update dnd-status=false 2>/dev/null
   echo "off"
 else
   makoctl mode -a do-not-disturb
+  eww update dnd-status=true 2>/dev/null
   echo "on"
 fi
+
+pkill -RTMIN+8 waybar

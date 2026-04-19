@@ -133,7 +133,8 @@
     "custom/dnd": {
         "exec": "makoctl mode | grep -q do-not-disturb && echo '󰂛' || echo '󰂚'",
         "on-click": "mako-dnd",
-        "interval": 2,
+        "interval": 30,
+        "signal": 8,
         "tooltip": false,
         "format": "{}"
     }
