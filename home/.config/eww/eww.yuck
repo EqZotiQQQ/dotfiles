@@ -62,8 +62,12 @@
 ; ── listens ───────────────────────────────────────────────────────────
 
 (deflisten workspaces
-  :initial '[{"id":1,"active":true,"occupied":true},{"id":2,"active":false,"occupied":false},{"id":3,"active":false,"occupied":false},{"id":4,"active":false,"occupied":false},{"id":5,"active":false,"occupied":false}]'
-  `~/.config/eww/scripts/workspaces`)
+  :initial '[{"id":1,"label":1,"active":true,"occupied":true}]'
+  `~/.local/scripts/workspaces 1 9 DP-2 0`)
+
+(deflisten workspaces2
+  :initial '[{"id":10,"label":1,"active":false,"occupied":true}]'
+  `~/.local/scripts/workspaces 10 18 DP-1 9`)
 
 (deflisten active-window
   :initial ""
@@ -81,15 +85,15 @@
 
 ; ── widgets ───────────────────────────────────────────────────────────
 
-(defwidget bar []
+(defwidget bar [wss]
   (centerbox :orientation "h" :class "bar"
-    (bar-left)
+    (bar-left :wss wss)
     (bar-center)
     (bar-right)))
 
-(defwidget bar-left []
+(defwidget bar-left [wss]
   (box :class "pill" :orientation "h" :spacing 4 :space-evenly false :halign "start"
-    (workspaces-widget)
+    (workspaces-widget :wss wss)
     (active-window-widget)))
 
 (defwidget bar-center []
@@ -107,13 +111,13 @@
     (memory-widget)
     (power-widget)))
 
-(defwidget workspaces-widget []
+(defwidget workspaces-widget [wss]
   (box :orientation "h" :spacing 2 :space-evenly false
-    (for ws in workspaces
+    (for ws in wss
       (button
-        :class {ws.active ? "ws-btn active" : ws.occupied ? "ws-btn occupied" : "ws-btn"}
+        :class {ws.active ? "ws-btn active" : "ws-btn occupied"}
         :onclick "hyprctl dispatch workspace ${ws.id}"
-        "${ws.id}"))))
+        "${ws.label}"))))
 
 (defwidget active-window-widget []
   (label
@@ -369,19 +373,6 @@
 ; ── window ────────────────────────────────────────────────────────────
 
 (defwindow bar
-  :monitor 0
-  :geometry (geometry
-    :x "0%"
-    :y "4px"
-    :width "100%"
-    :height "36px"
-    :anchor "top center")
-  :stacking "bottom"
-  :exclusive true
-  :focusable false
-  (bar))
-
-(defwindow bar2
   :monitor 1
   :geometry (geometry
     :x "0%"
@@ -392,4 +383,17 @@
   :stacking "bottom"
   :exclusive true
   :focusable false
-  (bar))
+  (bar :wss workspaces))
+
+(defwindow bar2
+  :monitor 0
+  :geometry (geometry
+    :x "0%"
+    :y "4px"
+    :width "100%"
+    :height "36px"
+    :anchor "top center")
+  :stacking "bottom"
+  :exclusive true
+  :focusable false
+  (bar :wss workspaces2))

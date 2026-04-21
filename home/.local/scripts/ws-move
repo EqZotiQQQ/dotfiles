@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Move active window to workspace N on the focused monitor (AwesomeWM style)
+# DP-2 (primary): workspaces 1-9
+# DP-1 (secondary): workspaces 10-18
+N=$1
+MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .name')
+[[ "$MONITOR" == "DP-2" ]] && hyprctl dispatch movetoworkspacesilent "$N" || hyprctl dispatch movetoworkspacesilent "$((N + 9))"

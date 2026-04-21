@@ -1,0 +1,74 @@
+# ~/.config/systemd/user/cava-eww.service
+#
+# Запускает cava-eww как пользовательский daemon в режиме EwwUpdate.
+# cava-eww сам вызывает `eww update cava-bars=...` на каждый кадр.
+#
+# Установка:
+#   cp cava-eww.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now cava-eww
+#
+# Управление:
+#   systemctl --user status cava-eww
+#   systemctl --user restart cava-eww
+#   journalctl --user -u cava-eww -f   # логи в реальном времени
+#
+# Зависимость от PipeWire:
+#   Юнит ждёт pipewire.service и pipewire-pulse.service.
+#   Если они не запускаются автоматически — добавьте их в ~/.config/systemd/user/default.target.wants/
+
+[Unit]
+Description=cava-eww audio visualizer daemon
+Documentation=https://github.com/your/cava-eww
+
+# Ждём PipeWire — без него AudioCapture упадёт
+After=pipewire.service pipewire-pulse.service
+
+# Ждём EWW — без него eww update вернёт ошибку
+# (закомментируйте если eww запускается позже)
+After=eww.service
+
+# Перезапускаем если PipeWire перезапустился
+PartOf=pipewire.service
+
+[Service]
+Type=simple
+
+# Путь к бинарю — замените на ваш
+ExecStart=%h/.local/bin/cava-eww \
+    --eww \
+    --var   cava-bars \
+    --bars  20 \
+    --fps   30 \
+    --color "#89b4fa" "#f38ba8" \
+    --sep   ""
+
+# Альтернатива: именованный pipe
+# ExecStart=%h/.local/bin/cava-eww \
+#     --pipe \
+#     --pipe-path /tmp/cava-eww.fifo \
+#     --bars 20 \
+#     --fps  30 \
+#     --color "#89b4fa" "#f38ba8"
+
+# Автоматический перезапуск при падении (broken pipe, PW disconnect и т.п.)
+Restart=on-failure
+RestartSec=2s
+
+# Даём время на graceful shutdown (SIGTERM → 3s → SIGKILL)
+TimeoutStopSec=3s
+
+# PipeWire ищет сокет по XDG_RUNTIME_DIR — это критично
+# Обычно выставляется PAM автоматически, но явно не мешает
+Environment=XDG_RUNTIME_DIR=/run/user/%U
+
+# Опционально: понижаем приоритет (DSP уже внутри управляет приоритетами)
+# Nice=5
+
+# Stderr в journald (stderr потому что cava-eww логирует туда)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cava-eww
+
+[Install]
+WantedBy=default.target

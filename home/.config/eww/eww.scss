@@ -106,7 +106,7 @@ $red:      #f38ba8;
   border-radius: 2px 2px 0 0;
   min-width: 4px;
   min-height: 2px;
-  transition: min-height 60ms linear;
+  transition: min-height 1ms linear;
 }
 
 .tray-panel {
@@ -235,4 +235,51 @@ $red:      #f38ba8;
   border-radius: 8px;
   min-width: 500px;
   min-height: 500px;
+}
+
+// ── cava-eww visualizer ───────────────────────────────────────────────
+
+.cava-bar-window {
+  background-color: $base;
+  border-top: 1px solid $surface0;
+  padding: 0 12px;
+  min-height: 40px;
+}
+
+.cava-overlay-window {
+  background-color: transparentize($base, 0.1);
+  border: 1px solid $surface0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-height: 50px;
+  box-shadow: 0 4px 24px transparentize(#000000, 0.5);
+}
+
+.cava-visualizer {
+  padding: 0 4px;
+}
+
+.cava-container {
+  padding: 4px 8px;
+}
+
+.cava-label {
+  font-family: "Iosevka Nerd Font", monospace;
+  font-size: 20px;
+  letter-spacing: -1px;
+  color: $blue;
+  margin: 0;
+  padding: 0;
+}
+
+.cava-idle .cava-label {
+  color: $overlay0;
+  opacity: 0.5;
+  transition: color 0.5s ease, opacity 0.5s ease;
+}
+
+.cava-track-title {
+  font-family: "Iosevka Nerd Font", monospace;
+  font-size: 12px;
+  color: $overlay0;
 }

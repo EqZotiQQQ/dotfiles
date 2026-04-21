@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Outputs JSON array of workspaces for a monitor range.
+# Usage: workspaces <start> <end> <monitor-name>
+# Only includes active or occupied workspaces (hides empty ones).
+START=${1:-1}
+END=${2:-9}
+MONITOR=${3:-DP-2}
+OFFSET=${4:-0}
+HYPR_SOCK="${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+
+get_workspaces() {
+    active=$(hyprctl monitors -j | jq --arg m "$MONITOR" '.[] | select(.name==$m) | .activeWorkspace.id')
+    occupied=$(hyprctl workspaces -j | jq '[.[].id]')
+
+    result='['
+    first=true
+    for i in $(seq "$START" "$END"); do
+        is_active=$([ "$i" -eq "$active" ] && echo true || echo false)
+        is_occupied=$(echo "$occupied" | jq "contains([$i])")
+        if [ "$is_active" = "true" ] || [ "$is_occupied" = "true" ]; then
+            [ "$first" = "true" ] || result+=','
+            label=$((i - OFFSET))
+            result+=$(printf '{"id":%d,"label":%d,"active":%s,"occupied":%s}' "$i" "$label" "$is_active" "$is_occupied")
+            first=false
+        fi
+    done
+    result+=']'
+    echo "$result"
+}
+
+get_workspaces
+
+socat -u "UNIX-CONNECT:${HYPR_SOCK}" - | while IFS= read -r line; do
+    event="${line%%>>*}"
+    case "$event" in
+        workspace|createworkspace|destroyworkspace|activewindow|movewindow|openwindow|closewindow|focusedmon)
+            get_workspaces
+            ;;
+    esac
+done

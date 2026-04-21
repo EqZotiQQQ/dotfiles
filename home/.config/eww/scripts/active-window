@@ -1,5 +1,5 @@
 #!/bin/bash
-HYPR_SOCK="/tmp/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+HYPR_SOCK="${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
 
 get_window() {
     data=$(hyprctl activewindow -j 2>/dev/null)
