@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-EWW_WINDOWS=(bar bar2 square)
+EWW_WINDOWS=(bar bar2)
 
 start() {
     eww daemon
