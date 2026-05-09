@@ -31,6 +31,20 @@ $red:      #f38ba8;
   margin: 0 2px;
 }
 
+.pill-right {
+  margin-right: 0;
+  padding-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.pill-left {
+  margin-left: 0;
+  padding-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 .module {
   padding: 0 6px;
   color: $text;
@@ -88,13 +102,14 @@ $red:      #f38ba8;
 .power {
   color: $red;
   background: transparent;
+  padding-right: 20px;
 }
 
 // ── power menu ────────────────────────────────────────────────────────
 
 .power-btn {
   background: transparent;
-  border-radius: 8px;
+  border-radius: 5px;
   padding: 6px 10px;
   font-size: 13px;
   color: $text;
@@ -179,31 +194,6 @@ $red:      #f38ba8;
 
 .popup-bar-swap {
   highlight { background: $peach; }
-}
-
-// ── cpu history ───────────────────────────────────────────────────────
-
-.cpu-history {
-  background-color: rgba($base, 0.88);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
-
-.cpu-history-title {
-  color: $peach;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.cpu-history-cur {
-  color: $subtext;
-  font-size: 12px;
-}
-
-.cpu-history-graph {
-  color: $peach;
-  background-color: rgba($surface0, 0.5);
-  border-radius: 4px;
 }
 
 // ── sink selector ──────────────────────────────────────────────────────

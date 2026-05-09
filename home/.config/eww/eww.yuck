@@ -91,7 +91,7 @@
     (bar-right)))
 
 (defwidget bar-left [wss]
-  (box :class "pill" :orientation "h" :spacing 4 :space-evenly false :halign "start"
+  (box :class "pill pill-left" :orientation "h" :spacing 4 :space-evenly false :halign "start"
     (workspaces-widget :wss wss)
     (active-window-widget)))
 
@@ -100,7 +100,7 @@
     (clock-widget)))
 
 (defwidget bar-right []
-  (box :class "pill" :orientation "h" :spacing 0 :space-evenly false :halign "end"
+  (box :class "pill pill-right" :orientation "h" :spacing 0 :space-evenly false :halign "end"
     (dnd-widget)
     (language-widget)
     (volume-widget)
