@@ -5,7 +5,7 @@
 #   hyprpaper-set              — open wofi picker from ~/Pictures/wallpapers/
 #   hyprpaper-set /path/to/img — apply directly without picker
 
-WALLPAPER_DIR="${WALLPAPER_DIR:-${HOME}/Pictures/wallpapers}"
+WALLPAPER_DIR="${WALLPAPER_DIR:-${HOME}/Pictures}"
 
 apply() {
   local img="$1"

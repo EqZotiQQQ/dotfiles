@@ -52,7 +52,6 @@ window#waybar.hidden {
 #cpu,
 #temperature,
 #memory,
-#tray,
 #custom-dnd {
     padding: 0 6px;
     color: @text;
@@ -138,19 +137,6 @@ window#waybar.hidden {
 /* ── memory ───────────────────────────────────────────────── */
 #memory {
     color: @mauve;
-}
-
-/* ── tray ─────────────────────────────────────────────────── */
-#tray {
-    padding: 0 4px;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-    -gtk-icon-effect: highlight;
 }
 
 /* ── DND ──────────────────────────────────────────────────── */

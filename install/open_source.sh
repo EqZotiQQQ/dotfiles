@@ -9,7 +9,6 @@ set -euo pipefail
 #   --i3lock   i3lock-color + multilockscreen  (X11, Ubuntu deps via apt)
 #   --rofi     rofi + rofi-themes-collection   (Ubuntu deps via apt)
 #   --picom    picom compositor                (X11/Ubuntu, not needed on Hyprland)
-#   --cava     cava audio visualizer           (Ubuntu deps via apt)
 #
 # Profiles
 #   --all      everything
@@ -21,7 +20,6 @@ mkdir -p "${OPEN_SOURCE_DIR}"
 DO_I3LOCK=false
 DO_ROFI=false
 DO_PICOM=false
-DO_CAVA=false
 
 usage() {
     cat <<EOF
@@ -31,7 +29,6 @@ Component flags:
   --i3lock    i3lock-color + multilockscreen (X11 lock screen)
   --rofi      rofi launcher + themes collection
   --picom     picom compositor (X11 only, not needed on Hyprland)
-  --cava      cava audio visualizer
 
 Profiles:
   --all       everything
@@ -48,8 +45,7 @@ for arg in "$@"; do
         --i3lock)  DO_I3LOCK=true ;;
         --rofi)    DO_ROFI=true ;;
         --picom)   DO_PICOM=true ;;
-        --cava)    DO_CAVA=true ;;
-        --all)     DO_I3LOCK=true; DO_ROFI=true; DO_PICOM=true; DO_CAVA=true ;;
+        --all)     DO_I3LOCK=true; DO_ROFI=true; DO_PICOM=true ;;
         -h|--help) usage ;;
         *) echo "Unknown option: $arg"; usage ;;
     esac
@@ -141,25 +137,10 @@ install_picom() {
     )
 }
 
-install_cava() {
-    echo "==> [cava] install"
-    sudo add-apt-repository ppa:hsheth2/ppa -y
-    sudo apt update
-    sudo apt install -y \
-        cava \
-        libfftw3-dev \
-        libasound2-dev \
-        libncursesw5-dev \
-        libpulse-dev \
-        libtool \
-        automake
-}
-
 # ---------------------------------------------------------------------------
 
 $DO_I3LOCK && install_i3lock
 $DO_ROFI   && install_rofi
 $DO_PICOM  && install_picom
-$DO_CAVA   && install_cava
 
 echo "==> Done."

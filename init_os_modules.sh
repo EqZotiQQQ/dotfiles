@@ -95,6 +95,33 @@ run_symlinks() {
     python3 "${SCRIPT_DIR}/install/main.py" "${py_args[@]}"
 }
 
+run_wallpapers() {
+    local src="${SCRIPT_DIR}/wallpapers"
+    [[ -d "$src" ]] || return 0
+
+    local dest="${HOME}/Pictures/wallpapers"
+    mkdir -p "$dest"
+    echo "==> Symlinking wallpapers into ${dest}"
+
+    for file in "$src"/*; do
+        [[ -e "$file" ]] || continue
+        local name
+        name="$(basename "$file")"
+        local target="${dest}/${name}"
+        if [[ -e "$target" || -L "$target" ]]; then
+            if $OVERWRITE; then
+                ln -sf "$file" "$target"
+                echo "    overwrite: ${name}"
+            else
+                echo "    skip (exists): ${name}"
+            fi
+        else
+            ln -s "$file" "$target"
+            echo "    link: ${name}"
+        fi
+    done
+}
+
 # ---------------------------------------------------------------------------
 
 if [[ -z "$OS" ]]; then
@@ -105,5 +132,6 @@ fi
 [[ -n "$PROFILE" || ${#PROFILE_ARGS[@]} -gt 0 ]] && run_install "$OS"
 $OPEN_SOURCE && run_open_source
 $DO_SYMLINKS && run_symlinks
+$DO_SYMLINKS && run_wallpapers
 
 echo "==> Done."

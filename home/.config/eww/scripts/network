@@ -40,7 +40,14 @@ printf "iface_prev=%s\nrx_prev=%d\ntx_prev=%d\ntime_prev=%d\n" \
     "$iface" "$rx_now" "$tx_now" "$time_now" > "$CACHE"
 
 if [[ "$iface" == wl* ]]; then
-    signal=$(nmcli -t -f active,signal dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2)
+    dbm=$(iw dev "$iface" link 2>/dev/null | awk '/signal/{print $2}')
+    if [ -n "$dbm" ]; then
+        signal=$(( 2 * (dbm + 100) ))
+        [ "$signal" -gt 100 ] && signal=100
+        [ "$signal" -lt 0 ]   && signal=0
+    else
+        signal=0
+    fi
     prefix="󰤨  ${signal}%"
 else
     prefix="󰈀  $iface"

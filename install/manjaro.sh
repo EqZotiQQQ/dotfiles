@@ -150,9 +150,9 @@ install_wm() {
         hyprshot \
         hypridle \
         hyprpolkitagent \
-        cava \
         hyprlock \
-        xdg-desktop-portal-hyprland
+        xdg-desktop-portal-hyprland \
+        socat
 }
 
 install_dev() {
@@ -182,7 +182,8 @@ install_apps() {
         qbittorrent \
         nekobox \
         dolphin \
-        mpv
+        mpv \
+        wtype
 }
 
 install_fonts() {

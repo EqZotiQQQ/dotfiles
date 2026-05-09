@@ -2,6 +2,7 @@
 # hypr-keys — beautiful keybindings cheatsheet for Hyprland
 
 CONF="${HOME}/.config/hypr/hyprland.conf"
+KEYBINDINGS_CONF="${HOME}/.config/hypr/keybindings.conf"
 
 # ── Catppuccin Mocha palette ───────────────────────────────────
 RESET=$'\033[0m'
@@ -43,16 +44,22 @@ if [[ ! -f "$CONF" ]]; then
   printf "${MAUVE}File not found: %s${RESET}\n" "$CONF" >&2
   exit 1
 fi
+if [[ ! -f "$KEYBINDINGS_CONF" ]]; then
+  printf "${MAUVE}File not found: %s${RESET}\n" "$KEYBINDINGS_CONF" >&2
+  exit 1
+fi
 
-# Pass 1: collect $variables
+# Pass 1: collect $variables from both files
 declare -A vars
-while IFS= read -r line; do
-  [[ "$line" =~ ^[[:space:]]*# ]] && continue
-  if [[ "$line" =~ ^\$([A-Za-z_][A-Za-z_0-9]*)[[:space:]]*=[[:space:]]*(.+)$ ]]; then
-    val="${BASH_REMATCH[2]%%#*}"   # strip inline comment
-    vars["${BASH_REMATCH[1]}"]="$(trim "$val")"
-  fi
-done < "$CONF"
+for f in "$CONF" "$KEYBINDINGS_CONF"; do
+  while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    if [[ "$line" =~ ^\$([A-Za-z_][A-Za-z_0-9]*)[[:space:]]*=[[:space:]]*(.+)$ ]]; then
+      val="${BASH_REMATCH[2]%%#*}"   # strip inline comment
+      vars["${BASH_REMATCH[1]}"]="$(trim "$val")"
+    fi
+  done < "$f"
+done
 
 expand() {
   local s="$1" prev=""
@@ -160,6 +167,6 @@ while IFS= read -r line; do
       "$COL_KEY" "$combo_display" "$action_display"
   fi
 
-done < "$CONF"
+done < "$KEYBINDINGS_CONF"
 
 echo

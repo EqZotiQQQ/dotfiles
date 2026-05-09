@@ -24,7 +24,7 @@
   :initial "0"
   `free | awk '/Mem:/{printf "%d", $3/$2*100}'`)
 
-(defpoll audio-sinks :interval "5s"
+(defpoll audio-sinks :interval "100ms"
   :initial "[]"
   `~/.config/eww/scripts/audio-sinks`)
 
@@ -51,9 +51,6 @@
   :initial "EN"
   `hyprctl devices -j | jq -r '[.keyboards[] | select(.main==true)][0].active_keymap' | grep -qi "russian" && echo "RU" || echo "EN"`)
 
-(deflisten cava-bars
-  :initial "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]"
-  `~/.config/eww/scripts/cava`)
 
 (defpoll dnd-status :interval "1s"
   :initial "false"
@@ -74,6 +71,8 @@
   `~/.config/eww/scripts/active-window`)
 
 ; ── state vars ────────────────────────────────────────────────────────
+
+(defvar cpu-graph-secs 60)
 
 (defvar show-date false)
 (defvar volume-opacity 1)
@@ -155,7 +154,7 @@
     {dnd-status == "true" ? "󰂛" : "󰂚"}))
 
 (defwidget language-widget []
-  (label :class "language module" :text "  ${language}"))
+  (label :class "language module" :xalign 0.5 :text "  ${language}"))
 
 (defwidget volume-widget []
   (eventbox
@@ -163,6 +162,7 @@
     :onscroll       "~/.config/eww/scripts/volume {}"
     :onrightclick   "~/.config/eww/scripts/popup-open sink-popup-window"
     (label :class "volume module"
+           :xalign 0.5
            :text {volume-text}
            :style "opacity: ${volume-opacity}; transition: opacity 150ms ease;")))
 
@@ -177,21 +177,21 @@
           {sink.active ? "  ${sink.desc}" : "   ${sink.desc}"})))))
 
 (defwidget network-widget []
-  (label :class "network module" :text {network-text}))
+  (label :class "network module" :xalign 0.5 :text {network-text}))
 
 (defwidget cpu-widget []
   (eventbox
     :onhover     "~/.config/eww/scripts/popup-open cpu-popup-window cpu-pin"
     :onhoverlost "~/.config/eww/scripts/popup-hover-out cpu-popup-window cpu-pin"
     :onclick     "~/.config/eww/scripts/popup-toggle cpu-popup-window cpu-pin"
-    (label :class "cpu module" :text "  ${cpu-usage}%")))
+    (label :class "cpu module" :xalign 0.5 :text "  ${cpu-usage}%")))
 
 (defwidget temp-widget []
   (eventbox
     :onhover     "~/.config/eww/scripts/popup-open temp-popup-window temp-pin"
     :onhoverlost "~/.config/eww/scripts/popup-hover-out temp-popup-window temp-pin"
     :onclick     "~/.config/eww/scripts/popup-toggle temp-popup-window temp-pin"
-    (label :class "temperature module" :text "  ${temperature}°C")))
+    (label :class "temperature module" :xalign 0.5 :text "  ${temperature}°C")))
 
 (defwidget cpu-popup-widget []
   (box :orientation "v" :spacing 2 :class "popup-box"
@@ -219,7 +219,7 @@
     :onhover     "~/.config/eww/scripts/popup-open ram-popup-window ram-pin"
     :onhoverlost "~/.config/eww/scripts/popup-hover-out ram-popup-window ram-pin"
     :onclick     "~/.config/eww/scripts/popup-toggle ram-popup-window ram-pin"
-    (label :class "memory module" :text "  ${memory-pct}%")))
+    (label :class "memory module" :xalign 0.5 :text "  ${memory-pct}%")))
 
 (defwidget ram-popup-widget []
   (box :orientation "v" :spacing 2 :class "popup-box"
@@ -308,67 +308,6 @@
   :stacking "fg" :focusable false
   (ram-popup-widget))
 
-; ── square ────────────────────────────────────────────────────────────
-
-(defwidget square []
-  (box :class "square"))
-
-(defwindow square
-  :monitor 0
-  :geometry (geometry
-    :x "40px"
-    :y "60px"
-    :width "80px"
-    :height "80px"
-    :anchor "top left")
-  :stacking "bg"
-  :exclusive false
-  :focusable false
-  (square))
-
-; ── bottom panel ──────────────────────────────────────────────────────
-
-(defwidget cava-widget []
-  (box :class "cava" :orientation "h" :spacing 2 :hexpand true :halign "fill" :valign "end"
-    (for bar in cava-bars
-      (box :class "cava-bar-wrap" :orientation "v" :valign "end" :hexpand true
-        (box :class "cava-bar"
-             :style "min-height: ${bar * 3}px;")))))
-
-(defwidget bottom-panel []
-  (box :class "bottom-panel" :orientation "v" :valign "end"
-    (cava-widget)))
-
-(defwindow bottom-panel
-  :monitor 0
-  :geometry (geometry
-    :x "0%"
-    :y "4px"
-    :width "100%"
-    :height "360px"
-    :anchor "bottom center")
-  :stacking "bottom"
-  :exclusive true
-  :focusable false
-  (bottom-panel))
-
-; ── tray ──────────────────────────────────────────────────────────────
-
-(defwidget tray-widget []
-  (box :class "tray-panel" :orientation "v" :space-evenly false :halign "center"
-    (systray :orientation "v" :icon-size 18 :spacing 6)))
-
-(defwindow tray
-  :monitor 0
-  :geometry (geometry
-    :x "4px"
-    :y "44px"
-    :width "32px"
-    :anchor "top left")
-  :stacking "bottom"
-  :exclusive false
-  :focusable false
-  (tray-widget))
 
 ; ── window ────────────────────────────────────────────────────────────
 
@@ -376,7 +315,7 @@
   :monitor 1
   :geometry (geometry
     :x "0%"
-    :y "4px"
+    :y "0px"
     :width "100%"
     :height "36px"
     :anchor "top center")
@@ -389,7 +328,7 @@
   :monitor 0
   :geometry (geometry
     :x "0%"
-    :y "4px"
+    :y "0px"
     :width "100%"
     :height "36px"
     :anchor "top center")
@@ -397,3 +336,45 @@
   :exclusive true
   :focusable false
   (bar :wss workspaces2))
+
+; ── cpu history ───────────────────────────────────────────────────────
+
+(defwidget cpu-history-widget []
+  (box :class "cpu-history" :orientation "v" :spacing 6 :space-evenly false
+    (box :orientation "h" :space-evenly false
+      (label :class "cpu-history-title" :text " CPU")
+      (label :class "cpu-history-cur" :xalign 1 :hexpand true :text "${cpu-usage}%"))
+    (graph
+      :class "cpu-history-graph"
+      :value cpu-usage
+      :min 0
+      :max 100
+      :time-range cpu-graph-secs
+      :thickness 2
+      :dynamic false
+      :hexpand true
+      :vexpand true)))
+
+(defwindow square
+  :monitor 0
+  :geometry (geometry
+    :x "20px"
+    :y "20px"
+    :width "280px"
+    :height "110px"
+    :anchor "bottom right")
+  :stacking "bottom"
+  :focusable false
+  (cpu-history-widget))
+
+(defwindow square-1
+  :monitor 1
+  :geometry (geometry
+    :x "20px"
+    :y "20px"
+    :width "280px"
+    :height "110px"
+    :anchor "bottom right")
+  :stacking "bottom"
+  :focusable false
+  (cpu-history-widget))
