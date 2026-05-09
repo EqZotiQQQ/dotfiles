@@ -19,13 +19,17 @@ $red:      #f38ba8;
   outline: none;
 }
 
+window {
+  background-color: transparent;
+}
+
 .bar {
   background: transparent;
   margin: 0;
 }
 
 .pill {
-  background-color: $base;
+  background-color: rgba(30, 30, 46, 0.5);
   border-radius: 10px;
   padding: 0 2px;
   margin: 0 2px;

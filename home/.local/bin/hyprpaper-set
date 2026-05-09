@@ -5,7 +5,6 @@
 #   hyprpaper-set              — open wofi picker from ~/Pictures/wallpapers/
 #   hyprpaper-set /path/to/img — apply directly without picker
 
-WALLPAPER_DIR="${WALLPAPER_DIR:-${HOME}/Pictures}"
 
 apply() {
   local img="$1"
@@ -16,7 +15,8 @@ apply() {
   hyprctl hyprpaper preload "$img"
 
   for mon in "${monitors[@]}"; do
-    hyprctl hyprpaper wallpaper "$mon,$img"
+    hyprctl hyprpaper wallpaper \"$mon,$img\"
+    echo "hyprctl hyprpaper wallpaper $mon,$img"
   done
 }
 
@@ -27,20 +27,20 @@ if [[ -n "$1" ]]; then
 fi
 
 # ── pick via wofi ─────────────────────────────────────────────
-if [[ ! -d "$WALLPAPER_DIR" ]]; then
-  echo "Wallpaper dir not found: $WALLPAPER_DIR" >&2
+if [[ ! -d "${WALLPAPER_DIR}" ]]; then
+  echo "Wallpaper dir not found: ${WALLPAPER_DIR}" >&2
   echo "Create it or set WALLPAPER_DIR env var." >&2
   exit 1
 fi
 
 mapfile -t images < <(
-  find "$WALLPAPER_DIR" -type f \( \
+  find -L "${WALLPAPER_DIR}" -type f \( \
     -iname "*.jpg" -o -iname "*.jpeg" -o \
     -iname "*.png" -o -iname "*.webp"  \
   \) | sort
 )
 
-[[ ${#images[@]} -eq 0 ]] && { echo "No images found in $WALLPAPER_DIR" >&2; exit 1; }
+[[ ${#images[@]} -eq 0 ]] && { echo "No images found in ${WALLPAPER_DIR}" >&2; exit 1; }
 
 selected=$(printf '%s\n' "${images[@]}" | \
   awk -F/ '{print $NF, $0}' | \
@@ -49,4 +49,32 @@ selected=$(printf '%s\n' "${images[@]}" | \
 
 [[ -z "$selected" ]] && exit 0
 
+echo "$selected"
 apply "$selected"
+
+
+
+#!/usr/bin/env bash
+
+# # WALLPAPER_DIR="$HOME/Pictures/wallpapers/"
+# CURRENT_WALL=$(hyprctl hyprpaper listloaded)
+
+# # Get a random wallpaper that is not the current one
+# WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+
+# # Apply the selected wallpaper
+# hyprctl hyprpaper reload ,"$WALLPAPER"
+
+# #!/usr/bin/env bash
+
+# WALLPAPER_DIR="$HOME/wallpapers/"
+# CURRENT_WALL=$(hyprctl hyprpaper listloaded)
+# # Get the name of the focused monitor with hyprctl
+# FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+# # Get a random wallpaper that is not the current one
+# WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+
+# # Apply the selected wallpaper
+# hyprctl hyprpaper reload "$FOCUSED_MONITOR","$WALLPAPER"
+
+# echo zalupa

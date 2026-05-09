@@ -16,3 +16,6 @@ export MANWIDTH=999
 # Lang toolchains
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+
+# Wallpapers
+export WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
