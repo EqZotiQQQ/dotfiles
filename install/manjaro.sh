@@ -5,7 +5,7 @@ set -euo pipefail
 # Groups
 #   base      — system update, base-devel, paru AUR helper
 #   shell     — zsh (zinit is auto-bootstrapped by plugins.zsh)
-#   cli       — modern CLI replacements: eza, bat, duf, ripgrep, fzf, htop
+#   cli       — modern CLI replacements: eza, bat, duf, ripgrep, fzf, htop, delta
 #   terminal  — kitty, terminator
 #   editor    — neovim + AstroNvim, VS Code
 #   wm        — Hyprland stack: waybar, mako, wofi, wlogout, rofi, flameshot, i3lock
@@ -36,7 +36,7 @@ Usage: $(basename "$0") [OPTIONS]
 Component flags:
   --base        System update, base-devel, paru
   --shell       Zsh
-  --cli         eza, bat, duf, ripgrep, fzf, htop
+  --cli         eza, bat, duf, ripgrep, fzf, htop, delta
   --terminal    Kitty, Terminator
   --editor      Neovim (AstroNvim), VS Code
   --wm          Hyprland, Waybar, Mako, Wofi, Wlogout, Rofi, Flameshot, i3lock
@@ -104,8 +104,8 @@ install_shell() {
 }
 
 install_cli() {
-    echo "==> [cli] eza, bat, duf, ripgrep, fzf, htop"
-    paru -S --skipreview --noconfirm eza bat duf ripgrep fzf htop
+    echo "==> [cli] eza, bat, duf, ripgrep, fzf, htop, delta"
+    paru -S --skipreview --noconfirm eza bat duf ripgrep fzf htop git-delta
 
     if [[ ! -d "$HOME/.fzf" ]]; then
         git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
@@ -162,7 +162,11 @@ install_dev() {
         make \
         bash-language-server \
         docker \
-        docker-compose
+        docker-compose \
+        python3 \
+        python-pip \
+        poetry \
+        iperf3
 
     echo "==> [dev] docker post-setup"
     sudo groupadd docker 2>/dev/null || true

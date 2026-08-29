@@ -24,3 +24,15 @@ alias l='ls --long --all --group'
 alias ll='ls --long'
 alias la='ls --long --almost-all'
 alias lsa='ls --long --all --group --header'
+
+if (( $+commands[eza] )); then
+  alias ls='eza --group-directories-first'
+  alias l='eza -la --group --header'
+  alias ll='eza -l'
+  alias la='eza -la'
+else
+  alias ls='ls --color=auto'
+  alias l='ls -lAh'
+  alias ll='ls -lh'
+  alias la='ls -lAh'
+fi

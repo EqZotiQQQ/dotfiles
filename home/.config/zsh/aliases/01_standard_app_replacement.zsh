@@ -1,7 +1,7 @@
 alias vim="nvim"
 
-if command -v exa >/dev/null 2>&1; then
-  alias ls='exa'
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza'
 else
   alias ls='ls --color' 
 fi

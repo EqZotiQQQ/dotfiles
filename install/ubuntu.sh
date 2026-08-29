@@ -5,7 +5,7 @@ set -euo pipefail
 # Groups
 #   base      — apt update/upgrade, build-essential, git, curl
 #   shell     — zsh
-#   cli       — eza, bat, ripgrep, fzf, htop, net-tools, duf
+#   cli       — eza, bat, ripgrep, fzf, htop, net-tools, duf, delta
 #   terminal  — kitty
 #   editor    — neovim + AstroNvim
 #   cpp       — gcc, clang, cmake, make, ninja, meson, libstdc++ headers
@@ -44,7 +44,7 @@ Usage: $(basename "$0") [OPTIONS]
 Component flags:
   --base        apt update/upgrade, build-essential, git, curl
   --shell       Zsh
-  --cli         eza, bat, ripgrep, fzf, htop, net-tools, duf
+  --cli         eza, bat, ripgrep, fzf, htop, net-tools, duf, delta
   --terminal    Kitty
   --editor      Neovim (AstroNvim)
   --cpp         gcc, clang, cmake, make, ninja, meson, libstdc++ headers
@@ -142,6 +142,23 @@ install_cli() {
         sudo dpkg -i "$tmp/duf.deb"
     else
         echo "==> [cli] duf already installed, skipping"
+    fi
+
+    # delta — git-delta есть в apt с Ubuntu 23.04, иначе .deb с GitHub
+    if ! command -v delta &>/dev/null; then
+        if apt-cache show git-delta &>/dev/null; then
+            sudo apt install -y git-delta
+        else
+            local tmp; tmp=$(mktemp -d)
+            curl -s https://api.github.com/repos/dandavison/delta/releases/latest \
+                | grep '"browser_download_url".*git-delta_.*_amd64.deb' \
+                | cut -d '"' -f 4 \
+                | head -n1 \
+                | xargs curl -L -o "$tmp/delta.deb"
+            sudo dpkg -i "$tmp/delta.deb"
+        fi
+    else
+        echo "==> [cli] delta already installed, skipping"
     fi
 
     # fzf

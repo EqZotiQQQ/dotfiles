@@ -3,7 +3,7 @@ My personal dotfiles config
 Window manager: ~Awesome~ Hyprland
 Shell: Zsh
 Screenlock: i3lock
-Terminal emulator: Kitty/Terminator
+Terminal emulator: Kitty
 Window switcher: Wofi
 Screenshot tool: Flameshot
 
@@ -23,3 +23,6 @@ systemctl --user daemon-reload && \
 systemctl --user enable waybar_live_reload.service && \
 systemctl --user start waybar_live_reload.service
 ```
+
+
+git-delta: https://dandavison.github.io/delta/installation.html

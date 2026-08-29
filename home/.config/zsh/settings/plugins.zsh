@@ -11,7 +11,6 @@ zinit light "romkatv/powerlevel10k"
 # misc plugins — load synchronously (lightweight)
 zinit light "ael-code/zsh-colored-man-pages"
 zinit light "RobertDeRose/virtualenv-autodetect"
-(( $+commands[diff-so-fancy] )) && zinit light "z-shell/zsh-diff-so-fancy"
 zinit light "xvoland/Extract"
 
 # deferred plugins — loaded after first prompt
@@ -27,8 +26,6 @@ zinit wait lucid for \
     ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=vi-cmd-mode
     _zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions
-
-zinit light zsh-users/zsh-syntax-highlighting
 
 zinit wait lucid light-mode for \
   Aloxaf/fzf-tab

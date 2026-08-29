@@ -174,7 +174,7 @@ All zsh config lives in `home/.config/zsh/`:
 - `.zshrc` — plugins (Zinit), prompt (p10k), sources all `aliases/*`
 - `settings/plugins.zsh` — Zinit plugin declarations
 - `settings/bindings.zsh` — key bindings
-- `aliases/01_standard_app_replacement.zsh` — modern CLI replacements: `exa`→`ls`, `bat`→`cat`, `duf`→`df`, `rg`→`grep`, `nvim`→`vim`
+- `aliases/01_standard_app_replacement.zsh` — modern CLI replacements: `eza`→`ls`, `bat`→`cat`, `duf`→`df`, `rg`→`grep`, `nvim`→`vim`
 - `aliases/03_git.zsh` — git shortcuts (`gs`, `gaa`, `gps`, `gpl`, `gd`, `gl`, `gc`, `gcm`, etc.)
 
 ## Scripts
