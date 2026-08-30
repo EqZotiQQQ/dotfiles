@@ -23,7 +23,6 @@ set -euo pipefail
 #   --full         everything
 # ---------------------------------------------------------------------------
 
-echo 42
 DO_BASE=false
 DO_SHELL=false
 DO_CLI=false

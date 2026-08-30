@@ -33,3 +33,6 @@ for file in ${ZDOTDIR}/aliases/*; do
 done
 
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# host-specific env
+[[ -r "${ZDOTDIR}/env.local.zsh" ]] && source "${ZDOTDIR}/env.local.zsh"
