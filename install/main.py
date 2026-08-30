@@ -26,9 +26,11 @@ def recursive_update_symlinks(
                 skipped += 1
                 continue
             try:
-                if overwrite and dst_object.exists():
+                exists = dst_object.exists() or dst_object.is_symlink()
+                if overwrite and exists:
                     dst_object.unlink()
-                if dst_object.exists():
+                    exists = False
+                if exists:
                     logging.info(f"skip (exists): {dst_object}")
                     skipped += 1
                 else:
@@ -85,10 +87,17 @@ if __name__ == "__main__":
 
     if settings.symlinks:
         total_created = total_skipped = total_failed = 0
-        
-        def update_symlinks(source: pathlib.Path, dst_dir: pathlib.Path):
-            dst_dir.mkdir(parents=True, exist_ok=True)
-            
+
+        bindings = {settings.config_directory: settings.config_destination}
+        if (etc_src := install_dir.parent / "etc").exists():
+            bindings[etc_src] = pathlib.Path("/etc")
+        else:
+            logging.debug("no etc/ directory found, skipping")
+
+        for source, dst_dir in bindings.items():
+            if settings.update_symlinks:
+                dst_dir.mkdir(parents=True, exist_ok=True)
+
             c, s, f = recursive_update_symlinks(
                 source=source,
                 dst_dir=dst_dir,
@@ -98,15 +107,6 @@ if __name__ == "__main__":
             total_created += c
             total_skipped += s
             total_failed += f
-            
-        settings.config_destination.mkdir(parents=True, exist_ok=True)
-            
-        update_symlinks(settings.config_directory, settings.config_destination)
-        
-        if (etc_src := pathlib.Path(__file__).parent.parent / "etc").exists():
-            update_symlinks(etc_src, pathlib.Path("/etc"))
-        else:
-            logging.debug("no etc/ directory found, skipping")
 
         if not settings.update_symlinks:
             print("\nDry run complete — use -f to apply symlinks.")
