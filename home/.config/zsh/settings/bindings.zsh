@@ -27,6 +27,4 @@ bindkey "^[[3;6~" backward-kill-line
 # Ctrl+R — fzf history search (provided by ~/.fzf.zsh key-bindings)
 # fzf key-bindings.zsh is sourced in .zshrc via ~/.fzf.zsh
 
-
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+# ↑/↓ — history-substring-search; биндятся в plugins.zsh через atload

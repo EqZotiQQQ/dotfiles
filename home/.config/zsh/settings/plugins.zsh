@@ -30,4 +30,8 @@ zinit wait lucid for \
 zinit wait lucid light-mode for \
   Aloxaf/fzf-tab
 
-zinit light zsh-users/zsh-history-substring-search
+# history-substring-search — грузится после подсветки (требование upstream);
+# bindkey в atload, чтобы биндов не было, если плагин не загрузился
+zinit wait lucid for \
+  atload'bindkey "^[[A" history-substring-search-up; bindkey "^[[B" history-substring-search-down' \
+    zsh-users/zsh-history-substring-search
