@@ -1,0 +1,20 @@
+{
+    "editor.minimap.enabled": false,
+    "files.autoSave": "onFocusChange",
+    "editor.mouseWheelZoom": true,
+    "workbench.editor.revealIfOpen": true,
+    "workbench.colorTheme": "Visual Studio Light",
+    "explorer.confirmDragAndDrop": false,
+    "claudeCode.preferredLocation": "panel",
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "explorer.confirmDelete": false,
+    "[cpp]": {},
+    "workbench.colorCustomizations": {},
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "chat.disableAIFeatures": true,
+    "workbench.settings.applyToAllProfiles": [
+        "chat.disableAIFeatures"
+    ],
+    "editor.inlayHints.enabled": "off",
+    "editor.formatOnSave": true // hide type hints
+}
