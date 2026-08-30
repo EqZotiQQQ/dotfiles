@@ -62,12 +62,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Configure unix system")
     AppSettings.add_args(parser)
     args = parser.parse_args()
-
+    
     try:
         settings = AppSettings.from_args(args)
     except ValueError as e:
         parser.error(str(e))
+        exit(1)
 
+    logging.info(f"Executing script with settings:\n{settings}")
+    
     install_dir = pathlib.Path(__file__).parent
 
     # TODO: merge it to unified solution
