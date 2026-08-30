@@ -43,6 +43,7 @@ def recursive_update_symlinks(
         else:
             if apply and not dst_object.exists():
                 dst_object.mkdir(parents=True, exist_ok=True)
+
             c, s, f = recursive_update_symlinks(
                 source=src_object,
                 dst_dir=dst_object,
@@ -67,6 +68,7 @@ if __name__ == "__main__":
 
     install_dir = pathlib.Path(__file__).parent
 
+    # TODO: merge it to unified solution
     if settings.install_ubuntu_apps:
         cmd = [str(install_dir / "ubuntu.sh")] + settings.ubuntu_opts
         ret = subprocess.call(cmd)
@@ -83,29 +85,26 @@ if __name__ == "__main__":
 
     if settings.symlinks:
         total_created = total_skipped = total_failed = 0
-
-        settings.config_destination.mkdir(parents=True, exist_ok=True)
-        c, s, f = recursive_update_symlinks(
-            source=settings.config_directory,
-            dst_dir=settings.config_destination,
-            apply=settings.update_symlinks,
-            overwrite=settings.overwrite,
-        )
-        total_created += c
-        total_skipped += s
-        total_failed += f
-
-        etc_src = pathlib.Path(__file__).parent.parent / "etc"
-        if etc_src.exists():
+        
+        def update_symlinks(source: pathlib.Path, dst_dir: pathlib.Path):
+            dst_dir.mkdir(parents=True, exist_ok=True)
+            
             c, s, f = recursive_update_symlinks(
-                source=etc_src,
-                dst_dir=pathlib.Path("/etc"),
+                source=source,
+                dst_dir=dst_dir,
                 apply=settings.update_symlinks,
                 overwrite=settings.overwrite,
             )
             total_created += c
             total_skipped += s
             total_failed += f
+            
+        settings.config_destination.mkdir(parents=True, exist_ok=True)
+            
+        update_symlinks(settings.config_directory, settings.config_destination)
+        
+        if (etc_src := pathlib.Path(__file__).parent.parent / "etc").exists():
+            update_symlinks(etc_src, pathlib.Path("/etc"))
         else:
             logging.debug("no etc/ directory found, skipping")
 
