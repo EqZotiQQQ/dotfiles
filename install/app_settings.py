@@ -9,6 +9,7 @@ DEFAULT_USER_LOCATION = pathlib.Path.home()
 class AppSettings:
     symlinks: bool
     status: bool
+    adopt: list
     update_symlinks: bool
     overwrite: bool
     install_ubuntu_apps: bool
@@ -38,6 +39,16 @@ class AppSettings:
             "--status",
             action="store_true",
             help="Report how every config file in the repo maps to its destination and exit 1 on any divergence",
+        )
+        parser.add_argument(
+            "--adopt",
+            nargs="+",
+            default=[],
+            metavar="PATH",
+            type=pathlib.Path,
+            help="Move existing files from the system into the repo and symlink them back. "
+                 "Accepts files or directories. Dry-run unless -f is given; "
+                 "-o takes the system version when the repo already has a different copy",
         )
         parser.add_argument(
             "-f",
@@ -83,6 +94,7 @@ class AppSettings:
         return AppSettings(
             symlinks=args.symlinks,
             status=args.status,
+            adopt=args.adopt,
             update_symlinks=args.force_symlink_update,
             overwrite=args.overwrite_existing_files,
             install_ubuntu_apps=args.ubuntu_apps,

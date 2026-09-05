@@ -6,6 +6,7 @@ import filecmp
 import logging
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -123,6 +124,97 @@ def report_status(bindings: dict, repo_root: pathlib.Path) -> int:
     return 1 if problems else 0
 
 
+def repo_path_for(live: pathlib.Path, bindings: dict) -> pathlib.Path | None:
+    """Map a live path back to the repo file that should hold it."""
+    for source_root, dst_root in bindings.items():
+        try:
+            return source_root / live.relative_to(dst_root)
+        except ValueError:
+            continue
+    return None
+
+
+def adopt_targets(path: pathlib.Path):
+    """A directory adopts every file under it; anything else adopts itself."""
+    if path.is_dir() and not path.is_symlink():
+        yield from (child for child in sorted(path.rglob("*")) if not child.is_dir())
+    else:
+        yield path
+
+
+def adopt_file(
+    live: pathlib.Path,
+    repo_file: pathlib.Path,
+    apply: bool,
+    overwrite: bool,
+) -> tuple[str, str]:
+    if live.is_symlink():
+        return "skip", "already a symlink"
+    if not live.exists():
+        return "error", "no such file"
+
+    if repo_file.exists():
+        if filecmp.cmp(live, repo_file, shallow=False):
+            action = "relink"  # identical content, only the symlink is missing
+        elif overwrite:
+            action = "replace"  # repo copy loses to the live one
+        else:
+            return "refuse", f"repo copy differs — diff {repo_file} {live} — then re-run with -o"
+    else:
+        action = "adopt"
+
+    if not apply:
+        return f"[dry-run] {action}", ""
+
+    repo_file.parent.mkdir(parents=True, exist_ok=True)
+    if action == "relink":
+        live.unlink()
+    else:
+        if action == "replace":
+            repo_file.unlink()
+        shutil.move(str(live), str(repo_file))
+    live.symlink_to(repo_file)
+    return action, ""
+
+
+def adopt_paths(
+    paths: list,
+    bindings: dict,
+    repo_root: pathlib.Path,
+    apply: bool,
+    overwrite: bool,
+) -> int:
+    failed = 0
+    for raw in paths:
+        path = pathlib.Path(os.path.abspath(pathlib.Path(raw).expanduser()))
+
+        if repo_root == path or repo_root in path.parents:
+            logging.error(f"refusing to adopt a path inside the repo: {path}")
+            failed += 1
+            continue
+
+        for live in adopt_targets(path):
+            repo_file = repo_path_for(live, bindings)
+            if repo_file is None:
+                logging.error(f"{live} is outside every configured destination — cannot map it into the repo")
+                failed += 1
+                continue
+
+            action, note = adopt_file(live, repo_file, apply, overwrite)
+            message = f"{action}: {live} -> {repo_file}" + (f"  # {note}" if note else "")
+            if action in ("refuse", "error"):
+                logging.error(message)
+                failed += 1
+            else:
+                logging.info(message)
+
+    if not apply:
+        print("\nDry run complete — use -f to move files into the repo.")
+    if failed:
+        print(f"{failed} path(s) need attention.")
+    return 1 if failed else 0
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Configure unix system")
     AppSettings.add_args(parser)
@@ -162,6 +254,17 @@ if __name__ == "__main__":
 
     if settings.status:
         sys.exit(report_status(bindings, repo_root))
+
+    if settings.adopt:
+        sys.exit(
+            adopt_paths(
+                paths=settings.adopt,
+                bindings=bindings,
+                repo_root=repo_root,
+                apply=settings.update_symlinks,
+                overwrite=settings.overwrite,
+            )
+        )
 
     if settings.symlinks:
         total_created = total_skipped = total_failed = 0
