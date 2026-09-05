@@ -8,6 +8,16 @@ Window switcher: Wofi
 Screenshot tool: Flameshot
 
 
+## Setup
+
+```bash
+./dot                             # help
+./dot --profile desktop -s -f     # пакеты + симлинки
+./dot --status                    # что разошлось между репо и ~
+```
+
+Всё через `./dot`; без `-f` — dry-run. Подробности в CLAUDE.md.
+
 ## Монтирование диска с Windows
 
 Used to mount disc with windows that contains icloud with obsidian

@@ -79,52 +79,54 @@ The repo has two config trees:
 
 ## Setup
 
-**Entry point** — `init_os_modules.sh` auto-detects the OS and wires everything together:
+**Единственная точка входа — `./dot`** (тонкий shim над `install/main.py`; вся логика в python).
+Ничего не применяется без `-f` — по умолчанию dry-run.
 
 ```bash
 # Fresh Manjaro install — desktop profile + symlinks:
-./init_os_modules.sh --profile desktop --symlinks
+./dot --profile desktop --symlinks -f
 
 # Fresh Ubuntu install — workstation + build from source + symlinks:
-./init_os_modules.sh --os ubuntu --profile workstation --open-source --symlinks
+./dot --os ubuntu --profile workstation --open-source --symlinks -f
 
-# Only set up dotfile symlinks (overwrite existing):
-./init_os_modules.sh --symlinks --overwrite
-
-# Individual components instead of a profile:
-./init_os_modules.sh --wm --editor --symlinks
+# Отдельные компоненты вместо профиля (OS определяется автоматически):
+./dot --wm --editor
 ```
 
-**`install/`** — все скрипты установки и менеджер симлинков:
+OS берётся из `ID=` в `/etc/os-release`, если не задана через `--os`; имя маппится в `install/<os>.sh`.
+`--profile` и любые нераспознанные `--флаги` пробрасываются в этот скрипт как есть.
+
+**`install/`** — все скрипты установки:
+- `install/main.py` + `install/app_settings.py` — вся логика: пакеты, симлинки, status, adopt
 - `install/manjaro.sh` — paru-based; profiles: `minimal`, `desktop`, `full`
 - `install/ubuntu.sh` — apt-based; profiles: `minimal`, `workstation`, `full`
 - `install/open_source.sh` — builds from source: `--i3lock`, `--rofi`, `--picom`
-- `install/main.py` + `install/app_settings.py` — менеджер симлинков
 
-**Симлинки напрямую** — `install/main.py` управляет `home/` → `~` и `etc/` → `/etc`:
+**Симлинки** — `home/` → `~`, `etc/` → `/etc` (если каталог есть), `wallpapers/` → `~/Pictures/wallpapers`:
 
 ```bash
-python install/main.py --status  # что разошлось между репо и ~ (exit 1 если есть расхождения)
-python install/main.py -s        # dry-run
-python install/main.py -s -f     # применить
-python install/main.py -s -f -o  # применить + перезаписать существующие
+./dot --status  # что разошлось между репо и ~ (exit 1 если есть расхождения)
+./dot -s        # dry-run
+./dot -s -f     # применить
+./dot -s -f -o  # применить + перезаписать существующие
 ```
 
 `--status` классифицирует каждый файл: `linked`, `missing`, `differs` (реальный файл, содержимое разошлось),
 `copy` (реальный файл, содержимое совпадает), `wrong-link`, `broken-link`, `orphan` (ссылка в репо, но исходник удалён).
+`--status` смотрит только на `home/` и `etc/`, обои не проверяет.
 
 **Затащить существующий конфиг в репо** — `--adopt` делает `mv ~/x → home/x` и симлинк обратно:
 
 ```bash
-python install/main.py --adopt ~/.config/kitty        # dry-run, принимает файлы и каталоги
-python install/main.py --adopt ~/.config/kitty -f     # применить
-python install/main.py --adopt ~/.ssh/config -f -o    # применить, забрав системную версию поверх репо
+./dot --adopt ~/.config/kitty        # dry-run, принимает файлы и каталоги
+./dot --adopt ~/.config/kitty -f     # применить
+./dot --adopt ~/.ssh/config -f -o    # применить, забрав системную версию поверх репо
 ```
 
 Если файл уже есть в репо с другим содержимым — `--adopt` отказывается и печатает команду `diff`;
 `-o` разрешает перезаписать репо-версию системной. Симлинки пропускаются, пути внутри репо отклоняются.
 
-Новые файлы в `home/.config/eww/scripts/` симлинкуются по одному — добавить вручную через `ln -s`.
+Новые файлы в репо подхватываются рекурсивно — после добавления достаточно `./dot -s -f`.
 
 ## Hyprland
 

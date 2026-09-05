@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import sys
 
-from app_settings import AppSettings
+from app_settings import EXAMPLES, AppSettings
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
@@ -215,42 +215,52 @@ def adopt_paths(
     return 1 if failed else 0
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Configure unix system")
-    AppSettings.add_args(parser)
-    args = parser.parse_args()
-    
+def detect_os() -> str:
+    """Read ID= out of /etc/os-release."""
     try:
-        settings = AppSettings.from_args(args)
+        for line in pathlib.Path("/etc/os-release").read_text().splitlines():
+            if line.startswith("ID="):
+                return line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return "unknown"
+
+
+def run_script(script: pathlib.Path, args: list) -> int:
+    if not script.exists():
+        logging.error(f"no such install script: {script}")
+        return 1
+    logging.info(f"running {script.name} {' '.join(args)}")
+    return subprocess.call(["bash", str(script), *args])
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="dot",
+        description="Configure a unix system from this dotfiles repo",
+        epilog=EXAMPLES,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    AppSettings.add_args(parser)
+    args, extra_flags = parser.parse_known_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(0)
+
+    try:
+        settings = AppSettings.from_args(args, extra_flags)
     except ValueError as e:
         parser.error(str(e))
-        exit(1)
 
-    logging.info(f"Executing script with settings:\n{settings}")
-    
+    logging.debug(f"settings: {settings}")
+
     install_dir = pathlib.Path(__file__).parent
-    # TODO: merge it to unified solution
-    if settings.install_ubuntu_apps:
-        cmd = [str(install_dir / "ubuntu.sh")] + settings.ubuntu_opts
-        ret = subprocess.call(cmd)
-        if ret != 0:
-            logging.error(f"ubuntu.sh exited with code {ret}")
-            sys.exit(ret)
-
-    if settings.install_manjaro_apps:
-        cmd = [str(install_dir / "manjaro.sh")] + settings.manjaro_opts
-        ret = subprocess.call(cmd)
-        if ret != 0:
-            logging.error(f"manjaro.sh exited with code {ret}")
-            sys.exit(ret)
-
     repo_root = install_dir.parent.resolve()
 
     bindings = {settings.config_directory: settings.config_destination}
     if (etc_src := repo_root / "etc").exists():
         bindings[etc_src] = pathlib.Path("/etc")
-    else:
-        logging.debug("no etc/ directory found, skipping")
 
     if settings.status:
         sys.exit(report_status(bindings, repo_root))
@@ -266,10 +276,29 @@ if __name__ == "__main__":
             )
         )
 
-    if settings.symlinks:
-        total_created = total_skipped = total_failed = 0
+    if settings.profile or settings.extra_flags:
+        os_name = settings.os_name or detect_os()
+        if not settings.os_name:
+            logging.info(f"detected OS: {os_name}")
+        script_args = ([f"--{settings.profile}"] if settings.profile else []) + settings.extra_flags
+        ret = run_script(install_dir / f"{os_name}.sh", script_args)
+        if ret != 0:
+            sys.exit(ret)
+    elif settings.os_name:
+        logging.warning("--os given without --profile or component flags — nothing to install")
 
-        for source, dst_dir in bindings.items():
+    if settings.open_source:
+        ret = run_script(install_dir / "open_source.sh", ["--all"])
+        if ret != 0:
+            sys.exit(ret)
+
+    if settings.symlinks:
+        targets = dict(bindings)
+        if (wallpapers := repo_root / "wallpapers").is_dir():
+            targets[wallpapers] = pathlib.Path.home() / "Pictures" / "wallpapers"
+
+        total_created = total_skipped = total_failed = 0
+        for source, dst_dir in targets.items():
             if settings.update_symlinks:
                 dst_dir.mkdir(parents=True, exist_ok=True)
 
