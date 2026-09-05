@@ -293,3 +293,5 @@ $DO_APPS     && install_apps
 $DO_FONTS    && install_fonts
 
 echo "==> Done."
+
+# curl -fsSL https://tailscale.com/install.sh | sh
