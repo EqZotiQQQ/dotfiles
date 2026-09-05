@@ -1,7 +1,10 @@
 #!/bin/python3
 
 import argparse
+import collections
+import filecmp
 import logging
+import os
 import pathlib
 import subprocess
 import sys
@@ -58,6 +61,68 @@ def recursive_update_symlinks(
     return created, skipped, failed
 
 
+def link_status(src: pathlib.Path, dst: pathlib.Path) -> tuple[str, str]:
+    if dst.is_symlink():
+        if not dst.exists():
+            return "broken-link", f"-> {dst.readlink()}"
+        if dst.resolve() == src.resolve():
+            return "linked", ""
+        return "wrong-link", f"-> {dst.readlink()}"
+    if not dst.exists():
+        return "missing", ""
+    if filecmp.cmp(src, dst, shallow=False):
+        return "copy", "same content, but a real file — edits stay out of the repo"
+    return "differs", "real file, content diverged from the repo"
+
+
+def orphan_links(source: pathlib.Path, dst_dir: pathlib.Path, repo_root: pathlib.Path):
+    if not dst_dir.is_dir():
+        return
+    for entry in sorted(dst_dir.iterdir()):
+        if not entry.is_symlink() or entry.exists():
+            continue
+        if (source / entry.name).exists():
+            continue  # already reported by the source walk
+        target = pathlib.Path(os.path.normpath(entry.parent / entry.readlink()))
+        if repo_root in target.parents:
+            yield "orphan", entry, f"-> {target} (no longer in the repo)"
+
+
+def recursive_check_symlinks(
+    source: pathlib.Path,
+    dst_dir: pathlib.Path,
+    repo_root: pathlib.Path,
+):
+    for src_object in sorted(source.iterdir()):
+        dst_object = dst_dir / src_object.name
+        if src_object.is_file():
+            status, note = link_status(src_object, dst_object)
+            yield status, dst_object, note
+        else:
+            yield from recursive_check_symlinks(src_object, dst_object, repo_root)
+    yield from orphan_links(source, dst_dir, repo_root)
+
+
+def report_status(bindings: dict, repo_root: pathlib.Path) -> int:
+    rows = []
+    for source, dst_dir in bindings.items():
+        rows.extend(recursive_check_symlinks(source, dst_dir, repo_root))
+
+    home = str(pathlib.Path.home())
+    problems = [row for row in rows if row[0] != "linked"]
+
+    for status, dst, note in problems:
+        shown = str(dst).replace(home, "~", 1)
+        print(f"  {status:<12} {shown}" + (f"  # {note}" if note else ""))
+    if problems:
+        print()
+
+    counts = collections.Counter(status for status, _, _ in rows)
+    summary = ", ".join(f"{count} {status}" for status, count in counts.most_common())
+    print(f"{len(rows)} files: {summary}")
+    return 1 if problems else 0
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Configure unix system")
     AppSettings.add_args(parser)
@@ -72,7 +137,6 @@ if __name__ == "__main__":
     logging.info(f"Executing script with settings:\n{settings}")
     
     install_dir = pathlib.Path(__file__).parent
-
     # TODO: merge it to unified solution
     if settings.install_ubuntu_apps:
         cmd = [str(install_dir / "ubuntu.sh")] + settings.ubuntu_opts
@@ -88,14 +152,19 @@ if __name__ == "__main__":
             logging.error(f"manjaro.sh exited with code {ret}")
             sys.exit(ret)
 
+    repo_root = install_dir.parent.resolve()
+
+    bindings = {settings.config_directory: settings.config_destination}
+    if (etc_src := repo_root / "etc").exists():
+        bindings[etc_src] = pathlib.Path("/etc")
+    else:
+        logging.debug("no etc/ directory found, skipping")
+
+    if settings.status:
+        sys.exit(report_status(bindings, repo_root))
+
     if settings.symlinks:
         total_created = total_skipped = total_failed = 0
-
-        bindings = {settings.config_directory: settings.config_destination}
-        if (etc_src := install_dir.parent / "etc").exists():
-            bindings[etc_src] = pathlib.Path("/etc")
-        else:
-            logging.debug("no etc/ directory found, skipping")
 
         for source, dst_dir in bindings.items():
             if settings.update_symlinks:

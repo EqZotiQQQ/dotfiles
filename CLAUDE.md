@@ -104,10 +104,14 @@ The repo has two config trees:
 **Симлинки напрямую** — `install/main.py` управляет `home/` → `~` и `etc/` → `/etc`:
 
 ```bash
+python install/main.py --status  # что разошлось между репо и ~ (exit 1 если есть расхождения)
 python install/main.py -s        # dry-run
 python install/main.py -s -f     # применить
 python install/main.py -s -f -o  # применить + перезаписать существующие
 ```
+
+`--status` классифицирует каждый файл: `linked`, `missing`, `differs` (реальный файл, содержимое разошлось),
+`copy` (реальный файл, содержимое совпадает), `wrong-link`, `broken-link`, `orphan` (ссылка в репо, но исходник удалён).
 
 Новые файлы в `home/.config/eww/scripts/` симлинкуются по одному — добавить вручную через `ln -s`.
 

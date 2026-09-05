@@ -8,6 +8,7 @@ DEFAULT_USER_LOCATION = pathlib.Path.home()
 @dataclasses.dataclass
 class AppSettings:
     symlinks: bool
+    status: bool
     update_symlinks: bool
     overwrite: bool
     install_ubuntu_apps: bool
@@ -32,6 +33,11 @@ class AppSettings:
             "--symlinks",
             action="store_true",
             help=f"Display symlinks destionation for {DEFAULT_USER_LOCATION}. To do real update you should also use -f"
+        )
+        parser.add_argument(
+            "--status",
+            action="store_true",
+            help="Report how every config file in the repo maps to its destination and exit 1 on any divergence",
         )
         parser.add_argument(
             "-f",
@@ -76,6 +82,7 @@ class AppSettings:
             raise ValueError("--ubuntu-apps and --manjaro-apps are mutually exclusive")
         return AppSettings(
             symlinks=args.symlinks,
+            status=args.status,
             update_symlinks=args.force_symlink_update,
             overwrite=args.overwrite_existing_files,
             install_ubuntu_apps=args.ubuntu_apps,
