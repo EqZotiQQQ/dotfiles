@@ -1,5 +1,8 @@
 bindkey -e
 
+# Word movement stops at separators (/ - . _ etc.), not just whitespace
+WORDCHARS=''
+
 # Basic line editing
 bindkey "^A"    beginning-of-line
 bindkey "^E"    end-of-line
@@ -20,6 +23,11 @@ bindkey "\e[1;5C" end-of-line
 # Shift+Alt+Left / Shift+Alt+Right — word movement
 bindkey "\e[1;4D" backward-word
 bindkey "\e[1;4C" forward-word
+
+# Alt+B / Alt+F — word movement (kitty sends these for Cmd+Left / Cmd+Right;
+# Cmd+Shift+Left/Right send Home / End, bound above)
+bindkey "\eb" backward-word
+bindkey "\ef" forward-word
 
 # Ctrl+Shift+Delete — delete to beginning of line
 bindkey "^[[3;6~" backward-kill-line

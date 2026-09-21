@@ -10,9 +10,9 @@ bold_italic_font   Iosevka Nerd Font Bold Italic
 font_size          13.0
 
 # Slight negative letter spacing for a tighter, crisper look
-modify_font cell_width -0.5px
+letter_spacing     -0.5
 # Subtly raise text so descenders breathe
-modify_font baseline
+adjust_baseline    0
 
 # ── Cursor ─────────────────────────────────────────────────────
 cursor_shape           block
@@ -25,7 +25,7 @@ scrollback_pager        less --chop-long-lines --RAW-CONTROL-CHARS +INPUT_LINE_N
 
 # ── Mouse ──────────────────────────────────────────────────────
 mouse_hide_wait         2.0
-url_color               #83a598
+url_color               #89b4fa
 url_style               curly
 open_url_with           default
 detect_urls             yes
@@ -59,54 +59,54 @@ tab_title_template      " {index}: {title} "
 active_tab_font_style   bold
 inactive_tab_font_style normal
 
-# ── Color scheme — Gruvbox Dark ────────────────────────────────
-background              #282828
-foreground              #ebdbb2
-selection_background    #504945
-selection_foreground    #ebdbb2
+# ── Color scheme — Catppuccin Mocha ────────────────────────────
+background              #1e1e2e
+foreground              #cdd6f4
+selection_background    #585b70
+selection_foreground    #cdd6f4
 
-cursor                  #ebdbb2
-cursor_text_color       #282828
+cursor                  #f5e0dc
+cursor_text_color       #1e1e2e
 
-url_color               #83a598
+url_color               #89b4fa
 
-active_border_color     #fe8019
-inactive_border_color   #504945
-bell_border_color       #fb4934
+active_border_color     #b4befe
+inactive_border_color   #6c7086
+bell_border_color       #f38ba8
 
 # Active / inactive tabs
-active_tab_background   #d79921
-active_tab_foreground   #282828
-inactive_tab_background #3c3836
-inactive_tab_foreground #a89984
-tab_bar_background      #1d2021
+active_tab_background   #b4befe
+active_tab_foreground   #1e1e2e
+inactive_tab_background #313244
+inactive_tab_foreground #cdd6f4
+tab_bar_background      #181825
 
 # The 16 terminal colours
-color0   #282828
-color1   #cc241d
-color2   #98971a
-color3   #d79921
-color4   #458588
-color5   #b16286
-color6   #689d6a
-color7   #a89984
+color0   #45475a
+color1   #f38ba8
+color2   #a6e3a1
+color3   #f9e2af
+color4   #89b4fa
+color5   #f5c2e7
+color6   #94e2d5
+color7   #bac2de
 
-color8   #928374
-color9   #fb4934
-color10  #b8bb26
-color11  #fabd2f
-color12  #83a598
-color13  #d3869b
-color14  #8ec07c
-color15  #ebdbb2
+color8   #585b70
+color9   #f38ba8
+color10  #a6e3a1
+color11  #f9e2af
+color12  #89b4fa
+color13  #f5c2e7
+color14  #94e2d5
+color15  #a6adc8
 
 # Mark colours (used with kitty's mark feature)
-mark1_foreground #282828
-mark1_background #fabd2f
-mark2_foreground #282828
-mark2_background #d3869b
-mark3_foreground #282828
-mark3_background #83a598
+mark1_foreground #1e1e2e
+mark1_background #b4befe
+mark2_foreground #1e1e2e
+mark2_background #cba6f7
+mark3_foreground #1e1e2e
+mark3_background #74c7ec
 
 # ── Keyboard shortcuts ─────────────────────────────────────────
 # Clear default map so nothing clashes
@@ -117,8 +117,6 @@ kitty_mod ctrl+shift
 # Clipboard
 map kitty_mod+c  copy_to_clipboard
 map kitty_mod+v  paste_from_clipboard
-map cmd+c        copy_to_clipboard
-map cmd+v        paste_from_clipboard
 
 # Scrollback
 map kitty_mod+up        scroll_line_up
@@ -129,12 +127,6 @@ map kitty_mod+home      scroll_home
 map kitty_mod+end       scroll_end
 map kitty_mod+h         show_scrollback
 
-# Line editing (escape sequences for zsh: alt+b / alt+f, Home / End)
-map cmd+left            send_text all \x1bb
-map cmd+right           send_text all \x1bf
-map cmd+shift+left      send_text all \x1b[H
-map cmd+shift+right     send_text all \x1b[F
-
 # Font size
 map kitty_mod+equal   change_font_size all +1.0
 map kitty_mod+minus   change_font_size all -1.0
@@ -142,13 +134,7 @@ map kitty_mod+0       change_font_size all 0
 
 # Tabs
 map kitty_mod+t      new_tab_with_cwd
-map cmd+n            new_tab_with_cwd
-map cmd+shift+n      new_os_window_with_cwd
 map kitty_mod+w      close_tab
-map cmd+w            close_window
-map cmd+shift+w      close_os_window
-map cmd+b            previous_tab
-map cmd+m            next_tab
 map kitty_mod+right  next_tab
 map kitty_mod+left   previous_tab
 map kitty_mod+1      goto_tab 1
@@ -162,16 +148,11 @@ map kitty_mod+enter       new_window_with_cwd
 map kitty_mod+d           close_window
 map kitty_mod+]           next_window
 map kitty_mod+[           previous_window
-map cmd+h                 launch --location=hsplit --cwd=current
-map cmd+j                 launch --location=vsplit --cwd=current
-map cmd+g                 previous_window
-map cmd+k                 next_window
 map kitty_mod+f5          load_config_file
-map cmd+shift+r           load_config_file
 
 # Layouts: cycle with mod+l
 map kitty_mod+l           next_layout
-enabled_layouts           splits, tall, fat, grid, stack
+enabled_layouts           tall, fat, grid, stack
 
 # Misc
 map kitty_mod+f11   toggle_fullscreen
