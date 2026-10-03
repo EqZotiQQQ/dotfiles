@@ -115,7 +115,7 @@
     (for ws in wss
       (button
         :class {ws.active ? "ws-btn active" : "ws-btn occupied"}
-        :onclick "hyprctl dispatch workspace ${ws.id}"
+        :onclick "hyprctl dispatch 'hl.dsp.focus({ workspace = ${ws.id} })'"
         "${ws.label}"))))
 
 (defwidget active-window-widget []
@@ -143,7 +143,7 @@
     :onhoverlost "eww update power-pin=false; eww close power-popup-window-0 2>/dev/null; eww close power-popup-window-1 2>/dev/null"
     (box :orientation "v" :spacing 4 :class "popup-box"
       (button :class "power-btn power-btn-sleep"    :onclick "systemctl suspend"     "󰒲  Sleep")
-      (button :class "power-btn power-btn-logout"   :onclick "hyprctl dispatch exit" "󰍃  Logout")
+      (button :class "power-btn power-btn-logout"   :onclick "hyprctl dispatch 'hl.dsp.exit()'" "󰍃  Logout")
       (button :class "power-btn power-btn-reboot"   :onclick "systemctl reboot"      "󰜉  Reboot")
       (button :class "power-btn power-btn-shutdown" :onclick "systemctl poweroff"    "󰐥  Shutdown"))))
 

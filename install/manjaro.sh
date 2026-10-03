@@ -8,7 +8,7 @@ set -euo pipefail
 #   cli       — modern CLI replacements: eza, bat, duf, ripgrep, fzf, htop, delta
 #   terminal  — kitty, terminator
 #   editor    — neovim + AstroNvim, VS Code
-#   wm        — Hyprland stack: waybar, mako, wofi, wlogout, rofi, flameshot, i3lock
+#   wm        — Hyprland stack: waybar, mako, wofi, wlogout, rofi, flameshot, i3lock, quickshell (bar), qylock (lockscreen)
 #   dev       — cmake, make, bash-lsp, docker
 #   apps      — discord, telegram, chrome, obsidian, qbittorrent, nekobox, mpv
 #   fonts     — Iosevka
@@ -39,7 +39,7 @@ Component flags:
   --cli         eza, bat, duf, ripgrep, fzf, htop, delta
   --terminal    Kitty, Terminator
   --editor      Neovim (AstroNvim), VS Code
-  --wm          Hyprland, Waybar, Mako, Wofi, Wlogout, Rofi, Flameshot, i3lock
+  --wm          Hyprland, Waybar, Mako, Wofi, Wlogout, Rofi, Flameshot, i3lock, Quickshell, qylock
   --dev         cmake, make, bash-language-server, Docker
   --apps        Discord, Telegram, Chrome, Obsidian, qBittorrent, Nekobox, mpv
   --fonts       Iosevka
@@ -152,7 +152,13 @@ install_wm() {
         hyprpolkitagent \
         hyprlock \
         xdg-desktop-portal-hyprland \
-        socat
+        socat \
+        jq \
+        quickshell
+
+    # lockscreen engine for ~/.local/bin/lock (qylock, sparse: no theme videos); more themes: lock --fetch <name>
+    echo "==> [wm] qylock lockscreen engine"
+    "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/home/.local/bin/lock" --fetch
 }
 
 install_dev() {

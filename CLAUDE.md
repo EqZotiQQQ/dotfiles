@@ -130,22 +130,75 @@ OS берётся из `ID=` в `/etc/os-release`, если не задана ч
 
 ## Hyprland
 
+Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55, удаляется в 0.57).
+Вики: https://wiki.hypr.land/0.56.0/Configuring/Start/ ; Lua-стабы для LSP: `/usr/share/hypr/stubs/`.
+
 Конфиги в `home/.config/hypr/`:
-- `hyprland.conf` — основной конфиг; keybindings вынесены в `keybindings.conf` (source'd)
-- `keybindings.conf` — все бинды клавиш
-- `hyprpaper.conf` — обои
-- `hypridle.conf` — автоблокировка
-- `hyprlock.conf` — экран блокировки
+- `hyprland.lua` — основной конфиг; keybindings вынесены в `keybindings.lua` (`require("keybindings")`)
+- `keybindings.lua` — все бинды клавиш (`hl.bind`); `terminal`/`fileManager`/`menu` — глобалы из `hyprland.lua`
+- `theme.lua` — читает общую тему `~/.config/theme/theme.json` (через `lib/json.lua`, rxi/json.lua, MIT);
+  из неё в `hyprland.lua` берутся рамки, отступы, скругления, размытие, кривая анимации окон, цвета и высота spectrum.
+  Если тема не читается — эти значения остаются дефолтными Hyprland, остальной конфиг грузится
+  (`require` в Hyprland сам сообщает об ошибке и возвращает заглушку, а не бросает исключение)
+- `hyprpaper.conf`, `hypridle.conf` — обои / автоблокировка (остаются на hyprlang); `hypridle` → `lock_cmd = ~/.local/bin/lock`
+- `hyprlock.conf` — не используется (локскрин теперь Quickshell, см. «Локскрин»)
 
-**Автозапуск** (exec-once в hyprland.conf):
+**Проверка конфига без применения:** `Hyprland --verify-config` (или `-c <path>`).
+
+**`hyprctl dispatch` принимает Lua**, а не старые имена диспатчеров:
+`hyprctl dispatch 'hl.dsp.focus({ workspace = 3 })'`, `hyprctl dispatch 'hl.dsp.dpms({ action = "disable" })'`.
+
+**Автозапуск** (`hl.on("hyprland.start", ...)` в hyprland.lua):
 ```
-hyprpaper, hypridle, eww daemon, mako, hyprpolkitagent
-sleep 1 && eww open bar && eww open bar2
+hyprpaper, hypridle, qs (Quickshell-бар), mako, hyprpolkitagent
+sleep 1 && ~/my_projects/spectrum/build/spectrum wayland ...  (по процессу на монитор; пропускается, если бинарника нет)
 ```
+У Hyprland в `PATH` нет `~/.local/bin` — свои скрипты из автозапуска/hypridle вызывать по полному пути.
 
-## eww (статусбар)
+**spectrum за баром:** слои снизу вверх — hyprpaper → spectrum (`background`, стартует после hyprpaper) → бар (`top`,
+острова висят над полосой). Край и направление баров — `spectrum_edge` / `spectrum_orientation` в блоке автозапуска;
+высота полосы и цвета — `spectrum.height` / `spectrum.colors` в теме; передаются флагами
+`--render.window.layer_shell.anchor`, `--render.window.height|width`, `--render.orientation`, `--render.colors.*`.
 
-Конфиги в `home/.config/eww/`:
+## Тема (`home/.config/theme/theme.json`)
+
+Единый источник внешнего вида: палитра (Material-подобная: `primary`, `onPrimary`, `surface`, `outline`…), формы
+(скругления, отступы, размеры бара), размытие, кривая анимаций, шрифты, полоса spectrum, тема локскрина.
+Читают: бар (сразу, файл отслеживается), Hyprland (`hypr/theme.lua`, при перезагрузке конфига), spectrum (при входе),
+`lock` (при блокировке). Ключи — `home/.config/theme/README.md`. Kitty в тему не входит (Gruvbox в `kitty/theme.conf`).
+
+## Quickshell (статусбар)
+
+Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `qs`. Перезапуск: `pkill -x quickshell; qs -d`.
+- `shell.qml` — по бару на каждый экран
+- `common/` — синглтоны `Theme` (theme.json), `Icons` (глифы Nerd Font), `Time` (часы + локаль `LC_TIME`); `ThemeAnim`, `StyledText`
+- `services/` — данные: `Cpu`, `Memory` (/proc), `Sensors` (hwmon, `scripts/sensors`), `Network`, `Audio` (PipeWire),
+  `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (режим «не беспокоить»)
+- `bar/Bar.qml` — слой `top`, namespace `quickshell-bar` (размытие: layer rule `bar-blur` в hyprland.lua); поверхность выше бара
+  для поповеров, ввод только на островах (`mask`); бар прячется на мониторе с полноэкранным окном
+- три острова: `Workspaces` + `ActiveWindow` слева, `Dock` по центру (закреплённые: `pinned` в `Dock.qml`, плюс запущенные),
+  `StatusIsland` справа — модули `Chip` и поповеры `bar/popouts/*` (наведение открывает, клик закрепляет; остров «вырастает» вниз)
+- воркспейсы: номера 1–9 своего монитора (id 1–9 — DP-2, 10–18 — DP-1, правила в hyprland.lua), пустые не показываются
+
+**Подводный камень QML:** свойства с именем `onXxx` (как `onSurface`) читаются как обработчики сигналов и дают
+`#000000` — поэтому в `Theme.qml` цвета текста названы `text`, `textVariant`, `textOnPrimary`, `textOnPrimaryContainer`.
+
+## Локскрин
+
+`home/.local/bin/lock` — блокировка Quickshell-локскрином. Движок — qylock (`~/.local/share/qylock`, sparse checkout:
+только `quickshell-lockscreen` + выбранные темы), темы в формате SDDM (`Main.qml`, `theme.conf`, PAM через Quickshell).
+Тема — `lock.theme` в theme.json: сначала ищется в `home/.config/lockscreen/themes/`, потом в темах qylock.
+```bash
+lock                    # заблокировать (SUPER+L → loginctl lock-session → hypridle → lock)
+lock --preview [тема]   # показать тему в окнах, без блокировки
+lock --list             # установленные темы
+lock --fetch [тема]     # поставить движок qylock / докачать его тему
+```
+Своя тема `pixel-city` (пиксельный ночной город с дождём): `home/.config/lockscreen/themes/pixel-city/`, опции в `theme.conf`.
+
+## eww (не используется)
+
+Заменён Quickshell-баром; конфиги оставлены в репо. Конфиги в `home/.config/eww/`:
 - `eww.yuck` — все виджеты и окна
 - `eww.scss` — стили (Catppuccin Mocha)
 
@@ -197,6 +250,7 @@ All zsh config lives in `home/.config/zsh/`:
 ## Scripts
 
 `home/.local/bin/` — shell scripts used by the WM and keybindings:
+- `lock` — Quickshell lockscreen (см. «Локскрин»)
 - `lock_screen.sh` — i3lock wrapper
 - `mako-dnd` — toggle do-not-disturb mode (mako)
 - `mako-history` — показать историю уведомлений

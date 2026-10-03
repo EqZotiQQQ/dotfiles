@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# lock — lock the session with a Quickshell lockscreen theme.
+#
+# Theme: "lock.theme" in ~/.config/theme/theme.json. Looked up in ~/.config/lockscreen/themes/ (own
+# themes, in dotfiles), then in qylock's themes (~/.local/share/qylock/themes). Engine: qylock's
+# quickshell-lockscreen, which runs SDDM-style themes and checks the password through PAM.
+#
+#   lock                 lock now (no-op if already locked); SUPER+L and hypridle get here via loginctl
+#   lock --preview [T]   show theme T (default: the configured one) in windows, nothing gets locked
+#   lock --list          installed themes
+#   lock --fetch [T]     install the qylock engine, plus qylock theme T (sparse checkout, no other videos)
+set -euo pipefail
+
+QYLOCK_DIR=${QYLOCK_DIR:-$HOME/.local/share/qylock}
+QYLOCK_REPO=https://github.com/Darkkal44/qylock.git
+QUICKSHELL=${QUICKSHELL:-quickshell}
+CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}
+THEME_DIRS=("$CONFIG/lockscreen/themes" "$QYLOCK_DIR/themes")
+FALLBACK=pixel-city
+SHELL_QML=$QYLOCK_DIR/quickshell-lockscreen/lock_shell.qml
+
+configured() {
+    jq -r '.lock.theme // empty' "$CONFIG/theme/theme.json" 2>/dev/null || true
+}
+
+# theme name -> its directory (with Main.qml)
+theme_path() {
+    local dir
+    for dir in "${THEME_DIRS[@]}"; do
+        [ -f "$dir/$1/Main.qml" ] && { echo "$dir/$1"; return 0; }
+    done
+    return 1
+}
+
+run() {
+    local name=${1:-$(configured)} path
+    name=${name:-$FALLBACK}
+    if ! path=$(theme_path "$name"); then
+        notify-send -u critical lock "Lockscreen theme '$name' not found, using $FALLBACK" 2>/dev/null || true
+        name=$FALLBACK
+        path=$(theme_path "$name")
+    fi
+    if [ ! -f "$SHELL_QML" ]; then
+        notify-send -u critical lock "qylock is not installed: run 'lock --fetch'" 2>/dev/null || true
+        echo "lock: qylock is not installed ($QYLOCK_DIR), run: lock --fetch" >&2
+        exit 1
+    fi
+    export QS_THEME=$name QS_THEME_PATH=$path
+    export QML2_IMPORT_PATH="$QYLOCK_DIR/quickshell-lockscreen/imports${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}"
+    export QML_XHR_ALLOW_FILE_READ=1   # the engine reads theme.conf through XHR
+    exec "$QUICKSHELL" -p "$SHELL_QML"
+}
+
+case "${1:-}" in
+    "")
+        pgrep -f -- "-p $SHELL_QML" >/dev/null && exit 0
+        export XDG_SESSION_TYPE=wayland
+        run
+        ;;
+    --preview)
+        # the engine's X11 code path: plain windows instead of ext-session-lock
+        export XDG_SESSION_TYPE=x11 QS_TESTING=1
+        run "${2:-}"
+        ;;
+    --list)
+        for dir in "${THEME_DIRS[@]}"; do
+            [ -d "$dir" ] && find "$dir" -mindepth 2 -maxdepth 2 -name Main.qml -printf '%h\n' | xargs -rn1 basename
+        done | sort -u
+        ;;
+    --fetch)
+        if [ ! -d "$QYLOCK_DIR/.git" ]; then
+            git clone --depth 1 --filter=blob:none --sparse "$QYLOCK_REPO" "$QYLOCK_DIR"
+            git -C "$QYLOCK_DIR" sparse-checkout set quickshell-lockscreen
+        fi
+        if [ -n "${2:-}" ]; then
+            git -C "$QYLOCK_DIR" sparse-checkout add "themes/$2"
+        fi
+        ;;
+    *)
+        sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+        exit 2
+        ;;
+esac

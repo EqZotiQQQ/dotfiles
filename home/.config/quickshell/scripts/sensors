@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# All hwmon temperature sensors, one per line: device<TAB>label<TAB>°C (zero readings skipped)
+for input in /sys/class/hwmon/hwmon*/temp*_input; do
+    [ -f "$input" ] || continue
+    value=$(cat "$input" 2>/dev/null) || continue
+    [ "${value:-0}" -gt 0 ] || continue
+    dir=${input%/*}
+    base=${input%_input}
+    label=$(cat "${base}_label" 2>/dev/null || basename "$base")
+    printf '%s\t%s\t%d\n' "$(cat "$dir/name")" "$label" $((value / 1000))
+done

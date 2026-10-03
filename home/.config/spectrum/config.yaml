@@ -1,0 +1,158 @@
+# ============================================================================
+#  viz — application config, one section per pipeline layer.
+#
+#  Read from ~/.config/spectrum/config.yaml ($XDG_CONFIG_HOME), unless
+#  $VIZ_CONFIG or the command line names another file. This file is compiled
+#  into the binary and written there on the first run.
+#
+#  Every key is optional: anything left out falls back to the default compiled
+#  into the matching Config struct. Unknown keys are reported as warnings, so a
+#  typo doesn't get silently ignored.
+#
+#  Usage:  spectrum [OUTPUT] [MODE] [path/to/config.yaml] [--section.key=value ...]
+#  Any key below can be overridden from the command line by its dotted path,
+#  e.g. --spectrum.num_bars=32 or --render.window.title='my viz'. Command-line
+#  overrides win over this file. OUTPUT and MODE are shorthands for two of them:
+#  `spectrum wayland peaks` = render.window.layer_shell.enabled: true + render.mode: peaks
+#  (`window` = layer_shell off).
+# ============================================================================
+
+# --- Layer 1: audio capture (PipeWire) ---------------------------------------
+capture:
+  desired_rate: 48000          # Hz; PipeWire may negotiate a different rate
+  ring_capacity: 48000         # mono samples buffered (~1 s at 48 kHz)
+  capture_sink_monitor: true   # true = what's playing, false = microphone
+  settle_ms: 200               # wait after start() for format negotiation
+
+# --- Layer 2: spectrum analysis (FFT) ----------------------------------------
+spectrum:
+  fft_size: 8192               # power of two; bigger = finer detail (esp. bass), more smear in time
+  hop_size: 512                # new frame every N samples, <= fft_size; frames overlap, so
+                               # 512 @48 kHz = ~94 updates/s (= fft_size: no overlap, ~23/s)
+  num_bars: 128                 # also used by the test pattern
+  min_hz: 30.0
+  max_hz: 16000.0
+  highpass:                    # BEFORE the FFT: cuts DC/rumble below the shown range, which the
+                               # FFT would otherwise smear into the lowest bars
+    hz: 20                     # cutoff, <= min_hz; 0 = off
+    order: 8                   # steepness, 6 dB/octave per order, even; 8 @20 Hz: -55 dB at 9 Hz,
+                               # flat from 25 Hz up
+  smoothing:                  # each bar chases its new value; time constants in ms, 0 = instant
+    attack_ms: 10              # rise: small = snappy beats, bigger = calmer, less flicker
+    release_ms: 200            # fall: how long a bar takes to settle back down
+  floor_db: -70.0              # db scale: level of an empty bar; autosens: quieter = silence; < 0
+  scale: linear                # bar height from level: db = log, everything visible, looks "full";
+                               # linear = amplitude, only the strongest parts stand out (like cava)
+  tilt_db_per_octave: 2        # boost per octave above 1 kHz, cut below, so the highs don't fade
+                               # out; 2 = pink noise (roughly music) comes out flat; 0 = off
+  gain_db: 0                   # added to every bar; with autosens only the starting point
+  autosens:                    # auto gain: keeps the loudest bar at the top, like cava's autosens
+    enabled: true
+    rise_db_per_s: 1           # gain up while every bar is below the top (after quieter parts)
+    fall_db_per_s: 10          # gain down while a bar overshoots (short hits just clip briefly)
+  peaks:                       # individual tones for render.mode: peaks
+    max_count: 24              # keep the N loudest per frame (24 = harmonics of A3 up to 5.3 kHz)
+    prominence_db: 10          # how far a tone must stand above the valleys next to it
+    track_cents: 50            # same line next frame if the tone moved less (vibrato, glides)
+  pitch:                       # the fundamental behind the peaks (harmonics mode, peaks coloring)
+    min_hz: 50                 # lowest pitch looked for
+    max_hz: 1000               # highest pitch looked for
+    harmonics: 12              # harmonics measured: harmonics mode draws this many bars
+    tolerance_cents: 25        # how far a harmonic may sit off n * pitch (at least 1.5 FFT bins)
+    min_confidence: 0.6        # 0..1; one voice/instrument ~1, a chord ~0.5 -> no pitch shown
+
+# --- Layer 3: window + rendering (SDL3 / OpenGL) -----------------------------
+render:
+  window:
+    width: 1280
+    height: 720
+    title: "viz — audio spectrum"
+    vsync: true
+    transparent: true          # alpha channel; see-through where clear alpha < 1
+    app_id: "viz"              # Wayland app-id, matched by Hyprland window rules;
+                               # as a layer: its namespace (hyprctl layers, layer rules)
+    layer_shell:               # desktop widget instead of a window (wlr-layer-shell:
+                               # Hyprland, Sway, ...): no focus, clicks pass through,
+                               # no keyboard -> stop it with Ctrl+C / pkill
+      enabled: false
+      layer: background        # Hyprland draws background -> bottom -> windows -> top -> overlay,
+                               # and inside one layer in start order: background started after
+                               # hyprpaper = above the wallpaper, under an eww/waybar bar on bottom
+      anchor: fill             # fill = whole monitor (under the bar too); top/bottom/left/right =
+                               # a strip along that edge, window.height/width thick
+      output: ""               # monitor, e.g. DP-2; "" = the focused one. One process per monitor
+  clear_color: [0, 0, 0, 0]             # RGBA background, 0..1; [0, 0, 0, 0] = wallpaper shows
+  opacity: 1.0                 # whole frame, 0..1, background and bars alike (needs transparent)
+  mode: bars                   
+                               # bars  = one rectangle per bar
+                               # curve = smooth line through the bars
+                               # peaks = one line per tone (harmonic) at its exact frequency
+                               # harmonics = one bar per harmonic of the detected pitch + its note
+                               # fullres = the whole spectrum as a curve on a log axis, no bars
+                               # spectrogram = the spectrum over time: a waterfall, newest on top
+  orientation: up              # which way the bars grow, every mode (text turns along):
+                               # up    = from the bottom edge
+                               # down  = from the top edge: a strip under the top of the monitor
+                               #         (layer_shell.anchor: top), low Hz still on the left
+                               # left / right = from the right / left edge, low Hz at the top
+  bars:
+    gap_frac: 0.2              # share of each bar slot left empty, 0..1
+    base_color: [0.10, 0.70, 0.60]       # RGB of a quiet bar (palette: base_peak); "#1ab399" works too
+    peak_color: [0.95, 0.35, 0.35]       # RGB of a full-height bar
+  colors:                      # palette of every mode (labels and pitch_color keep their own color).
+                               # Saved changes here apply live (watch); other keys need a restart
+    palette: base_peak         
+                               # base_peak = bars.base_color -> bars.peak_color;
+                               # magma, inferno, viridis, plasma, fire, ocean: dark (quiet) -> bright (loud);
+                               # rainbow = 12 hues of equal lightness, one per note with color_by: note;
+                               # custom = the list below;
+                               # wallpaper = colors of the current wallpaper, from wallpaper_file
+    custom: ["#1a1b26", "#7aa2f7", "#bb9af7", "#f7768e"]   # palette: custom, quiet first; [R, G, B] too
+    wallpaper_file: ""         # palette: wallpaper; relative = to this file, "~/" = home.
+                               # "" = $VIZ_WALLPAPER_FILE, else ~/.cache/spectrum/wallpaper-palette.txt
+                               # ($XDG_CACHE_HOME), where scripts/wallpaper-palette.sh writes by default
+                               # (--watch follows hyprpaper)
+    interpolation: oklab       
+                               # oklab = even, vivid blends; rgb = plain mix (muddy middle);
+                               # steps = flat bands, one per color
+    reverse: false             # run the palette the other way
+    range: [0.0, 1.0]          # part of the palette used, e.g. [0.15, 1.0] skips magma's black
+    gamma: 1.0                 # > 1: colors stay near the start longer, only loud parts reach the end;
+                               # < 1: the opposite
+    color_by: height           # height = the bar's level; vertical = gradient from the baseline up
+                               # (like cava); frequency = left to right across the spectrum;
+                               # note = pitch class: every C one color, every C# the next ...
+    level_alpha:               # quiet parts see-through, loud ones solid (see-through to the desktop
+                               # with window.transparent, else into clear_color)
+      enabled: true
+      min: 0.45                # alpha of silence, 0..1
+      gamma: 1.0               # > 1: stays see-through longer
+    watch: true                # re-read this file (and wallpaper_file) when saved; kill -HUP reloads too
+  curve:                       # mode: curve — never overshoots: every peak is a real bar value
+    line_width: 2              # px; 0 = only the fill
+    fill_alpha: 0.35           # opacity of the area under the curve, 0..1; 0 = only the line
+    samples_per_bar: 8         # curve points from one bar to the next; more = smoother
+  peaks:                       # mode: peaks — lines use render.colors; labels.size/color for notes
+    line_width: 2              # px
+    note_labels: 8             # write the note ("A3", "C#6") over the N highest lines; 0 = none
+    mark_pitch: true           # draw the detected pitch's harmonics in pitch_color
+    pitch_color: [1.0, 0.82, 0.30]       # RGB
+  fullres:                     # mode: fullres — line and fill from curve: above
+    px_per_point: 2            # one point every N px; each takes the loudest FFT bin inside it
+  spectrogram:                 # mode: spectrogram — frequency across, time down, colored by level
+    seconds: 6                 # history from top to bottom (one row per analysis frame)
+    columns: 1024              # frequency resolution; each column takes the loudest bin inside it
+  labels:                     # strip below the spectrum: bars/curve — frequency range of each bar
+                               # ("1.1k-1.3k", read bottom to top); peaks, fullres, spectrogram —
+                               # a frequency axis;
+                               # harmonics — the harmonic numbers
+    enabled: false 
+                                # true
+                                # false
+    size: 2                    # px per dot of the 3x5 font; bigger = larger text, taller strip
+    color: [0.55, 0.55, 0.60]            # RGB of the text
+
+# --- Test pattern (patternizator only) ---------------------------------------
+test_pattern:
+  enabled: true                # bars/curve: a synthetic sweep; peaks etc.: a sung arpeggio as audio
+  speed: 0.4                   # sweep speed; arpeggio: 0.4 / speed seconds per note

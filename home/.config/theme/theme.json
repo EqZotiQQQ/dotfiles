@@ -1,0 +1,63 @@
+{
+  "name": "dusk",
+
+  "colors": {
+    "primary":            "#FFB59C",
+    "onPrimary":          "#5C1A04",
+    "primaryContainer":   "#7B3118",
+    "onPrimaryContainer": "#FFDBD0",
+    "secondary":          "#E7BDB0",
+    "tertiary":           "#D8C68F",
+    "error":              "#FFB4AB",
+    "surface":            "#1F1518",
+    "surfaceHigh":        "#3A2E31",
+    "onSurface":          "#F1DFDA",
+    "onSurfaceVariant":   "#D8C2BC",
+    "outline":            "#A08C87",
+    "outlineVariant":     "#53433F"
+  },
+
+  "opacity": {
+    "panel": 0.82
+  },
+
+  "shape": {
+    "rounding":     12,
+    "border":       2,
+    "gapsIn":       4,
+    "gapsOut":      6,
+    "barHeight":    48,
+    "barMargin":    10,
+    "islandRadius": 24,
+    "tileRadius":   12,
+    "chipRadius":   18
+  },
+
+  "blur": {
+    "size":   6,
+    "passes": 3
+  },
+
+  "motion": {
+    "curve":       [0.05, 0.9, 0.1, 1.05],
+    "durationMs":  460,
+    "hyprSpeed":   5,
+    "windowPopin": "80%"
+  },
+
+  "fonts": {
+    "ui":    "Rubik",
+    "mono":  "Iosevka",
+    "icons": "Hack Nerd Font",
+    "size":  13
+  },
+
+  "spectrum": {
+    "height": 72,
+    "colors": ["outlineVariant", "primary"]
+  },
+
+  "lock": {
+    "theme": "pixel-city"
+  }
+}

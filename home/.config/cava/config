@@ -1,0 +1,55 @@
+## CAVA config for side-by-side comparison with capturer (audio-visualizer).
+#
+# Matches capturer's GEOMETRY (same input, same bars at the same frequencies)
+# and leaves cava's own processing (autosens, noise_reduction, eq) at its
+# defaults, so whatever still differs comes from the processing.
+# Every other option: the stock template cava writes when this file is missing.
+
+
+[general]
+
+# Re-read this file on change, so the knobs below can be flipped while cava runs.
+live-config = 1
+
+framerate = 60
+
+# cava's gain control: rescales so the loudest bar reaches the top.
+# capturer has none (fixed dB range down to spectrum.floor_db).
+# Set to 0 to compare raw levels.
+autosens = 1
+
+# = spectrum.num_bars
+bars = 40
+
+# = spectrum.min_hz / spectrum.max_hz (cava's defaults are 50 / 10000)
+lower_cutoff_freq = 30
+higher_cutoff_freq = 16000
+
+
+[input]
+
+# = capture: monitor of the default sink (capture_sink_monitor: true), 48 kHz
+method = pipewire
+source = auto
+sample_rate = 48000
+
+
+[output]
+
+method = noncurses
+
+# The default 'stereo' mirrors L and R with the BASS IN THE CENTRE and highs at
+# both edges. capturer is mono with bass on the left, so draw cava the same way.
+# capturer downmixes as (L+R)/2 = 'average'.
+channels = mono
+mono_option = average
+reverse = 0
+
+
+[smoothing]
+
+# cava's integral + gravity filters, 0..100. 0 = raw, to compare with
+# spectrum.smoothing.attack_ms = release_ms = 0 in capturer.
+noise_reduction = 77
+monstercat = 0
+waves = 0

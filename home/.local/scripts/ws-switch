@@ -4,4 +4,4 @@
 # DP-1 (secondary): workspaces 10-18
 N=$1
 MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .name')
-[[ "$MONITOR" == "DP-2" ]] && hyprctl dispatch workspace "$N" || hyprctl dispatch workspace "$((N + 9))"
+[[ "$MONITOR" == "DP-2" ]] && hyprctl dispatch "hl.dsp.focus({ workspace = $N })" || hyprctl dispatch "hl.dsp.focus({ workspace = $((N + 9)) })"
