@@ -3,10 +3,10 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.common
 
-// Workspaces of one monitor, numbered 1..9: Hyprland ids 1-9 live on DP-2 and 10-18 on DP-1
+// Workspaces of one monitor, numbered 1..9 along the bar: Hyprland ids 1-9 live on DP-2 and 10-18 on DP-1
 // (workspace rules in hyprland.lua, keys in ws-switch / ws-move). Hyprland only keeps active or
 // occupied workspaces, so empty ones are skipped. Wheel: next/previous workspace on this monitor.
-Row {
+Strip {
     id: root
 
     required property HyprlandMonitor monitor
@@ -29,12 +29,16 @@ Row {
             readonly property bool active: root.monitor?.activeWorkspace === modelData
             readonly property bool occupied: modelData.toplevels.values.length > 0
 
-            width: active ? 36 : 26
-            height: 26
-            radius: height / 2
+            // the active one is longer along the bar
+            width: active && !Theme.barVertical ? 36 : 26
+            height: active && Theme.barVertical ? 36 : 26
+            radius: 13
             color: active ? Theme.primary : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
 
             Behavior on width {
+                ThemeAnim {}
+            }
+            Behavior on height {
                 ThemeAnim {}
             }
             Behavior on color {

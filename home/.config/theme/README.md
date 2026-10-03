@@ -6,7 +6,7 @@
 |---|---|---|
 | Бар (Quickshell) | `~/.config/quickshell/common/Theme.qml` | сразу, файл отслеживается |
 | Hyprland | `~/.config/hypr/theme.lua` (JSON через `hypr/lib/json.lua`) | при перезагрузке конфига: `hyprctl reload` или сохранение `hyprland.lua` |
-| spectrum | аргументы из автозапуска в `hyprland.lua` | при следующем входе в сессию |
+| spectrum | его запускает Quickshell (`bar/Spectrum.qml`) | сразу: перезапускается при смене края, толщины, цветов |
 | Локскрин | `~/.local/bin/lock` берёт `lock.theme` | при следующей блокировке |
 
 Kitty в тему не входит (остаётся на своей Gruvbox: `kitty/theme.conf`).
@@ -21,15 +21,18 @@ Kitty в тему не входит (остаётся на своей Gruvbox: `
   - `onSurface`, `onSurfaceVariant` — основной и приглушённый текст.
   - `outline`, `outlineVariant` — разделители, рамки неактивных окон.
   - `error` — ошибки, перегрев.
-- `opacity.panel` — непрозрачность островов бара (за ними размытие Hyprland).
-- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland; `barHeight`, `barMargin`,
+- `bar.position` — край экрана для бара и полосы spectrum за ним: `top`, `bottom`, `left`, `right`.
+- `opacity.panel` — непрозрачность островов бара в покое (без размытия: сквозь них виден spectrum);
+  `opacity.popout` — непрозрачность острова, пока открыт поповер (окна под ним не мешают тексту).
+- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland; `barSize` (толщина бара), `barMargin`,
   `islandRadius`, `tileRadius`, `chipRadius` для бара.
-- `blur` — размытие Hyprland (`size`, `passes`).
+- `blur` — размытие Hyprland для окон (`size`, `passes`); на бар не действует.
 - `motion` — `curve`: кривая Безье `[x1, y1, x2, y2]` для окон Hyprland и анимаций бара
   (y > 1 даёт лёгкий «перелёт»); `durationMs` — длительность анимаций бара; `hyprSpeed` — скорость
   анимации окон Hyprland; `windowPopin` — с какого масштаба окно «выпрыгивает».
 - `fonts` — `ui` (бар), `mono` (числа в баре), `icons` (Nerd Font с иконками), `size`.
-- `spectrum` — `height`: высота полосы spectrum за баром, px; `colors`: цвета полос от тихих к громким,
+- `spectrum` — `size`: толщина полосы spectrum за баром, px; `colors`: цвета полос от тихих к громким,
   имена из `colors` или `"#rrggbb"`.
-- `lock.theme` — тема локскрина: имя каталога в `~/.config/lockscreen/themes/` или тема qylock
-  (`lock --list` — установленные, `lock --fetch <имя>` — скачать, `lock --preview [имя]` — посмотреть).
+- `lock.theme` — тема локскрина: имя каталога в `~/.config/lockscreen/themes/` или тема qylock.
+  Проще всего менять командой `lock-theme` (список всех тем со ссылками на превью → скачать → включить);
+  `lock --preview [имя]` — посмотреть без блокировки.

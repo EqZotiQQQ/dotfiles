@@ -60,35 +60,10 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hyprpaper")
     -- hl.exec_cmd([[sleep 1 && hyprpaper-set "$(find ~/Pictures/wallpapers -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | shuf -n 1)"]])
     hl.exec_cmd("hypridle") -- timeout management, session blocker, sleeper, etc
-    hl.exec_cmd("qs") -- bar (Quickshell): ~/.config/quickshell
+    -- bar + the spectrum strip behind it (Quickshell: ~/.config/quickshell); edge, size, colors: theme.json
+    hl.exec_cmd("qs")
     hl.exec_cmd("mako") -- notification manager
     hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent") -- password agent for gui apps
-    -- audio visualizer behind the bar: wallpaper -> spectrum -> bar. Layer "background" started after
-    -- hyprpaper (sleep) = above the wallpaper; the bar is on layer "top", its islands float over the strip.
-    -- One process per monitor; skipped if the binary isn't there (not built)
-    local spectrum             = "/home/eqzotiqqq/my_projects/spectrum/build/spectrum"
-    local spectrum_edge        = "top"  -- where on the screen: top|bottom|left|right
-    local spectrum_size        = theme and theme.spectrum.height or 36 -- max bar length, px: strip height (top/bottom) or width (left/right)
-    local spectrum_orientation = "down" -- which way the bars grow: up|down|left|right
-    local spectrum_size_key    = (spectrum_edge == "left" or spectrum_edge == "right") and "width" or "height"
-    -- bar colors from the theme: palette keys ("primary") or "#rrggbb", quiet first
-    local spectrum_colors      = ""
-    if theme then
-        local colors = {}
-        for _, c in ipairs(theme.spectrum.colors) do
-            colors[#colors + 1] = '"' .. (theme.colors[c] or c) .. '"'
-        end
-        spectrum_colors = " --render.colors.palette=custom --render.colors.custom='[" .. table.concat(colors, ", ") .. "]'"
-    end
-    for _, output in ipairs({ "DP-2", "DP-1" }) do
-        hl.exec_cmd("sleep 1 && [ -x " .. spectrum .. " ] && " .. spectrum .. " wayland"
-            .. " --render.window.layer_shell.output=" .. output
-            .. " --render.window.layer_shell.layer=background"
-            .. " --render.window.layer_shell.anchor=" .. spectrum_edge
-            .. " --render.window." .. spectrum_size_key .. "=" .. spectrum_size
-            .. " --render.orientation=" .. spectrum_orientation
-            .. spectrum_colors)
-    end
     -- hl.exec_cmd(terminal)
     -- hl.exec_cmd("nm-applet")
 end)
@@ -344,16 +319,6 @@ hl.window_rule({
     float          = true,
     move           = { 0, 0 },
     suppress_event = "maximize",
-})
-
--- Bar (Quickshell, ~/.config/quickshell): blur behind its translucent islands only, not the transparent
--- rest of the surface (the popout area under the islands)
-hl.layer_rule({
-    name  = "bar-blur",
-    match = { namespace = "^quickshell-bar$" },
-
-    blur         = true,
-    ignore_alpha = 0.5,
 })
 
 -- Hyprland-run windowrule

@@ -31,11 +31,17 @@ Singleton {
     readonly property color outline: colors.outline ?? "#999999"
     readonly property color outlineVariant: colors.outlineVariant ?? "#505050"
 
-    // Translucent island background (blurred by Hyprland: layer rule "bar-blur")
+    // Translucent island background (not blurred: the spectrum strip shows through)
     readonly property real panelOpacity: json.opacity?.panel ?? 0.82
     readonly property color panel: alpha(surface, panelOpacity)
+    // an open popout is nearly opaque: windows show through the island and would clutter the text
+    readonly property color popoutPanel: alpha(surface, json.opacity?.popout ?? 0.92)
 
-    readonly property int barHeight: shape.barHeight ?? 48
+    // screen edge of the bar (and of the spectrum strip behind it): top | bottom | left | right
+    readonly property string barPosition: ["top", "bottom", "left", "right"].includes(json.bar?.position) ? json.bar.position : "top"
+    readonly property bool barVertical: barPosition === "left" || barPosition === "right"
+
+    readonly property int barSize: shape.barSize ?? 48        // bar thickness
     readonly property int barMargin: shape.barMargin ?? 10
     readonly property int islandRadius: shape.islandRadius ?? 24
     readonly property int tileRadius: shape.tileRadius ?? 12
@@ -50,6 +56,10 @@ Singleton {
     readonly property string monoFont: fonts.mono ?? "monospace"
     readonly property string iconFont: fonts.icons ?? "Symbols Nerd Font"
     readonly property int fontSize: fonts.size ?? 13
+
+    // spectrum strip: thickness, colors quiet to loud (palette names or "#rrggbb")
+    readonly property int spectrumSize: json.spectrum?.size ?? 72
+    readonly property var spectrumColors: (json.spectrum?.colors ?? ["outlineVariant", "primary"]).map(c => colors[c] ?? c)
 
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a);

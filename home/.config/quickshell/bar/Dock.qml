@@ -28,6 +28,9 @@ Rectangle {
     readonly property int pinnedCount: apps.filter(a => pinned.includes(a.appId)).length
     property int hovered: -1
 
+    readonly property string edge: Theme.barPosition
+    readonly property bool vertical: Theme.barVertical
+
     function activate(app) {
         const windows = app.toplevels;
         if (windows.length === 0) {
@@ -38,8 +41,8 @@ Rectangle {
         windows[(current + 1) % windows.length].activate();
     }
 
-    width: tiles.implicitWidth + 16
-    height: Theme.barHeight
+    width: vertical ? Theme.barSize : tiles.implicitWidth + 16
+    height: vertical ? tiles.implicitHeight + 16 : Theme.barSize
     radius: Theme.islandRadius
     color: Theme.panel
     border.width: 1
@@ -48,18 +51,20 @@ Rectangle {
     Behavior on width {
         ThemeAnim {}
     }
+    Behavior on height {
+        ThemeAnim {}
+    }
 
-    Row {
+    Strip {
         id: tiles
 
-        x: 8
-        height: parent.height
+        anchors.centerIn: parent
         spacing: 4
 
         Repeater {
             model: root.apps
 
-            delegate: Row {
+            delegate: Strip {
                 id: app
 
                 required property var modelData
@@ -68,36 +73,39 @@ Rectangle {
                 readonly property bool focused: modelData.toplevels.some(t => t.activated)
                 readonly property int distance: root.hovered < 0 ? 99 : Math.abs(root.hovered - index)
 
-                height: parent.height
                 spacing: 4
 
                 // between pinned and unpinned apps
                 Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 1
-                    height: 24
+                    width: root.vertical ? 24 : 1
+                    height: root.vertical ? 1 : 24
                     color: Theme.outlineVariant
                     visible: app.index > 0 && app.index === root.pinnedCount
                 }
 
                 Item {
-                    width: 40
-                    height: parent.height
+                    id: slot
 
+                    width: root.vertical ? Theme.barSize : 40
+                    height: root.vertical ? 40 : Theme.barSize
+
+                    // hovered: grows away from the screen edge
                     Rectangle {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: 5 + (app.distance === 0 ? 3 : 0)
+                        property real push: app.distance === 0 ? 3 : 0
+
+                        x: (slot.width - width) / 2 + (root.edge === "left" ? push : root.edge === "right" ? -push : 0)
+                        y: (slot.height - height) / 2 + (root.edge === "top" ? push : root.edge === "bottom" ? -push : 0)
                         width: 36
                         height: 36
                         radius: Theme.tileRadius
                         color: Theme.surfaceHigh
-                        transformOrigin: Item.Top
+                        transformOrigin: ({ left: Item.Left, right: Item.Right, top: Item.Top, bottom: Item.Bottom })[root.edge]
                         scale: app.distance === 0 ? 1.18 : app.distance === 1 ? 1.06 : 1
 
                         Behavior on scale {
                             ThemeAnim {}
                         }
-                        Behavior on y {
+                        Behavior on push {
                             ThemeAnim {}
                         }
 
@@ -109,18 +117,19 @@ Rectangle {
                         }
                     }
 
-                    // running indicator, wide for the focused app
+                    // running indicator on the screen-edge side, long for the focused app
                     Rectangle {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 2
-                        width: app.focused ? 16 : 4
-                        height: 3
+                        property real long: app.focused ? 16 : 4
+
+                        x: root.edge === "left" ? 1 : root.edge === "right" ? slot.width - 4 : (slot.width - width) / 2
+                        y: root.edge === "top" ? 1 : root.edge === "bottom" ? slot.height - 4 : (slot.height - height) / 2
+                        width: root.vertical ? 3 : long
+                        height: root.vertical ? long : 3
                         radius: 2
                         color: Theme.primary
                         opacity: app.running ? 1 : 0
 
-                        Behavior on width {
+                        Behavior on long {
                             ThemeAnim {}
                         }
                     }

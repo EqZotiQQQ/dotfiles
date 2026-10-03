@@ -4,9 +4,10 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs.common
 
-// Top bar of one screen: three floating islands over the spectrum strip (layer "background").
-// The surface is taller than the bar so the status island can grow its popouts downwards;
-// only the islands take input (mask), the rest of the surface is click-through.
+// Bar of one screen on the edge from theme.json (bar.position): three floating islands over the
+// spectrum strip (Spectrum.qml). Islands along the edge: workspaces at the start, dock in the middle,
+// status at the end. The surface reaches further from the edge than the bar, so the status island can
+// slide its popouts out; only the islands take input (mask), the rest of the surface is click-through.
 PanelWindow {
     id: bar
 
@@ -15,37 +16,51 @@ PanelWindow {
     // the bar is on layer "top", above windows, so it steps aside for a fullscreen one (not a maximized one)
     readonly property bool fullscreen: monitor?.activeWorkspace?.toplevels.values.some(t => t.wayland?.fullscreen) ?? false
 
+    readonly property string edge: Theme.barPosition
+    readonly property bool vertical: Theme.barVertical
+    readonly property int margin: Theme.barMargin
+
+    // an island's position across the bar: `margin` away from its screen edge
+    function across(size) {
+        return edge === "left" || edge === "top" ? margin : (vertical ? width : height) - margin - size;
+    }
+
     screen: modelData
     visible: !fullscreen
     anchors {
-        top: true
-        left: true
-        right: true
+        top: edge !== "bottom"
+        bottom: edge !== "top"
+        left: edge !== "right"
+        right: edge !== "left"
     }
-    implicitHeight: Theme.barMargin + Theme.barHeight + 560
-    exclusiveZone: Theme.barMargin + Theme.barHeight
+    implicitWidth: margin + Theme.barSize + 560
+    implicitHeight: margin + Theme.barSize + 560
+    exclusiveZone: margin + Theme.barSize
     color: "transparent"
     WlrLayershell.namespace: "quickshell-bar"
 
     mask: Region {
-        item: left
+        item: start
 
         Region {
             item: dock
         }
         Region {
-            item: status
+            item: status.island
+        }
+        Region {
+            item: status.panel
         }
     }
 
-    // Workspaces of this monitor + the active window's title
+    // Workspaces of this monitor + the active window
     Rectangle {
-        id: left
+        id: start
 
-        x: Theme.barMargin
-        y: Theme.barMargin
-        width: leftRow.implicitWidth + 22
-        height: Theme.barHeight
+        x: bar.vertical ? bar.across(width) : bar.margin
+        y: bar.vertical ? bar.margin : bar.across(height)
+        width: bar.vertical ? Theme.barSize : content.implicitWidth + 22
+        height: bar.vertical ? content.implicitHeight + 22 : Theme.barSize
         radius: Theme.islandRadius
         color: Theme.panel
         border.width: 1
@@ -54,48 +69,55 @@ PanelWindow {
         Behavior on width {
             ThemeAnim {}
         }
+        Behavior on height {
+            ThemeAnim {}
+        }
 
-        Row {
-            id: leftRow
+        Strip {
+            id: content
 
-            x: 11
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 12
+            anchors.centerIn: parent
+            spacing: 10
 
             Workspaces {
-                anchors.verticalCenter: parent.verticalCenter
                 monitor: bar.monitor
             }
 
             Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width: 1
-                height: 20
+                width: bar.vertical ? 20 : 1
+                height: bar.vertical ? 1 : 20
                 color: Theme.outlineVariant
-                visible: title.visible
+                visible: activeWindow.visible
             }
 
             ActiveWindow {
-                id: title
+                id: activeWindow
 
-                anchors.verticalCenter: parent.verticalCenter
                 monitor: bar.monitor
             }
         }
     }
 
+    // centered along the edge, but never over the other islands (small screen, many apps)
     Dock {
         id: dock
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: Theme.barMargin
+        readonly property real along: {
+            const size = bar.vertical ? height : width;
+            const length = bar.vertical ? bar.height : bar.width;
+            const after = bar.vertical ? start.y + start.height : start.x + start.width;
+            const before = bar.vertical ? status.y : status.x;
+            return Math.max(after + bar.margin, Math.min((length - size) / 2, before - size - bar.margin));
+        }
+
+        x: bar.vertical ? bar.across(width) : along
+        y: bar.vertical ? along : bar.across(height)
     }
 
     StatusIsland {
         id: status
 
-        anchors.right: parent.right
-        anchors.rightMargin: Theme.barMargin
-        y: Theme.barMargin
+        x: bar.vertical ? bar.across(width) : bar.width - bar.margin - width
+        y: bar.vertical ? bar.height - bar.margin - height : bar.across(height)
     }
 }

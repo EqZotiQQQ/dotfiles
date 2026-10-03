@@ -137,7 +137,7 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 - `hyprland.lua` — основной конфиг; keybindings вынесены в `keybindings.lua` (`require("keybindings")`)
 - `keybindings.lua` — все бинды клавиш (`hl.bind`); `terminal`/`fileManager`/`menu` — глобалы из `hyprland.lua`
 - `theme.lua` — читает общую тему `~/.config/theme/theme.json` (через `lib/json.lua`, rxi/json.lua, MIT);
-  из неё в `hyprland.lua` берутся рамки, отступы, скругления, размытие, кривая анимации окон, цвета и высота spectrum.
+  из неё в `hyprland.lua` берутся рамки, отступы, скругления, размытие, кривая анимации окон.
   Если тема не читается — эти значения остаются дефолтными Hyprland, остальной конфиг грузится
   (`require` в Hyprland сам сообщает об ошибке и возвращает заглушку, а не бросает исключение)
 - `hyprpaper.conf`, `hypridle.conf` — обои / автоблокировка (остаются на hyprlang); `hypridle` → `lock_cmd = ~/.local/bin/lock`
@@ -150,34 +150,40 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 
 **Автозапуск** (`hl.on("hyprland.start", ...)` в hyprland.lua):
 ```
-hyprpaper, hypridle, qs (Quickshell-бар), mako, hyprpolkitagent
-sleep 1 && ~/my_projects/spectrum/build/spectrum wayland ...  (по процессу на монитор; пропускается, если бинарника нет)
+hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним), mako, hyprpolkitagent
 ```
 У Hyprland в `PATH` нет `~/.local/bin` — свои скрипты из автозапуска/hypridle вызывать по полному пути.
 
-**spectrum за баром:** слои снизу вверх — hyprpaper → spectrum (`background`, стартует после hyprpaper) → бар (`top`,
-острова висят над полосой). Край и направление баров — `spectrum_edge` / `spectrum_orientation` в блоке автозапуска;
-высота полосы и цвета — `spectrum.height` / `spectrum.colors` в теме; передаются флагами
-`--render.window.layer_shell.anchor`, `--render.window.height|width`, `--render.orientation`, `--render.colors.*`.
+**spectrum за баром:** слои снизу вверх — hyprpaper → spectrum (`background`, стартует через 1 с после Quickshell, т.е. после
+hyprpaper) → бар (`top`, острова висят над полосой). Запускает и перезапускает его Quickshell (`bar/Spectrum.qml`, по процессу
+на монитор): край — как у бара (`bar.position`), столбики растут от края, толщина и цвета — `spectrum.size` / `spectrum.colors`;
+флаги `--render.window.layer_shell.anchor`, `--render.window.height|width`, `--render.orientation`, `--render.colors.*`.
+Запуск через `setpriv --pdeathsig TERM`: spectrum умирает вместе с `qs`; при перезагрузке QML старый процесс гасится явно.
 
 ## Тема (`home/.config/theme/theme.json`)
 
 Единый источник внешнего вида: палитра (Material-подобная: `primary`, `onPrimary`, `surface`, `outline`…), формы
 (скругления, отступы, размеры бара), размытие, кривая анимаций, шрифты, полоса spectrum, тема локскрина.
-Читают: бар (сразу, файл отслеживается), Hyprland (`hypr/theme.lua`, при перезагрузке конфига), spectrum (при входе),
+Читают: бар и spectrum (Quickshell, сразу: файл отслеживается), Hyprland (`hypr/theme.lua`, при перезагрузке конфига),
 `lock` (при блокировке). Ключи — `home/.config/theme/README.md`. Kitty в тему не входит (Gruvbox в `kitty/theme.conf`).
 
 ## Quickshell (статусбар)
 
-Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `qs`. Перезапуск: `pkill -x quickshell; qs -d`.
-- `shell.qml` — по бару на каждый экран
-- `common/` — синглтоны `Theme` (theme.json), `Icons` (глифы Nerd Font), `Time` (часы + локаль `LC_TIME`); `ThemeAnim`, `StyledText`
+Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `qs`. Перезапуск: `pkill -x qs; qs -d` (`qs kill` экземпляр, запущенный с `-d`, не находит). Логи: `qs log`.
+Правки QML подхватываются сами, но замену файла (`sed -i`, новый inode) вотчер по симлинку теряет — тогда перезапуск.
+- `shell.qml` — на каждый экран бар (`bar/Bar.qml`) и полоса spectrum (`bar/Spectrum.qml`)
+- `common/` — синглтоны `Theme` (theme.json), `Icons` (глифы Nerd Font), `Time` (часы + локаль `LC_TIME`); `ThemeAnim`, `StyledText`,
+  `Strip` (ряд на горизонтальном баре / колонка на вертикальном)
 - `services/` — данные: `Cpu`, `Memory` (/proc), `Sensors` (hwmon, `scripts/sensors`), `Network`, `Audio` (PipeWire),
   `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (режим «не беспокоить»)
-- `bar/Bar.qml` — слой `top`, namespace `quickshell-bar` (размытие: layer rule `bar-blur` в hyprland.lua); поверхность выше бара
-  для поповеров, ввод только на островах (`mask`); бар прячется на мониторе с полноэкранным окном
-- три острова: `Workspaces` + `ActiveWindow` слева, `Dock` по центру (закреплённые: `pinned` в `Dock.qml`, плюс запущенные),
-  `StatusIsland` справа — модули `Chip` и поповеры `bar/popouts/*` (наведение открывает, клик закрепляет; остров «вырастает» вниз)
+- `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету), слой `top`,
+  namespace `quickshell-bar`, без размытия (виден spectrum); поверхность глубже бара для поповеров, ввод только на островах
+  (`mask`); бар прячется на мониторе с полноэкранным окном
+- три острова вдоль края: `Workspaces` + `ActiveWindow` (на вертикальном — только иконка), `Dock` (по центру, но не наезжает
+  на соседей; закреплённые: `pinned` в `Dock.qml`, плюс запущенные), `StatusIsland` — модули `Chip` и поповеры
+  `bar/popouts/*`: наведение открывает, клик закрепляет; панель выезжает от края на уровне модуля, остров и панель —
+  одна `Shape` с вогнутыми стыками, геометрия считается в системе «от края / вдоль края» и отображается на нужный край;
+  пока поповер открыт, фигура почти непрозрачна (`opacity.popout`)
 - воркспейсы: номера 1–9 своего монитора (id 1–9 — DP-2, 10–18 — DP-1, правила в hyprland.lua), пустые не показываются
 
 **Подводный камень QML:** свойства с именем `onXxx` (как `onSurface`) читаются как обработчики сигналов и дают
@@ -193,7 +199,11 @@ lock                    # заблокировать (SUPER+L → loginctl lock-
 lock --preview [тема]   # показать тему в окнах, без блокировки
 lock --list             # установленные темы
 lock --fetch [тема]     # поставить движок qylock / докачать его тему
+lock-theme              # выбрать из всех тем (fzf, ссылки на GIF-превью), скачать и включить
+lock-theme list | link <тема> | install <тема>
 ```
+`lock-theme` (python) берёт список тем qylock из дерева sparse-клона (`git ls-tree`, без сети), включает тему заменой
+только значения `lock.theme` в theme.json (форматирование файла сохраняется).
 Своя тема `pixel-city` (пиксельный ночной город с дождём): `home/.config/lockscreen/themes/pixel-city/`, опции в `theme.conf`.
 
 ## eww (не используется)
@@ -251,6 +261,7 @@ All zsh config lives in `home/.config/zsh/`:
 
 `home/.local/bin/` — shell scripts used by the WM and keybindings:
 - `lock` — Quickshell lockscreen (см. «Локскрин»)
+- `lock-theme` — выбор / скачивание / включение темы локскрина
 - `lock_screen.sh` — i3lock wrapper
 - `mako-dnd` — toggle do-not-disturb mode (mako)
 - `mako-history` — показать историю уведомлений

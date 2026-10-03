@@ -1,26 +1,27 @@
 import QtQuick
 import qs.common
 
-// Status module: icon + text (+ extra children). The island decides what hover/click/wheel do.
+// Status module: icon + value, side by side on a horizontal bar, stacked on a vertical one.
+// The island decides what hover/click/wheel do.
 Rectangle {
     id: root
 
     property string icon: ""
     property string text: ""
-    property bool mono: true            // numbers in the mono font keep their width
-    property string widthTemplate: ""   // widest expected text, so changing values don't shift the island
+    property string note: ""            // dimmer text after the value, horizontal bar only
+    property bool mono: true            // numbers in the mono font
+    property int textSize: Theme.barVertical ? 11 : Theme.fontSize
+    property string widthTemplate: ""   // widest expected value: on a horizontal bar changing values don't shift the island
     property bool active: false         // its popout is open
     property color iconColor: active ? Theme.textOnPrimaryContainer : Theme.text
-    default property alias extra: row.data
 
     signal entered
     signal clicked(int button)
     signal wheel(int delta)
 
-    anchors.verticalCenter: parent.verticalCenter
-    implicitWidth: row.implicitWidth + 18
-    implicitHeight: 36
-    radius: Theme.chipRadius
+    implicitWidth: Theme.barVertical ? Theme.barSize - 8 : content.implicitWidth + 18
+    implicitHeight: Theme.barVertical ? content.implicitHeight + 10 : 36
+    radius: Math.min(Theme.chipRadius, width / 2, height / 2)
     color: active ? Theme.primaryContainer : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
 
     Behavior on color {
@@ -36,14 +37,17 @@ Rectangle {
         font: label.font
     }
 
-    Row {
-        id: row
+    Grid {
+        id: content
 
         anchors.centerIn: parent
-        spacing: 6
+        columns: Theme.barVertical ? 1 : 3
+        columnSpacing: 6
+        rowSpacing: 1
+        horizontalItemAlignment: Grid.AlignHCenter
+        verticalItemAlignment: Grid.AlignVCenter
 
         StyledText {
-            anchors.verticalCenter: parent.verticalCenter
             visible: root.icon !== ""
             text: root.icon
             font.family: Theme.iconFont
@@ -54,14 +58,21 @@ Rectangle {
         StyledText {
             id: label
 
-            anchors.verticalCenter: parent.verticalCenter
             visible: root.text !== ""
-            width: Math.max(implicitWidth, template.advanceWidth)
-            horizontalAlignment: Text.AlignRight
+            width: Theme.barVertical ? implicitWidth : Math.max(implicitWidth, template.advanceWidth)
+            horizontalAlignment: Theme.barVertical ? Text.AlignHCenter : Text.AlignRight
+            lineHeight: 0.95
             text: root.text
             font.family: root.mono ? Theme.monoFont : Theme.uiFont
-            font.weight: Font.Medium
+            font.pixelSize: root.textSize
+            font.weight: root.mono ? Font.Medium : Font.DemiBold
             color: root.active ? Theme.textOnPrimaryContainer : Theme.text
+        }
+
+        StyledText {
+            visible: !Theme.barVertical && root.note !== ""
+            text: root.note
+            color: root.active ? Theme.textOnPrimaryContainer : Theme.textVariant
         }
     }
 

@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""lock-theme — pick, preview-link and install lockscreen themes for `lock`.
+
+  lock-theme                pick a theme (fzf: links in the preview pane), download it, make it active
+  lock-theme list           every theme: active / installed / downloadable, with a preview link
+  lock-theme link NAME      preview GIF and the theme's folder on GitHub
+  lock-theme install NAME   download it if needed and make it active (lock.theme in theme.json)
+
+Own themes: ~/.config/lockscreen/themes. qylock themes are listed from the sparse clone's git tree
+(~/.local/share/qylock, no network), downloaded with `lock --fetch NAME`.
+"""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from functools import cache
+from pathlib import Path
+
+HOME = Path.home()
+CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", HOME / ".config"))
+THEME_JSON = CONFIG / "theme/theme.json"
+OWN_DIR = CONFIG / "lockscreen/themes"
+QYLOCK_DIR = Path(os.environ.get("QYLOCK_DIR", HOME / ".local/share/qylock"))
+LOCK = HOME / ".local/bin/lock"
+REPO_URL = "https://github.com/Darkkal44/qylock"
+
+# "lock": { ... "theme": "<name>" ... } — replaced in place to keep the file's formatting
+LOCK_THEME = re.compile(r'("lock"\s*:\s*\{[^}]*?"theme"\s*:\s*)"[^"]*"', re.S)
+
+
+def git(*args):
+    return subprocess.run(["git", "-C", QYLOCK_DIR, *args], capture_output=True, text=True, check=True).stdout
+
+
+def ensure_engine():
+    if not (QYLOCK_DIR / ".git").is_dir():
+        subprocess.run([LOCK, "--fetch"], check=True)
+
+
+def active():
+    try:
+        return json.loads(THEME_JSON.read_text())["lock"]["theme"]
+    except (OSError, KeyError, ValueError):
+        return ""
+
+
+@cache
+def branch():
+    return git("rev-parse", "--abbrev-ref", "HEAD").strip()
+
+
+@cache
+def assets():
+    return [Path(p).name for p in git("ls-tree", "--name-only", "HEAD", "Assets/").splitlines()]
+
+
+def norm(name):
+    return re.sub(r"[-_]", "", name.lower())
+
+
+def themes():
+    """[{name, source, installed}]: own themes first, then every qylock theme in the repo."""
+    result = [{"name": p.parent.name, "source": "своя", "installed": True} for p in sorted(OWN_DIR.glob("*/Main.qml"))]
+    own = {t["name"] for t in result}
+    for path in git("ls-tree", "-r", "--name-only", "HEAD", "themes/").splitlines():
+        if path.endswith("/Main.qml"):
+            name = path[len("themes/"):-len("/Main.qml")]   # nested variants: clockwork/tape
+            if name not in own:
+                result.append({"name": name, "source": "qylock", "installed": (QYLOCK_DIR / path).is_file()})
+    return result
+
+
+def links(name):
+    """Preview GIF (from the repo's Assets, names only roughly match) and the theme's folder."""
+    if (OWN_DIR / name / "Main.qml").is_file():
+        return [f"локальная тема: {OWN_DIR / name}"]
+    key = norm(name.split("/")[0])
+    gif = next((a for a in assets() if norm(Path(a).stem) == key), None) \
+        or next((a for a in assets() if key in norm(Path(a).stem)), None)
+    preview = f"{REPO_URL}/blob/{branch()}/Assets/{gif}" if gif else f"{REPO_URL}#gallery"
+    return [f"превью: {preview}", f"тема:   {REPO_URL}/tree/{branch()}/themes/{name}"]
+
+
+def status(theme, current):
+    if theme["name"] == current:
+        return "● активна" if theme["installed"] else "● активна, НЕ скачана"
+    return "✓ скачана" if theme["installed"] else "  можно скачать"
+
+
+def install(name):
+    known = {t["name"]: t for t in themes()}
+    if name not in known:
+        sys.exit(f"lock-theme: нет темы '{name}' (lock-theme list)")
+    if not known[name]["installed"]:
+        subprocess.run([LOCK, "--fetch", name], check=True)
+
+    text = THEME_JSON.read_text()
+    new, count = LOCK_THEME.subn(lambda m: m.group(1) + json.dumps(name), text)
+    if count != 1:
+        sys.exit(f"lock-theme: не нашёл lock.theme в {THEME_JSON}")
+    json.loads(new)   # still valid JSON
+    THEME_JSON.write_text(new)
+    print(f"Локскрин: {name}. Посмотреть без блокировки: lock --preview")
+
+    # video backgrounds need the ffmpeg backend of Qt Multimedia
+    theme_dir = OWN_DIR / name if known[name]["source"] == "своя" else QYLOCK_DIR / "themes" / name
+    has_video = any(theme_dir.rglob("*.mp4")) or any(theme_dir.rglob("*.webm"))
+    if has_video and subprocess.run(["pacman", "-Q", "qt6-multimedia-ffmpeg"], capture_output=True).returncode:
+        print("У темы видеофон: sudo pacman -S qt6-multimedia-ffmpeg gst-plugins-good gst-plugins-bad")
+
+
+def pick():
+    current = active()
+    rows = [f"{t['name']}\t{status(t, current)}\t{t['source']}" for t in themes()]
+    if shutil.which("fzf"):
+        me = f"{sys.executable} {Path(__file__).resolve()}"
+        out = subprocess.run(
+            ["fzf", "--delimiter=\t", "--tabstop=24", "--reverse", "--height=60%",
+             "--header=Enter — скачать и включить · Esc — выход",
+             f"--preview={me} link {{1}}", "--preview-window=down,3,wrap"],
+            input="\n".join(rows), stdout=subprocess.PIPE, text=True)
+        choice = out.stdout.split("\t")[0].strip()
+    else:
+        for i, row in enumerate(rows, 1):
+            print(f"{i:3}  {row.expandtabs(24)}")
+        number = input("Номер темы (пусто — выход): ").strip()
+        choice = rows[int(number) - 1].split("\t")[0] if number else ""
+    if choice:
+        print("\n".join(links(choice)))
+        install(choice)
+
+
+def main():
+    ensure_engine()
+    match sys.argv[1:]:
+        case []:
+            pick()
+        case ["list"]:
+            current = active()
+            for t in themes():
+                print(f"{status(t, current):22} {t['name']:22} {links(t['name'])[0]}")
+        case ["link", name]:
+            print("\n".join(links(name)))
+        case ["install", name]:
+            install(name)
+        case _:
+            sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()
