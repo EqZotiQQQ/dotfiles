@@ -1,38 +1,16 @@
-My personal dotfiles config
-
-Window manager: ~Awesome~ Hyprland
-Shell: Zsh
-Screenlock: i3lock
-Terminal emulator: Kitty
-Window switcher: Wofi
-Screenshot tool: Flameshot
 
 
-## Setup
+TODO:
+docs
 
-```bash
-./dot                             # help
-./dot --profile desktop -s -f     # пакеты + симлинки
-./dot --status                    # что разошлось между репо и ~
-```
+# Requirements
+TBD
 
-Всё через `./dot`; без `-f` — dry-run. Подробности в CLAUDE.md.
+# Getting started
+TBD
 
-## Монтирование диска с Windows
+# Configuration
+TBD
 
-Used to mount disc with windows that contains icloud with obsidian
-```bash
-systemctl --user daemon-reexec
-systemctl --user daemon-reload
-systemctl --user enable mount_disk.service
-systemctl --user start mount_disk.service
-
-
-systemctl --user daemon-reexec && \
-systemctl --user daemon-reload && \
-systemctl --user enable waybar_live_reload.service && \
-systemctl --user start waybar_live_reload.service
-```
-
-
-git-delta: https://dandavison.github.io/delta/installation.html
+# TODO
+transparent and blur for term
