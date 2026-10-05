@@ -9,6 +9,11 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 hl.bind(mainMod .. " + Q",      hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind("CTRL + SHIFT + Q",     hl.dsp.exec_cmd("kill $(hyprctl activewindow -j | jq .pid)"))
+-- Spotify сам Ctrl+W не обрабатывает; остальным окнам клавиша проходит как обычно (non_consuming)
+hl.bind("CTRL + W", function()
+    local w = hl.get_active_window()
+    if w and w.class == "Spotify" then hl.dispatch(hl.dsp.window.close()) end
+end, { non_consuming = true })
 hl.bind(mainMod .. " + M",      hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }))

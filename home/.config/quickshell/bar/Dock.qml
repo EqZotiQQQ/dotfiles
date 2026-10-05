@@ -9,7 +9,7 @@ Rectangle {
     id: root
 
     // desktop entry ids: /usr/share/applications/<id>.desktop
-    property list<string> pinned: ["kitty", "google-chrome", "obsidian", "code", "org.kde.dolphin", "org.telegram.desktop", "discord", "Spotify"]
+    property list<string> pinned: ["kitty", "google-chrome", "obsidian", "code", "org.kde.dolphin", "org.telegram.desktop", "discord", "spotify-launcher"]
 
     // [{ entry, appId, toplevels }]: pinned first, windows grouped by their desktop entry
     readonly property var apps: {

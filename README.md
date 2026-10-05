@@ -14,3 +14,4 @@ TBD
 
 # TODO
 transparent and blur for term
+Setup startup screens
