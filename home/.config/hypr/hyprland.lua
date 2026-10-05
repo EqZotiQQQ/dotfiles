@@ -68,6 +68,34 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd("nm-applet")
 end)
 
+-- Apps opened at login, each first window sent to its workspace (1-9 DP-2, 10-18 DP-1).
+-- Matched by window class, not exec_cmd rules: those track the PID, and code / spotify-launcher
+-- open their window from another process.
+local startup_apps = {
+    { cmd = "spotify-launcher",     class = "Spotify",              workspace = 9 },
+    { cmd = "telegram-desktop",     class = "org.telegram.desktop", workspace = 8 },
+    { cmd = "code",                 class = "code",                 workspace = 1 },
+    { cmd = terminal,               class = "kitty",                workspace = 1 },
+    { cmd = "google-chrome-stable", class = "google-chrome",        workspace = 10 },
+    { cmd = "obsidian",             class = "md.obsidian.Obsidian", workspace = 11 },
+}
+local startup_pending = {} -- class -> workspace, until that class's first window appears
+
+local function place_startup_window(w)
+    local workspace = w and startup_pending[w.class]
+    if not workspace then return end
+    startup_pending[w.class] = nil
+    hl.dispatch(hl.dsp.window.move({ workspace = tostring(workspace), follow = false, window = "address:" .. w.address }))
+end
+hl.on("window.open", place_startup_window)
+
+hl.on("hyprland.start", function()
+    for _, app in ipairs(startup_apps) do
+        startup_pending[app.class] = app.workspace
+        hl.exec_cmd(app.cmd)
+    end
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----

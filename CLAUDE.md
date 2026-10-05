@@ -152,6 +152,8 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 ```
 hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним), mako, hyprpolkitagent
 ```
+Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (событие `window.open`).
+Не через правила `exec_cmd`: они привязаны к PID, а `code` / `spotify-launcher` открывают окно из другого процесса.
 У Hyprland в `PATH` нет `~/.local/bin` — свои скрипты из автозапуска/hypridle вызывать по полному пути.
 
 **spectrum за баром:** слои снизу вверх — hyprpaper → spectrum (`background`, стартует через 1 с после Quickshell, т.е. после
