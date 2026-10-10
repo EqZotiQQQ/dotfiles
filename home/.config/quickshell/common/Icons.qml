@@ -17,6 +17,8 @@ Singleton {
     readonly property string offline: String.fromCodePoint(0xF0319)
     readonly property string bell: String.fromCodePoint(0xF009A)
     readonly property string bellOff: String.fromCodePoint(0xF009B)
+    readonly property string history: String.fromCodePoint(0xF02DA)
+    readonly property string close: String.fromCodePoint(0xF0156)
     readonly property string power: String.fromCodePoint(0xF0425)
     readonly property string lock: String.fromCodePoint(0xF033E)
     readonly property string sleep: String.fromCodePoint(0xF04B2)

@@ -1,7 +1,7 @@
 # ── mako notification daemon ──────────────────────────────────
-# Theme: Catppuccin Mocha
+# Colours, border, rounding: ~/.config/theme/theme.json (see "colours" below)
 
-font=Iosevka Nerd Font 12
+font=Iosevka 12
 
 # ── layout ────────────────────────────────────────────────────
 anchor=top-right
@@ -10,14 +10,6 @@ margin=12
 padding=12,16
 width=380
 height=120
-border-size=2
-border-radius=8
-
-# ── colours ───────────────────────────────────────────────────
-background-color=#1e1e2edd
-text-color=#cdd6f4ff
-border-color=#cba6f7ff
-progress-color=over #313244ff
 
 # ── icons ─────────────────────────────────────────────────────
 icons=1
@@ -33,23 +25,40 @@ max-history=20
 max-visible=5
 sort=-time
 
+# app name above the summary; notifications of one app fold into one card (format: [grouped] below)
+format=<span size="small" alpha="65%%">%a</span>\n<b>%s</b>\n%b
+group-by=app-name
+
 default-timeout=5000
 ignore-timeout=0
 
+# ── colours ───────────────────────────────────────────────────
+# Generated from theme.json by ~/.local/bin/mako-theme: at login before mako, and by Quickshell on every
+# theme change. mako won't start without this file
+include=~/.cache/mako-theme
+
 # ── urgency overrides ─────────────────────────────────────────
 [urgency=low]
-border-color=#89b4faff
 default-timeout=3000
 
 [urgency=normal]
-border-color=#cba6f7ff
 default-timeout=5000
 
 [urgency=high]
-border-color=#f38ba8ff
-text-color=#f38ba8ff
-background-color=#1e1e2eff
 default-timeout=0
+
+[grouped]
+format=<span size="small" alpha="65%%">%a · %g</span>\n<b>%s</b>\n%b
+
+# ── apps ──────────────────────────────────────────────────────
+# track changes: brief, and kept out of the history
+[app-name=Spotify]
+default-timeout=2000
+history=0
+
+# mako-dnd's "Notifications enabled"
+[app-name=mako]
+history=0
 
 [mode=do-not-disturb]
 invisible=1

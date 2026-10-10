@@ -46,6 +46,19 @@ hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
+-- Клик мимо wofi закрывает его. Сам wofi этого не умеет: он держит клавиатуру эксклюзивно, фокус от него
+-- по клику не уходит, и close_on_focus_loss не срабатывает. Клик всё равно доходит до окна (non_consuming)
+for _, button in ipairs({ "mouse:272", "mouse:273" }) do
+    hl.bind(button, function()
+        local c = hl.get_cursor_pos()
+        for _, l in ipairs(hl.get_layers({ namespace = "wofi" })) do
+            if c.x < l.x or c.x >= l.x + l.w or c.y < l.y or c.y >= l.y + l.h then
+                hl.exec_cmd("pkill -x wofi")
+            end
+        end
+    end, { non_consuming = true })
+end
+
 -- Language switching
 hl.bind("ALT + Shift_L",         hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))
 hl.bind(mainMod .. " + SPACE",   hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))

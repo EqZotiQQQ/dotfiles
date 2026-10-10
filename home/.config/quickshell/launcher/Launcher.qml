@@ -6,9 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.common
 
-// App launcher in the bar's look, an alternative to wofi. NOT active yet: to switch over, add `Launcher {}`
-// (+ `import qs.launcher`) to ShellRoot in shell.qml and set `menu = "qs ipc call launcher toggle"` in hyprland.lua.
-// Opens on the focused monitor. Query words match name, generic name, description and keywords in any order,
+// App launcher in the bar's look (replaces wofi on SUPER+R: `menu` in hyprland.lua). Opens on the focused monitor. Query words match name, generic name, description and keywords in any order,
 // name matches go first. ↑↓ / Tab choose, Enter runs, Esc or a click outside closes.
 Scope {
     id: root

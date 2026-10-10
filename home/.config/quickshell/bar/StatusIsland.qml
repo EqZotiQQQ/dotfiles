@@ -14,7 +14,7 @@ import qs.bar.popouts
 Item {
     id: root
 
-    property string open: ""      // shown popout: cpu | temp | mem | audio | calendar | power, "" = closed
+    property string open: ""      // shown popout: cpu | temp | mem | audio | notifications | calendar | power, "" = closed
     property string pinned: ""
     property string shown: ""     // last opened popout, stays loaded while the panel slides back
     property Item anchorChip: null // the module the panel lines up with
@@ -272,10 +272,16 @@ Item {
             textSize: root.vertical ? 12 : Theme.fontSize
         }
 
+        // hover: notification center, middle click: do not disturb. The count: new since it was last open
         Chip {
+            id: notifications
+
             icon: Mako.dnd ? Icons.bellOff : Icons.bell
-            iconColor: Mako.dnd ? Theme.tertiary : Theme.text
-            onClicked: Mako.toggle()
+            iconColor: active ? Theme.textOnPrimaryContainer : Mako.dnd ? Theme.tertiary : Theme.text
+            text: Mako.unread > 0 ? String(Mako.unread) : ""
+            active: root.open === "notifications"
+            onEntered: root.hover("notifications", notifications)
+            onClicked: button => button === Qt.MiddleButton ? Mako.toggle() : root.click("notifications", notifications)
         }
 
         // vertical bar: hours over minutes; horizontal: time + date. Hover: calendar
@@ -325,6 +331,7 @@ Item {
                     temp: tempPopout,
                     mem: memPopout,
                     audio: audioPopout,
+                    notifications: notificationsPopout,
                     calendar: calendarPopout,
                     power: powerPopout
                 })[root.shown] ?? null
@@ -366,6 +373,11 @@ Item {
         id: audioPopout
 
         AudioPopout {}
+    }
+    Component {
+        id: notificationsPopout
+
+        NotificationsPopout {}
     }
     Component {
         id: calendarPopout

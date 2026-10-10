@@ -31,7 +31,7 @@ end
 terminal    = "kitty"
 fileManager = "dolphin"
 menu        = "pkill -x wofi || wofi" -- повторное нажатие закрывает меню
--- menu     = "qs ipc call launcher toggle" -- лаунчер Quickshell; сначала `Launcher {}` в quickshell/shell.qml
+-- menu     = "qs ipc call launcher toggle" -- лаунчер Quickshell (quickshell/launcher), повторное нажатие закрывает
 
 
 ---------------
@@ -63,7 +63,8 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hypridle") -- timeout management, session blocker, sleeper, etc
     -- bar + the spectrum strip behind it (Quickshell: ~/.config/quickshell); edge, size, colors: theme.json
     hl.exec_cmd("qs")
-    hl.exec_cmd("mako") -- notification manager
+    -- notification manager; its colors from theme.json first (mako-theme): mako won't start without them
+    hl.exec_cmd("~/.local/bin/mako-theme; mako")
     hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent") -- password agent for gui apps
     -- hl.exec_cmd(terminal)
     -- hl.exec_cmd("nm-applet")
@@ -363,6 +364,15 @@ hl.window_rule({
 hl.layer_rule({
     name  = "blur-wofi",
     match = { namespace = "^wofi$" },
+
+    blur         = true,
+    ignore_alpha = 0,
+})
+
+-- mako: размытие под полупрозрачным фоном уведомлений (opacity.popout в theme.json, через mako-theme)
+hl.layer_rule({
+    name  = "blur-mako",
+    match = { namespace = "^notifications$" },
 
     blur         = true,
     ignore_alpha = 0,

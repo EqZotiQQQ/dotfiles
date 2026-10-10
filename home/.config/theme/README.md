@@ -8,6 +8,7 @@
 | Hyprland | `~/.config/hypr/theme.lua` (JSON через `hypr/lib/json.lua`) | при перезагрузке конфига: `hyprctl reload` или сохранение `hyprland.lua` |
 | spectrum | его запускает Quickshell (`bar/Spectrum.qml`) | сразу: перезапускается при смене края, толщины, цветов |
 | Локскрин | `~/.local/bin/lock` берёт `lock.theme` | при следующей блокировке |
+| mako (уведомления) | `~/.local/bin/mako-theme` пишет `~/.cache/mako-theme` (`include` в `mako/config`) | сразу: Quickshell запускает `mako-theme` при изменении файла |
 
 Kitty и wofi в тему не входят (остаются на своей Gruvbox: `kitty/theme.conf`, `wofi/style.css`).
 
@@ -23,8 +24,8 @@ Kitty и wofi в тему не входят (остаются на своей Gr
   - `error` — ошибки, перегрев.
 - `bar.position` — край экрана для бара и полосы spectrum за ним: `top`, `bottom`, `left`, `right`.
 - `opacity.panel` — непрозрачность островов бара в покое (без размытия: сквозь них виден spectrum);
-  `opacity.popout` — непрозрачность острова, пока открыт поповер (окна под ним не мешают тексту).
-- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland; `barSize` (толщина бара), `barMargin`,
+  `opacity.popout` — непрозрачность острова, пока открыт поповер (окна под ним не мешают тексту), и фона уведомлений mako.
+- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland (`rounding`, `border` — и для уведомлений mako); `barSize` (толщина бара), `barMargin`,
   `islandRadius`, `tileRadius`, `chipRadius` для бара.
 - `blur` — размытие Hyprland для окон (`size`, `passes`); на бар не действует.
 - `motion` — `curve`: кривая Безье `[x1, y1, x2, y2]` для окон Hyprland и анимаций бара

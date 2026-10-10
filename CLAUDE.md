@@ -143,8 +143,10 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 - `hyprpaper.conf`, `hypridle.conf` — обои / автоблокировка (остаются на hyprlang); `hypridle` → `lock_cmd = ~/.local/bin/lock`
 - `hyprlock.conf` — не используется (локскрин теперь Quickshell, см. «Локскрин»)
 
-**Лаунчер — wofi** (`SUPER+R`, повторное нажатие закрывает): полупрозрачный, размытие — `hl.layer_rule` для namespace `wofi`
-в hyprland.lua; действия приложений (`.desktop` actions): Right раскрывает, Tab — по действиям. `hyprpaper-set` — выбор
+**Лаунчер** на `SUPER+R` — Quickshell (`qs ipc call launcher toggle`, см. «Quickshell»); wofi — запасной вариант
+(закомментированный `menu` в hyprland.lua): полупрозрачный, размытие — `hl.layer_rule` для namespace `wofi`;
+действия приложений (`.desktop` actions): Right раскрывает, Tab — по действиям. Клик мимо закрывает wofi — это бинд
+на `mouse:272/273` в keybindings.lua (`close_on_focus_loss` не срабатывает: эксклюзивный layer-фокус по клику не уходит). `hyprpaper-set` — выбор
 обоев в wofi с превью (миниатюры через `magick`, кэш `~/.cache/hyprpaper-set`).
 
 **Проверка конфига без применения:** `Hyprland --verify-config` (или `-c <path>`).
@@ -154,7 +156,7 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 
 **Автозапуск** (`hl.on("hyprland.start", ...)` в hyprland.lua):
 ```
-hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним), mako, hyprpolkitagent
+hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + лаунчер), mako-theme + mako, hyprpolkitagent
 ```
 Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (событие `window.open`).
 Не через правила `exec_cmd`: они привязаны к PID, а `code` / `spotify-launcher` открывают окно из другого процесса.
@@ -171,7 +173,8 @@ hyprpaper) → бар (`top`, острова висят над полосой). 
 Единый источник внешнего вида: палитра (Material-подобная: `primary`, `onPrimary`, `surface`, `outline`…), формы
 (скругления, отступы, размеры бара), размытие, кривая анимаций, шрифты, полоса spectrum, тема локскрина.
 Читают: бар и spectrum (Quickshell, сразу: файл отслеживается), Hyprland (`hypr/theme.lua`, при перезагрузке конфига),
-`lock` (при блокировке). Ключи — `home/.config/theme/README.md`. Kitty и wofi в тему не входят (Gruvbox в `kitty/theme.conf`, `wofi/style.css`).
+`lock` (при блокировке), mako (`mako-theme` → `~/.cache/mako-theme`, `include` в `mako/config`; при входе и сразу —
+его перезапускает Quickshell; без этого файла mako не стартует). Ключи — `home/.config/theme/README.md`. Kitty и wofi в тему не входят (Gruvbox в `kitty/theme.conf`, `wofi/style.css`).
 
 ## Quickshell (статусбар)
 
@@ -181,7 +184,8 @@ Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `
 - `common/` — синглтоны `Theme` (theme.json), `Icons` (глифы Nerd Font), `Time` (часы + локаль `LC_TIME`); `ThemeAnim`, `StyledText`,
   `Strip` (ряд на горизонтальном баре / колонка на вертикальном)
 - `services/` — данные: `Cpu`, `Memory` (/proc), `Sensors` (hwmon, `scripts/sensors`), `Network`, `Audio` (PipeWire),
-  `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (режим «не беспокоить»)
+  `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (mako: «не беспокоить», уведомления и история;
+  перечитывается по сигналу D-Bus `PropertiesChanged` через `dbus-monitor`, без опроса)
 - `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету), слой `top`,
   namespace `quickshell-bar`, без размытия (виден spectrum); поверхность глубже бара для поповеров, ввод только на островах
   (`mask`); бар прячется на мониторе с полноэкранным окном
@@ -190,9 +194,12 @@ Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `
   `bar/popouts/*`: наведение открывает, клик закрепляет; панель выезжает от края на уровне модуля, остров и панель —
   одна `Shape` с вогнутыми стыками, геометрия считается в системе «от края / вдоль края» и отображается на нужный край;
   пока поповер открыт, фигура почти непрозрачна (`opacity.popout`)
+- колокольчик — центр уведомлений mako (`popouts/NotificationsPopout.qml`: живые + история, «вернуть последнее»,
+  «не беспокоить»), средний клик — «не беспокоить», число — новые с прошлого открытия; mako возвращает из истории
+  только последнее (`makoctl restore`), очистки истории у него нет
 - воркспейсы: номера 1–9 своего монитора (id 1–9 — DP-2, 10–18 — DP-1, правила в hyprland.lua), пустые не показываются
-- `launcher/Launcher.qml` — лаунчер приложений в стиле бара, альтернатива wofi; **не подключён**. Включить: `Launcher {}`
-  (+ `import qs.launcher`) в `shell.qml` и `menu = "qs ipc call launcher toggle"` в hyprland.lua
+- `launcher/Launcher.qml` — лаунчер приложений в стиле бара (один на все экраны, открывается на мониторе с фокусом),
+  слой `overlay`, namespace `quickshell-launcher`; открывается по IPC: `qs ipc call launcher toggle` (`SUPER+R`)
 
 **Подводный камень QML:** свойства с именем `onXxx` (как `onSurface`) читаются как обработчики сигналов и дают
 `#000000` — поэтому в `Theme.qml` цвета текста названы `text`, `textVariant`, `textOnPrimary`, `textOnPrimaryContainer`.
@@ -272,6 +279,7 @@ All zsh config lives in `home/.config/zsh/`:
 - `lock-theme` — выбор / скачивание / включение темы локскрина
 - `lock_screen.sh` — i3lock wrapper
 - `mako-dnd` — toggle do-not-disturb mode (mako)
+- `mako-theme` — цвета mako из theme.json (см. «Тема»)
 - `mako-history` — показать историю уведомлений
 - `mount_disk.sh` — mounts Windows disk (iCloud/Obsidian access)
 - `brightness_handle.sh` — brightness control
