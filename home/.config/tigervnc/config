@@ -1,0 +1,34 @@
+# ~/.config/tigervnc/config  (в старых версиях: ~/.vnc/config)
+# Конфиг пользователя для TigerVNC-сервера (1.11+, запуск через systemd)
+# Формат: ключ=значение, флаги без значения включают опцию.
+
+# Рабочий стол: имя .desktop-файла из /usr/share/xsessions/
+# Примеры: xfce, gnome, plasma, mate, lxqt, cinnamon
+session=xfce
+
+# Разрешение и глубина цвета
+geometry=1920x1080
+depth=24
+dpi=96
+
+# Слушать только localhost — подключаться через SSH-туннель:
+#   ssh -L 5901:localhost:5901 user@server
+# Уберите строку, если нужен прямой доступ по сети (тогда используйте TLS ниже).
+localhost
+
+# Аутентификация: пароль VNC (задаётся командой vncpasswd)
+# Для доступа без туннеля лучше: securitytypes=TLSVnc,VncAuth
+securitytypes=VncAuth
+
+# Не отключать других клиентов при новом подключении
+alwaysshared
+
+# Разрешить клиенту менять разрешение под размер окна
+AcceptSetDesktopSize=1
+
+# Отключать неактивного клиента через N секунд (0 — никогда)
+# IdleTimeout=3600
+
+# Буфер обмена в обе стороны
+SendCutText=1
+AcceptCutText=1

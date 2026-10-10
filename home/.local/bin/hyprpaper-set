@@ -2,7 +2,7 @@
 # hyprpaper-set — pick a wallpaper via wofi and apply to all monitors
 #
 # Usage:
-#   hyprpaper-set              — open wofi picker from ~/Pictures/wallpapers/
+#   hyprpaper-set              — open wofi picker (with thumbnails) from ~/Pictures/wallpapers/
 #   hyprpaper-set /path/to/img — apply directly without picker
 
 
@@ -42,12 +42,20 @@ mapfile -t images < <(
 
 [[ ${#images[@]} -eq 0 ]] && { echo "No images found in ${WALLPAPER_DIR}" >&2; exit 1; }
 
-selected=$(printf '%s\n' "${images[@]}" | \
-  awk -F/ '{print $NF, $0}' | \
-  wofi --dmenu --prompt "Wallpaper" --insensitive | \
-  awk '{print $NF}')
+# a row per image: 16:9 thumbnail (cached, rebuilt when the image changes) + its path inside WALLPAPER_DIR
+thumbs="${XDG_CACHE_HOME:-$HOME/.cache}/hyprpaper-set"
+mkdir -p "$thumbs"
+
+selected=$(
+  for img in "${images[@]}"; do
+    thumb="$thumbs/$(printf '%s' "$img" | md5sum | cut -d' ' -f1).png"
+    [[ "$thumb" -nt "$img" ]] || magick "$img" -thumbnail 320x180^ -gravity center -extent 320x180 "$thumb"
+    printf 'img:%s:text:%s\n' "$thumb" "${img#"${WALLPAPER_DIR%/}"/}"
+  done | wofi --dmenu --prompt "Wallpaper" --insensitive --lines 4 --define image_size=160
+)
 
 [[ -z "$selected" ]] && exit 0
+selected="${WALLPAPER_DIR%/}/${selected##*:text:}"
 
 echo "$selected"
 apply "$selected"

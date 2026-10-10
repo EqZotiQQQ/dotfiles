@@ -25,6 +25,7 @@ setopt HIST_VERIFY            # показать подстановку !! пе�
 
 source "${ZDOTDIR}/settings/plugins.zsh"
 source "${ZDOTDIR}/settings/bindings.zsh"
+source "${ZDOTDIR}/settings/completion.zsh"
 
 [[ ! -f "${ZDOTDIR}/settings/p10k.zsh" ]] || source "${ZDOTDIR}/settings/p10k.zsh"
 

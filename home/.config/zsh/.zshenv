@@ -22,6 +22,6 @@ export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
 
 typeset -U path PATH
-path=("${HOME}/.local/bin" $path)
+path=("${HOME}/.local/bin" ${HOME}/.local/share/cargo/bin $path)
 
 export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"

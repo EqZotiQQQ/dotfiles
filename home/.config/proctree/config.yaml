@@ -1,0 +1,93 @@
+# ============================================================================
+#  proctree — config, one section per layer of the pipeline:
+#    processes (/proc) -> tree -> layout -> render, labels on top
+#
+#  Read from ~/.config/proctree/config.yaml ($XDG_CONFIG_HOME), unless
+#  $PROCTREE_CONFIG or --config=PATH names another file. This file is compiled
+#  into the binary and written there on the first run.
+#
+#  Every key is optional: anything left out keeps its default. Unknown keys
+#  are reported as warnings, so a typo doesn't get silently ignored.
+#
+#  Any key can be overridden from the command line by its dotted path, and
+#  the command line wins over this file:
+#    proctree --tree.kernel_threads=true --layout.kind=depth
+# ============================================================================
+
+# --- Layer 1: processes (/proc) ----------------------------------------------
+processes:
+  refresh_ms: 1000             # how often /proc is read, on a thread of its own; >= 100.
+                               # Also the window CPU usage is measured over.
+
+# --- Layer 2: tree -----------------------------------------------------------
+tree:
+  kernel_threads: false        # kthreadd (PID 2) and the kernel threads under it: about
+                               # half of all processes, hundreds of look-alike leaves
+  group_identical: false       # siblings with the same name and no children of their own
+                               # become one node, N*[name], as in pstree
+
+# --- Layer 3: layout ---------------------------------------------------------
+layout:
+  kind: radial                 # radial = rings around the root, a slice per branch;
+                               # depth = one row per depth, top to bottom
+  margin: 20                   # px between the outermost nodes and the window edge
+  label_room: 100              # radial, with labels on: extra px at the edge for the
+                               # outermost labels, which point outward (~14 characters)
+
+# --- Layer 4: render ---------------------------------------------------------
+render:
+  window:
+    width: 600                 # asked for; a tiling compositor picks its own size
+    height: 600
+    title: proctree            # also the Wayland app-id: Hyprland's window class, and the
+                               # layer's namespace (`hyprctl layers`, layerrule)
+    layer_shell:               # a desktop widget instead of a window (wlr-layer-shell: Hyprland,
+                               # Sway, ...): no border, no focus, clicks pass through. No keyboard
+                               # either, so stop it with Ctrl+C / pkill proctree
+      enabled: false
+      layer: background        # Hyprland draws background -> bottom -> windows -> top -> overlay,
+                               # and inside one layer in start order: background started after
+                               # hyprpaper = above the wallpaper, under the bar and every window
+      anchor: fill             # fill = the whole monitor; top/bottom/left/right = a strip along
+                               # that edge, window.height / window.width thick
+      output: ""               # monitor name, e.g. DP-1 (hyprctl monitors); "" = compositor's choice
+  background: [0.07, 0.07, 0.09]       # RGB, 0..1
+  background_transparency: 0   # percent: 0 = opaque, 100 = only the graph shows (with layer_shell
+                               # on the background layer: a live wallpaper)
+  edges:
+    color: [0.7, 0.7, 0.75, 0.35]       # RGBA; faint, so hundreds of edges don't drown the rest
+  nodes:
+    radius: 3.0                # px
+    color_by: branch           # branch = every child of the root starts a branch, its whole
+                               # subtree shares one color; single = every node `color`
+    color: [0.95, 0.6, 0.2]    # color_by: single
+    palette: []                # color_by: branch: colors handed to the branches in turn, e.g.
+                               # [[1, 0.55, 0.2], [0.35, 0.7, 1], [0.5, 0.9, 0.4]]; empty = hues
+                               # spread around the color wheel:
+    saturation: 0.55           #   how colorful, 0..1
+    brightness: 0.95           #   how bright, 0..1
+    root_color: [0.92, 0.92, 0.92]
+    kernel_color: [0.45, 0.47, 0.52]   # kthreadd and the kernel threads (tree.kernel_threads)
+  animation:
+    time_constant: 0.15        # seconds: nodes cover ~63% of the way to a new spot in this
+                               # long, 95% in three times that; 0 = jump straight there
+
+# --- Layer 5: labels ---------------------------------------------------------
+labels:
+  enabled: true
+  font: sans-serif             # fontconfig pattern: "Noto Sans", "monospace:bold", ...
+  size: 13                     # px, rendered at exactly this size so it stays crisp
+  color: [0.95, 0.95, 0.95, 1.0]       # RGBA, the text
+  halo_color: [0.04, 0.04, 0.05, 0.9]  # dark outline that keeps text readable over edges
+  by_usage:                    # bigger labels for processes that use a lot. CPU and RAM
+                               # count separately; with both on, the bigger size wins.
+                               # A N*[name] group counts its members together.
+    max_scale: 1.5             # the biggest labels are size * this; 1 = never bigger
+    cpu:
+      enabled: true
+      from_percent: 5          # at or below: normal size
+      full_percent: 100        # at or above: max_scale. 100 = one core fully busy
+    memory:
+      enabled: true
+      from_mb: 200             # resident memory (RSS)
+      full_mb: 2000

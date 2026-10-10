@@ -30,7 +30,8 @@ end
 -- Set programs that you use (globals: also used in keybindings.lua)
 terminal    = "kitty"
 fileManager = "dolphin"
-menu        = "wofi"
+menu        = "pkill -x wofi || wofi" -- повторное нажатие закрывает меню
+-- menu     = "qs ipc call launcher toggle" -- лаунчер Quickshell; сначала `Launcher {}` в quickshell/shell.qml
 
 
 ---------------
@@ -356,4 +357,13 @@ hl.window_rule({
 
     move  = "20 monitor_h-120",
     float = true,
+})
+
+-- wofi: размытие под полупрозрачным фоном (wofi/style.css); прозрачные скруглённые углы не размываются
+hl.layer_rule({
+    name  = "blur-wofi",
+    match = { namespace = "^wofi$" },
+
+    blur         = true,
+    ignore_alpha = 0,
 })

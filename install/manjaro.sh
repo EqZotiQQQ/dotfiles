@@ -142,6 +142,7 @@ install_wm() {
         waybar \
         mako \
         wofi \
+        imagemagick \
         hyprpaper \
         wlogout \
         flameshot \

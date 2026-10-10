@@ -24,4 +24,6 @@ Singleton {
     readonly property string restart: String.fromCodePoint(0xF0709)
     readonly property string chevronLeft: String.fromCodePoint(0xF0141)
     readonly property string chevronRight: String.fromCodePoint(0xF0142)
+    readonly property string magnify: String.fromCodePoint(0xF0349)
+    readonly property string application: String.fromCodePoint(0xF08C6)
 }

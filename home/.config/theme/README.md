@@ -9,7 +9,7 @@
 | spectrum | его запускает Quickshell (`bar/Spectrum.qml`) | сразу: перезапускается при смене края, толщины, цветов |
 | Локскрин | `~/.local/bin/lock` берёт `lock.theme` | при следующей блокировке |
 
-Kitty в тему не входит (остаётся на своей Gruvbox: `kitty/theme.conf`).
+Kitty и wofi в тему не входят (остаются на своей Gruvbox: `kitty/theme.conf`, `wofi/style.css`).
 
 ## Ключи
 
