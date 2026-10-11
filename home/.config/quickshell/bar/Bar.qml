@@ -106,7 +106,7 @@ PanelWindow {
             const size = bar.vertical ? height : width;
             const length = bar.vertical ? bar.height : bar.width;
             const after = bar.vertical ? start.y + start.height : start.x + start.width;
-            const before = bar.vertical ? status.y : status.x;
+            const before = bar.vertical ? status.y + status.island.y : status.x + status.island.x;
             return Math.max(after + bar.margin, Math.min((length - size) / 2, before - size - bar.margin));
         }
 

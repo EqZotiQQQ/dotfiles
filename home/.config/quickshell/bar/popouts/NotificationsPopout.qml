@@ -1,11 +1,13 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.common
 import qs.services
 
 // Notification center: mako's live notifications (on screen or held back by do-not-disturb), then the
-// history, newest first. Click a live one: its default action, ×: dismiss it.
+// history, newest first. Click: the live one's default action, then the app's window (a closed app
+// without that action is launched); ×: dismiss it.
 // Header: bring back the last expired one, do-not-disturb
 Column {
     id: root
@@ -117,7 +119,11 @@ Column {
             id: card
 
             required property var modelData
-            readonly property bool clickable: modelData.live && modelData.actions?.default !== undefined
+            readonly property bool hasDefault: modelData.live && modelData.actions?.default !== undefined
+            // the app and its window, matched by desktop entry like the dock does
+            readonly property var entry: DesktopEntries.heuristicLookup(modelData.desktop_entry || modelData.app_name || "")
+            readonly property var window: entry ? ToplevelManager.toplevels.values.find(t => DesktopEntries.heuristicLookup(t.appId) === entry) ?? null : null
+            readonly property bool clickable: hasDefault || !!entry
             readonly property string iconSource: root.iconFor(modelData)
 
             width: ListView.view.width
@@ -133,7 +139,12 @@ Column {
                 cursorShape: card.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
                 onClicked: {
                     if (card.clickable) {
-                        Mako.invoke(card.modelData.id);
+                        if (card.hasDefault)
+                            Mako.invoke(card.modelData.id);
+                        if (card.window)
+                            card.window.activate();
+                        else if (!card.hasDefault)
+                            card.entry.execute();
                         root.done();
                     }
                 }

@@ -10,7 +10,7 @@ examples:
   %(prog)s --symlinks -f                             link home/ into ~ (and wallpapers/)
   %(prog)s --adopt ~/.config/kitty -f                pull an existing config into the repo
   %(prog)s --profile desktop --symlinks -f           fresh install: packages + symlinks
-  %(prog)s -sf --setup-profiles                      symlinks, then Claude + VS Code profiles
+  %(prog)s -sf --setup-vscode-profiles               symlinks, then Claude + VS Code profiles
   %(prog)s --os ubuntu --profile workstation --open-source --symlinks -f
   %(prog)s --wm --editor                             install single components
 """
@@ -26,7 +26,7 @@ class AppSettings:
     os_name: str
     profile: str
     open_source: bool
-    setup_profiles: bool
+    setup_vscode_profiles: bool
     extra_flags: list
     config_directory: pathlib.Path
     config_destination: pathlib.Path
@@ -59,7 +59,7 @@ class AppSettings:
             "-f",
             "--force-symlink-update",
             action="store_true",
-            help="Apply. Without it -s, --adopt and --setup-profiles only report what they would do",
+            help="Apply. Without it -s, --adopt and --setup-vscode-profiles only report what they would do",
         )
         links.add_argument(
             "-o",
@@ -78,7 +78,7 @@ class AppSettings:
 
         profiles = parser.add_argument_group("claude profiles")
         profiles.add_argument(
-            "--setup-profiles",
+            "--setup-vscode-profiles",
             action="store_true",
             help="Create a Claude config dir (own login, shared config) and a matching VS Code profile "
                  "for every entry in install/claude_profiles.py. Dry-run unless -f",
@@ -119,7 +119,7 @@ class AppSettings:
             os_name=args.os_name,
             profile=args.profile,
             open_source=args.open_source,
-            setup_profiles=args.setup_profiles,
+            setup_vscode_profiles=args.setup_vscode_profiles,
             extra_flags=extra_flags,
             config_directory=args.path,
             config_destination=DEFAULT_USER_LOCATION,

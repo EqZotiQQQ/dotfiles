@@ -33,12 +33,16 @@ layout:
   margin: 20                   # px between the outermost nodes and the window edge
   label_room: 100              # radial, with labels on: extra px at the edge for the
                                # outermost labels, which point outward (~14 characters)
+  area:                        # дерево (и его подписи): 700 x 700 у правого верхнего угла, слева
+    position: [-630, 0]        # от колонок stats: правый край в 630 px от края окна (колонки
+    size: [700, 700]           # занимают 20 + 590, ещё 20 зазор); круг подписей начинается на y = 20
                                
 # --- Layer 4: render ---------------------------------------------------------
 render:
   window:
-    width: 600                 # asked for; a tiling compositor picks its own size
-    height: 600
+    width: 1330                # при anchor: top не используется: ширина = ширина монитора
+    height: 700                # толщина полосы: 700 дерева (layout.area).
+                               # Проверка: proctree/scripts/check_layout.py
     title: proctree            # also the Wayland app-id: Hyprland's window class, and the
                                # layer's namespace (`hyprctl layers`, layerrule)
     # layer_shell:               # a desktop widget instead of a window (wlr-layer-shell: Hyprland,
@@ -54,8 +58,12 @@ render:
     layer_shell:
       enabled: true
       layer: bottom            # над обоями, под всеми окнами
-      anchor: fill             # весь монитор
-      output: DP-2             # твой большой монитор; "" — тот, где фокус
+      anchor: top              # полоса во всю ширину монитора, window.height в толщину: всё с x < 0
+                               # (панели, layout.area) прижато к правому краю
+      output: all              # по виджету на каждом мониторе, новые подключённые тоже
+      position: [20, 60]       # только для anchor: position; дерево теперь ставит layout.area
+      avoid_bars: true         # полоса только в свободной от баров части: бар сверху сдвинет её
+                               # вниз, справа — влево (bar.position в quickshell theme.json)
   background: [0.07, 0.07, 0.09]       # RGB, 0..1
   background_transparency: 100 # percent: 0 = opaque, 100 = only the graph shows (with layer_shell
                                # on the background layer: a live wallpaper)
@@ -80,7 +88,7 @@ render:
 # --- Layer 5: labels ---------------------------------------------------------
 labels:
   enabled: true
-  font: sans-serif             # fontconfig pattern: "Noto Sans", "monospace:bold", ...
+  font: Iosevka             # fontconfig pattern: "Noto Sans", "monospace:bold", ...
   size: 13                     # px, rendered at exactly this size so it stays crisp
   color: [0.95, 0.95, 0.95, 1.0]       # RGBA, the text
   halo_color: [0.04, 0.04, 0.05, 0.9]  # dark outline that keeps text readable over edges
@@ -96,3 +104,32 @@ labels:
       enabled: true
       from_mb: 200             # resident memory (RSS)
       full_mb: 2000
+
+
+# Панели: сетка в правом верхнем углу монитора, колонки x = -320 и x = -20 (от правого края):
+#   CPU   NET
+#   RAM   DISK
+#   TOP CPU  TOP RAM
+#   FREE SPACE
+# 290 px в ширину: в Iosevka 13 самый длинный заголовок DISK — около 270 px.
+stats:
+  enabled: true
+  sample_ms: 500
+  history_seconds: 60
+  background: [0.0, 0.0, 0.0, 0.0]     # panels: transparent backing, text keeps its dark outline
+  border: [1.0, 1.0, 1.0, 0.15]        # и линии сетки на графиках
+  text_color: [0.95, 0.95, 0.95, 1.0]
+  cpu:  {enabled: true, position: [-320, 20],  size: [290, 140], color: [0.4, 0.75, 1.0]}
+  net:  {enabled: true, position: [-20, 20],   size: [290, 140], color: [1.0, 0.75, 0.3], upload_color: [1.0, 0.45, 0.75]}
+  ram:  {enabled: true, position: [-320, 170], size: [290, 140], color: [0.6, 0.95, 0.45]}
+  disk: {enabled: true, position: [-20, 170],  size: [290, 140], color: [1.0, 0.45, 0.45]}
+  top:
+    count: 5
+    cpu: {enabled: true, position: [-320, 320], size: [290, 130]}
+    ram: {enabled: true, position: [-20, 320],  size: [290, 130]}
+  disk_space:                  # свободно / всего, строка на файловую систему
+    enabled: true
+    mounts: ["/"]              # точки монтирования; /home здесь тот же btrfs-раздел sda2, что и /,
+                               # NTFS-разделы на nvme не смонтированы ("not mounted")
+    position: [-320, 460]
+    size: [290, 90]            # 3 строки

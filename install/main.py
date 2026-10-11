@@ -320,5 +320,5 @@ if __name__ == "__main__":
         if total_failed:
             sys.exit(1)
 
-    if settings.setup_profiles:
+    if settings.setup_vscode_profiles:
         sys.exit(claude_profiles.setup_profiles(apply=settings.update_symlinks))

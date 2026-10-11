@@ -1,13 +1,16 @@
 import QtQuick
 import QtQuick.Shapes
+import Quickshell
+import Quickshell.Hyprland
 import qs.common
 import qs.services
 import qs.bar.popouts
 
 // Status island at the end of the bar. Hovering a module that has a popout slides a panel out of the
 // island, away from the screen edge and level with that module: island and panel are one shape with
-// concave joints, morphing as the popout opens, moves or changes. Leaving the island closes it,
-// a click pins it open until the module is clicked again.
+// concave joints, morphing as the popout opens, moves or changes. A panel longer than the island hangs
+// past its start: the island keeps its size, so nothing else on the bar moves. Leaving the island
+// closes it, a click pins it open until the module is clicked again.
 //
 // Geometry is worked out in an edge frame, u = away from the screen edge, v = along it, then mapped
 // to x/y for the bar's edge (mx/my): one shape for all four positions.
@@ -26,20 +29,27 @@ Item {
     readonly property int corner: Theme.islandRadius
     readonly property int fillet: Theme.tileRadius
 
-    // popout content size on screen, kept while the panel slides back and unloads
+    // popout content size on screen, kept while the loader has no popout
     property real contentWidth: 0
     property real contentHeight: 0
-    // panel in the edge frame (animated): depth slides it out, offset follows the module
+    // panel in the edge frame (animated): depth slides it out, extent unfolds it from its end (the bar's end,
+    // where the island sits: upwards on a vertical bar) and folds it back there on close, end follows the module
     property real depth: open !== "" && popout.item ? (vertical ? contentWidth : contentHeight) : 0
-    property real extent: vertical ? contentHeight : contentWidth
+    property real extent: open !== "" ? (vertical ? contentHeight : contentWidth) : 0
     readonly property real modulesLength: vertical ? modules.implicitHeight : modules.implicitWidth
-    readonly property real length: Math.max(modulesLength + 16, extent + 2 * (corner + fillet))
-    property real offset: {
+    readonly property real length: modulesLength + 16
+    // the open panel: within the island if it fits, else from its end on, hanging past its start (offset < 0)
+    property real end: {
+        const full = vertical ? contentHeight : contentWidth;
         const chip = anchorChip;
-        const center = !chip ? length / 2 : vertical ? modules.y + chip.y + chip.height / 2 : modules.x + chip.x + chip.width / 2;
+        // the modules start 8 into the island
+        const center = !chip ? length / 2 : 8 + (vertical ? chip.y + chip.height / 2 : chip.x + chip.width / 2);
         const lowest = corner + fillet;
-        return Math.max(lowest, Math.min(center - extent / 2, length - lowest - extent));
+        return Math.min(Math.max(lowest, center - full / 2), length - lowest - full) + full;
     }
+    readonly property real offset: end - extent
+    // the item reaches that far past the island's start along the edge, to cover the hanging panel
+    readonly property real overhang: Math.max(0, -offset)
 
     // input regions for the bar's mask
     readonly property Item island: islandArea
@@ -47,11 +57,11 @@ Item {
 
     // edge frame -> item coordinates
     function mx(u, v) {
-        return edge === "left" ? u : edge === "right" ? width - u : v;
+        return edge === "left" ? u : edge === "right" ? width - u : v + overhang;
     }
 
     function my(u, v) {
-        return edge === "top" ? u : edge === "bottom" ? height - u : v;
+        return edge === "top" ? u : edge === "bottom" ? height - u : v + overhang;
     }
 
     function box(u, v, du, dv) {
@@ -82,10 +92,18 @@ Item {
         open = "";
     }
 
+    // Google Calendar in the browser. It opens the page in its last window and asks to be raised, but Hyprland
+    // only marks that window urgent (misc.focus_on_activate is off): the next urgent window gets focused from here
+    function openCalendar() {
+        Quickshell.execDetached(["xdg-open", "https://calendar.google.com"]);
+        raiseUrgent.restart();
+        close();
+    }
+
     onOpenChanged: if (open !== "") shown = open
 
-    width: vertical ? bar + depth : length
-    height: vertical ? length : bar + depth
+    width: vertical ? bar + depth : length + overhang
+    height: vertical ? length + overhang : bar + depth
 
     Behavior on depth {
         ThemeAnim {}
@@ -93,7 +111,9 @@ Item {
     Behavior on extent {
         ThemeAnim {}
     }
-    Behavior on offset {
+    // a folded panel doesn't travel to the next module, it unfolds right there
+    Behavior on end {
+        enabled: root.extent > 0
         ThemeAnim {}
     }
 
@@ -140,6 +160,25 @@ Item {
         onTriggered: if (root.pinned === "") root.open = ""
     }
 
+    Timer {
+        id: raiseUrgent
+
+        interval: 3000
+    }
+
+    // data: the window's address, without 0x
+    Connections {
+        target: Hyprland
+        enabled: raiseUrgent.running
+
+        function onRawEvent(event) {
+            if (event.name === "urgent") {
+                Hyprland.dispatch(`hl.dsp.focus({ window = "address:0x${event.data}" })`);
+                raiseUrgent.stop();
+            }
+        }
+    }
+
     // Island + panel outline, in the edge frame; mirrored frames (right, top) turn the arcs around
     Shape {
         anchors.fill: parent
@@ -156,6 +195,15 @@ Item {
             readonly property real out: w + root.depth
             readonly property real pr: Math.min(root.corner, root.depth / 2, root.extent / 2)
             readonly property real f: Math.min(root.fillet, root.depth / 2)
+            // where the panel starts: below the island's start corner, the joint is on the island's side
+            // (a = that corner, b = the joint); hanging past the island, it is on the island's start edge
+            // (a = the joint, b = the panel's corner). Both shrink to 0 as the panel's start crosses the island's
+            readonly property bool hanging: top < 0
+            readonly property real k: hanging ? Math.min(1, -top / (f + pr)) : Math.min(1, top / (r + f))
+            readonly property real a: k * (hanging ? f : r)
+            readonly property real b: k * (hanging ? pr : f)
+            readonly property real sideFrom: hanging ? -a : a
+            readonly property real sideTo: hanging ? top + b : top - b
             readonly property bool mirrored: root.edge === "right" || root.edge === "top"
             readonly property int turn: mirrored ? PathArc.Counterclockwise : PathArc.Clockwise
             readonly property int back: mirrored ? PathArc.Clockwise : PathArc.Counterclockwise
@@ -172,9 +220,10 @@ Item {
                 }
             }
 
-            PathArc { x: root.mx(outline.w, outline.r); y: root.my(outline.w, outline.r); radiusX: outline.r; radiusY: outline.r; direction: outline.turn }
-            PathLine { x: root.mx(outline.w, outline.top - outline.f); y: root.my(outline.w, outline.top - outline.f) }
-            PathArc { x: root.mx(outline.w + outline.f, outline.top); y: root.my(outline.w + outline.f, outline.top); radiusX: outline.f; radiusY: outline.f; direction: outline.back }
+            PathLine { x: root.mx(outline.w - outline.a, 0); y: root.my(outline.w - outline.a, 0) }
+            PathArc { x: root.mx(outline.w, outline.sideFrom); y: root.my(outline.w, outline.sideFrom); radiusX: outline.a; radiusY: outline.a; direction: outline.hanging ? outline.back : outline.turn }
+            PathLine { x: root.mx(outline.w, outline.sideTo); y: root.my(outline.w, outline.sideTo) }
+            PathArc { x: root.mx(outline.w + outline.b, outline.top); y: root.my(outline.w + outline.b, outline.top); radiusX: outline.b; radiusY: outline.b; direction: outline.hanging ? outline.turn : outline.back }
             PathLine { x: root.mx(outline.out - outline.pr, outline.top); y: root.my(outline.out - outline.pr, outline.top) }
             PathArc { x: root.mx(outline.out, outline.top + outline.pr); y: root.my(outline.out, outline.top + outline.pr); radiusX: outline.pr; radiusY: outline.pr; direction: outline.turn }
             PathLine { x: root.mx(outline.out, outline.bottom - outline.pr); y: root.my(outline.out, outline.bottom - outline.pr) }
@@ -284,7 +333,7 @@ Item {
             onClicked: button => button === Qt.MiddleButton ? Mako.toggle() : root.click("notifications", notifications)
         }
 
-        // vertical bar: hours over minutes; horizontal: time + date. Hover: calendar
+        // vertical bar: hours over minutes; horizontal: time + date. Hover: calendar, right click: Google Calendar
         Chip {
             id: clock
 
@@ -294,7 +343,7 @@ Item {
             textSize: root.vertical ? 14 : Theme.fontSize
             active: root.open === "calendar"
             onEntered: root.hover("calendar", clock)
-            onClicked: root.click("calendar", clock)
+            onClicked: button => button === Qt.RightButton ? root.openCalendar() : root.click("calendar", clock)
         }
 
         Chip {

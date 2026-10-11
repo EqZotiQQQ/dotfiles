@@ -1,4 +1,4 @@
-# Installed into the default VS Code profile and every Claude profile by `dot --setup-profiles`.
+# Installed into the default VS Code profile and every Claude profile by `dot --setup-vscode-profiles`.
 # Refresh from the default profile: code --list-extensions
 anthropic.claude-code
 bbenoist.qml

@@ -63,6 +63,10 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hypridle") -- timeout management, session blocker, sleeper, etc
     -- bar + the spectrum strip behind it (Quickshell: ~/.config/quickshell); edge, size, colors: theme.json
     hl.exec_cmd("qs")
+    -- process tree + stats widget (~/.config/proctree/config.yaml): output: all starts one per
+    -- monitor, new ones too; stop it with pkill -x proctree. ~/.local/bin/proctree links to the
+    -- build dir: if it's gone (-x follows the link), say so instead of failing silently
+    hl.exec_cmd([[p=~/.local/bin/proctree; if [ -x "$p" ]; then exec "$p"; else hyprctl notify 0 15000 0 "proctree: no binary at $p (cd ~/my_projects/proctree && make release)"; fi]])
     -- notification manager; its colors from theme.json first (mako-theme): mako won't start without them
     hl.exec_cmd("~/.local/bin/mako-theme; mako")
     hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent") -- password agent for gui apps
