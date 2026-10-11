@@ -3,7 +3,6 @@
     "files.autoSave": "onFocusChange",
     "editor.mouseWheelZoom": true,
     "workbench.editor.revealIfOpen": true,
-    "workbench.colorTheme": "Visual Studio Light",
     "explorer.confirmDragAndDrop": false,
     "claudeCode.preferredLocation": "panel",
     "terminal.integrated.defaultProfile.linux": "zsh",
@@ -11,10 +10,14 @@
     "[cpp]": {},
     "workbench.colorCustomizations": {},
     "workbench.secondarySideBar.defaultVisibility": "hidden",
-    "chat.disableAIFeatures": true,
     "workbench.settings.applyToAllProfiles": [
         "chat.disableAIFeatures"
     ],
     "editor.inlayHints.enabled": "off",
-    "editor.formatOnSave": true // hide type hints
+    "editor.formatOnSave": true,
+    "docker.extension.enableComposeLanguageServer": false,
+    "yaml.disableSchemaDetection": [],
+    "workbench.colorTheme": "Gruvbox Dark Hard",
+    "workbench.iconTheme": "gruvbox-material-icon-theme",
+    "editor.fontFamily": "'Iosevka', monospace"
 }

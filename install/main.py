@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 
+import claude_profiles
 from app_settings import EXAMPLES, AppSettings
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -318,3 +319,6 @@ if __name__ == "__main__":
             print(f"\nDone: {total_created} created, {total_skipped} skipped, {total_failed} failed.")
         if total_failed:
             sys.exit(1)
+
+    if settings.setup_profiles:
+        sys.exit(claude_profiles.setup_profiles(apply=settings.update_symlinks))
