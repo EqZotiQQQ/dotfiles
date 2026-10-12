@@ -7,15 +7,16 @@ Ctrl + K                  -> delete to end
 Ctrl + W                  -> delete word backward
 Alt + F / Alt + B         -> move forward/backward one word
 
-Word movement with Ctrl+Left / Ctrl+Right
+Word = up to the next separator (/ - . _ space ...), WORDCHARS=''
 
 Ctrl + R                  -> fzf search
 Ctrl + L                  -> clear screen
-Ctrl + Left               -> to start of line
-Ctrl + Right              -> to end of line
+Ctrl + Left / Right       -> backward / forward word
+Ctrl + Backspace / Delete -> delete word backward / forward
+Ctrl + Shift + Left / Right       -> to start / end of line
+Ctrl + Shift + Backspace / Delete -> delete to start / end of line
 Shift + Alt + Right       -> forward word
 Shift + Alt + Left        -> bacward word
-Ctrl + Shift + Delete     -> delete line
 ```
 
 
