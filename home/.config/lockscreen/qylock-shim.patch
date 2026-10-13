@@ -1,0 +1,15 @@
+diff --git a/quickshell-lockscreen/shim/SddmShim.qml b/quickshell-lockscreen/shim/SddmShim.qml
+index d998c21..5e7922b 100644
+--- a/quickshell-lockscreen/shim/SddmShim.qml
++++ b/quickshell-lockscreen/shim/SddmShim.qml
+@@ -164,6 +164,10 @@ Item {
+         signal loginSucceeded()
+ 
+         function login(user, password, sessionIndex) {
++            // empty password: PAM would wait for a response forever and ignore every later start()
++            if (password === "") { shim.sddm.loginFailed(); return; }
++            // a conversation is already asking: answer it, start() would be a no-op
++            if (pam.responseRequired) { pam.respond(password); return; }
+             pam.user = user;
+             pam.pendingPassword = password;
+             pam.start();

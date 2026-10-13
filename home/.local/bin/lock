@@ -18,6 +18,7 @@ CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}
 THEME_DIRS=("$CONFIG/lockscreen/themes" "$QYLOCK_DIR/themes")
 FALLBACK=pixel-city
 SHELL_QML=$QYLOCK_DIR/quickshell-lockscreen/lock_shell.qml
+SHIM_PATCH=$CONFIG/lockscreen/qylock-shim.patch   # fixes qylock's PAM hang on an empty password
 
 configured() {
     jq -r '.lock.theme // empty' "$CONFIG/theme/theme.json" 2>/dev/null || true
@@ -54,6 +55,8 @@ run() {
 case "${1:-}" in
     "")
         pgrep -f -- "-p $SHELL_QML" >/dev/null && exit 0
+        # the password is typed in whatever layout was active: back to the first one (us)
+        hyprctl switchxkblayout all 0 >/dev/null 2>&1 || true
         export XDG_SESSION_TYPE=wayland
         run
         ;;
@@ -71,6 +74,9 @@ case "${1:-}" in
         if [ ! -d "$QYLOCK_DIR/.git" ]; then
             git clone --depth 1 --filter=blob:none --sparse "$QYLOCK_REPO" "$QYLOCK_DIR"
             git -C "$QYLOCK_DIR" sparse-checkout set quickshell-lockscreen
+        fi
+        if ! git -C "$QYLOCK_DIR" apply --reverse --check "$SHIM_PATCH" 2>/dev/null; then
+            git -C "$QYLOCK_DIR" apply "$SHIM_PATCH"
         fi
         if [ -n "${2:-}" ]; then
             git -C "$QYLOCK_DIR" sparse-checkout add "themes/$2"

@@ -104,11 +104,23 @@ def install(name):
     THEME_JSON.write_text(new)
     print(f"Локскрин: {name}. Посмотреть без блокировки: lock --preview")
 
-    # video backgrounds need the ffmpeg backend of Qt Multimedia
+    # video backgrounds need Qt Multimedia: its ffmpeg backend and QML module
     theme_dir = OWN_DIR / name if known[name]["source"] == "своя" else QYLOCK_DIR / "themes" / name
     has_video = any(theme_dir.rglob("*.mp4")) or any(theme_dir.rglob("*.webm"))
-    if has_video and subprocess.run(["pacman", "-Q", "qt6-multimedia-ffmpeg"], capture_output=True).returncode:
-        print("У темы видеофон: sudo pacman -S qt6-multimedia-ffmpeg gst-plugins-good gst-plugins-bad")
+    if has_video and not video_support():
+        if shutil.which("pacman"):
+            hint = "sudo pacman -S qt6-multimedia-ffmpeg gst-plugins-good gst-plugins-bad"
+        elif shutil.which("apt"):
+            hint = "sudo apt install libqt6multimedia6 qml6-module-qtmultimedia gstreamer1.0-plugins-good gstreamer1.0-plugins-bad"
+        else:
+            hint = "нужен Qt 6 Multimedia: бэкенд ffmpeg и QML-модуль QtMultimedia"
+        print(f"У темы видеофон: {hint}")
+
+
+def video_support():
+    # checked by files, not packages: Arch keeps Qt in /usr/lib/qt6, Debian/Ubuntu in /usr/lib/<triplet>/qt6
+    return any((qt / "plugins/multimedia/libffmpegmediaplugin.so").exists() and (qt / "qml/QtMultimedia").is_dir()
+               for qt in [Path("/usr/lib/qt6"), *Path("/usr/lib").glob("*-linux-gnu*/qt6")])
 
 
 def pick():

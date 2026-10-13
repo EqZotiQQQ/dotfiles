@@ -226,6 +226,8 @@ lock-theme list | link <тема> | install <тема>
 `lock-theme` (python) берёт список тем qylock из дерева sparse-клона (`git ls-tree`, без сети), включает тему заменой
 только значения `lock.theme` в theme.json (форматирование файла сохраняется).
 Своя тема `pixel-city` (пиксельный ночной город с дождём): `home/.config/lockscreen/themes/pixel-city/`, опции в `theme.conf`.
+`lock --fetch` накладывает на клон `home/.config/lockscreen/qylock-shim.patch`: без него Enter на пустом пароле вешает
+PAM-разговор шима, и локскрин больше не принимает ввод. Перед блокировкой `lock` включает первую раскладку (us).
 
 ## eww (не используется)
 
