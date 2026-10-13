@@ -167,6 +167,7 @@ hyprpaper) → бар (`top`, острова висят над полосой). 
 на монитор): край — как у бара (`bar.position`), столбики растут от края, толщина и цвета — `spectrum.size` / `spectrum.colors`;
 флаги `--render.window.layer_shell.anchor`, `--render.window.height|width`, `--render.orientation`, `--render.colors.*`.
 Запуск через `setpriv --pdeathsig TERM`: spectrum умирает вместе с `qs`; при перезагрузке QML старый процесс гасится явно.
+Нет бинарника (`~/my_projects/spectrum/build/spectrum`, у proctree — `~/.local/bin/proctree`) — `hyprctl notify` и запуск пропускается.
 
 ## Тема (`home/.config/theme/theme.json`)
 

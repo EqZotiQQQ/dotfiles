@@ -41,7 +41,7 @@ Scope {
         command: root.command
     }
 
-    // let hyprpaper map its wallpaper first; skipped if spectrum isn't built
+    // let hyprpaper map its wallpaper first; if spectrum isn't built, say so (once, not per screen) and skip it
     Timer {
         interval: 1000
         running: true
@@ -58,6 +58,9 @@ Scope {
             if (code === 0) {
                 root.started = true;
                 proc.running = true;
+            } else if (root.screen === Quickshell.screens[0]) {
+                Quickshell.execDetached(["hyprctl", "notify", "0", "15000", "0",
+                    "spectrum: no binary at " + root.binary + " (build ~/my_projects/spectrum)"]);
             }
         }
     }
