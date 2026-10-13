@@ -13,14 +13,25 @@
 ------------------
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
+-- Any monitor: its preferred mode, placed automatically
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+-- The home desk layout; on other machines these outputs are absent and the rule above applies
 hl.monitor({ output = "DP-2", mode = "2560x1440@60", position = "1920x0", scale = 1 })
 hl.monitor({ output = "DP-1", mode = "1920x1080@60", position = "0x200", scale = 1 })
 
--- Workspaces 1-9 on DP-2 (primary), 10-18 on DP-1 (secondary); see ~/.local/scripts/ws-switch
-for i = 1, 9 do
-    hl.workspace_rule({ workspace = tostring(i),     monitor = "DP-2" })
-    hl.workspace_rule({ workspace = tostring(i + 9), monitor = "DP-1" })
+-- Workspaces 1-9 on the main monitor, 10-18 on the second, and so on (order: monitors.lua)
+local monitors = require("monitors")
+local ruled = {} -- monitor name -> true, for the monitors these rules were built for
+for slot, m in ipairs(monitors.list()) do
+    ruled[m.name] = true
+    for n = 1, monitors.per_monitor do
+        hl.workspace_rule({ workspace = tostring(monitors.workspace(slot, n)), monitor = m.name })
+    end
 end
+-- A monitor came or went: reload, so the rules above are rebuilt for the new set
+-- (checked against `ruled`, so the reload itself doesn't trigger another one)
+hl.on("monitor.added", function(m) if not ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
+hl.on("monitor.removed", function(m) if ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
 
 
 ---------------------
@@ -65,8 +76,15 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("qs")
     -- process tree + stats widget (~/.config/proctree/config.yaml): output: all starts one per
     -- monitor, new ones too; stop it with pkill -x proctree. ~/.local/bin/proctree links to the
-    -- build dir: if it's gone (-x follows the link), say so instead of failing silently
-    hl.exec_cmd([[p=~/.local/bin/proctree; if [ -x "$p" ]; then exec "$p"; else hyprctl notify 0 15000 0 "proctree: no binary at $p (cd ~/my_projects/proctree && make release)"; fi]])
+    -- build dir: if it's gone (io.open follows the link), say so and skip it instead of failing silently
+    local proctree = os.getenv("HOME") .. "/.local/bin/proctree"
+    local proctree_file = io.open(proctree, "r")
+    if proctree_file then
+        proctree_file:close()
+        hl.exec_cmd(proctree)
+    else
+        hl.notification.create({ text = "proctree: no binary at " .. proctree .. " (cd ~/my_projects/proctree && make release)", timeout = 15000 })
+    end
     -- notification manager; its colors from theme.json first (mako-theme): mako won't start without them
     hl.exec_cmd("~/.local/bin/mako-theme; mako")
     hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent") -- password agent for gui apps
@@ -74,30 +92,32 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd("nm-applet")
 end)
 
--- Apps opened at login, each first window sent to its workspace (1-9 DP-2, 10-18 DP-1).
+-- Apps opened at login, each first window sent to its workspace: key 1-9 on the monitor-th monitor
+-- (monitors.lua order, 1 = main; absent monitor -> the main one).
 -- Matched by window class, not exec_cmd rules: those track the PID, and code / spotify-launcher
 -- open their window from another process.
 local startup_apps = {
-    { cmd = "spotify-launcher",     class = "Spotify",              workspace = 9 },
-    { cmd = "telegram-desktop",     class = "org.telegram.desktop", workspace = 8 },
-    { cmd = "code",                 class = "code",                 workspace = 1 },
-    { cmd = terminal,               class = "kitty",                workspace = 1 },
-    { cmd = "google-chrome-stable", class = "google-chrome",        workspace = 10 },
-    { cmd = "obsidian",             class = "md.obsidian.Obsidian", workspace = 11 },
+    { cmd = "spotify-launcher",     class = "Spotify",              workspace = 9, monitor = 1 },
+    { cmd = "telegram-desktop",     class = "org.telegram.desktop", workspace = 8, monitor = 1 },
+    { cmd = "code",                 class = "code",                 workspace = 1, monitor = 1 },
+    { cmd = terminal,               class = "kitty",                workspace = 1, monitor = 1 },
+    { cmd = "google-chrome-stable", class = "google-chrome",        workspace = 1, monitor = 2 },
+    { cmd = "obsidian",             class = "md.obsidian.Obsidian", workspace = 2, monitor = 2 },
 }
-local startup_pending = {} -- class -> workspace, until that class's first window appears
+local startup_pending = {} -- class -> app, until that class's first window appears
 
 local function place_startup_window(w)
-    local workspace = w and startup_pending[w.class]
-    if not workspace then return end
+    local app = w and startup_pending[w.class]
+    if not app then return end
     startup_pending[w.class] = nil
+    local workspace = monitors.workspace(app.monitor, app.workspace)
     hl.dispatch(hl.dsp.window.move({ workspace = tostring(workspace), follow = false, window = "address:" .. w.address }))
 end
 hl.on("window.open", place_startup_window)
 
 hl.on("hyprland.start", function()
     for _, app in ipairs(startup_apps) do
-        startup_pending[app.class] = app.workspace
+        startup_pending[app.class] = app
         hl.exec_cmd(app.cmd)
     end
 end)

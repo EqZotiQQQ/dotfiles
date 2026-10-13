@@ -136,6 +136,11 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 Конфиги в `home/.config/hypr/`:
 - `hyprland.lua` — основной конфиг; keybindings вынесены в `keybindings.lua` (`require("keybindings")`)
 - `keybindings.lua` — все бинды клавиш (`hl.bind`); `terminal`/`fileManager`/`menu` — глобалы из `hyprland.lua`
+- `monitors.lua` — мониторы берутся у Hyprland на лету (`hl.get_monitors()`), имена выходов нигде не прописаны.
+  Порядок: самый большой — главный, дальше слева направо; n-му монитору принадлежат id 9(n−1)+1…9n
+  (`SUPER+1..9` — i-й воркспейс монитора с фокусом). Правила воркспейсов строятся при загрузке конфига;
+  при подключении/отключении монитора (`monitor.added|removed`) конфиг перезагружается сам (`hyprctl reload`).
+  Общее правило `output = ""` — preferred/auto; правила DP-1/DP-2 — раскладка домашнего стола
 - `theme.lua` — читает общую тему `~/.config/theme/theme.json` (через `lib/json.lua`, rxi/json.lua, MIT);
   из неё в `hyprland.lua` берутся рамки, отступы, скругления, размытие, кривая анимации окон.
   Если тема не читается — эти значения остаются дефолтными Hyprland, остальной конфиг грузится
@@ -158,7 +163,7 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 ```
 hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + лаунчер), mako-theme + mako, hyprpolkitagent
 ```
-Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (событие `window.open`).
+Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (`workspace` 1–9 на мониторе `monitor` по порядку из monitors.lua; событие `window.open`).
 Не через правила `exec_cmd`: они привязаны к PID, а `code` / `spotify-launcher` открывают окно из другого процесса.
 У Hyprland в `PATH` нет `~/.local/bin` — свои скрипты из автозапуска/hypridle вызывать по полному пути.
 
@@ -198,7 +203,7 @@ Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `
 - колокольчик — центр уведомлений mako (`popouts/NotificationsPopout.qml`: живые + история, «вернуть последнее»,
   «не беспокоить»), средний клик — «не беспокоить», число — новые с прошлого открытия; mako возвращает из истории
   только последнее (`makoctl restore`), очистки истории у него нет
-- воркспейсы: номера 1–9 своего монитора (id 1–9 — DP-2, 10–18 — DP-1, правила в hyprland.lua), пустые не показываются
+- воркспейсы: номера 1–9 своего монитора (id 1–9 — главный монитор, 10–18 — второй…, см. `hypr/monitors.lua`), пустые не показываются
 - `launcher/Launcher.qml` — лаунчер приложений в стиле бара (один на все экраны, открывается на мониторе с фокусом),
   слой `overlay`, namespace `quickshell-launcher`; открывается по IPC: `qs ipc call launcher toggle` (`SUPER+R`)
 
@@ -286,7 +291,7 @@ All zsh config lives in `home/.config/zsh/`:
 - `brightness_handle.sh` — brightness control
 - `hypr-keys` — показать список кейбайндингов
 - `hypr-reload` — перезагрузить Hyprland конфиг
-- `workspaces`, `ws-move`, `ws-switch` — управление воркспейсами
+- `~/.local/scripts/workspaces` — воркспейсы для eww (не используется; монитор передаётся аргументом)
 - `waybar_live_reload.sh` / `waybar-reload` / `waybar-watch` — waybar утилиты (не используются, eww заменил waybar)
 
 ## Submodule

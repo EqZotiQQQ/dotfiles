@@ -29,9 +29,15 @@ hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
 
 -- Switch workspaces with mainMod + [1-9] (per-monitor, AwesomeWM style)
 -- Move active window to workspace with mainMod + SHIFT + [1-9] (per-monitor)
+-- Key i -> the i-th workspace of the focused monitor (ids per monitor: monitors.lua)
+local monitors = require("monitors")
 for i = 1, 9 do
-    hl.bind(mainMod .. " + " .. i,         hl.dsp.exec_cmd("~/.local/scripts/ws-switch " .. i))
-    hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.exec_cmd("~/.local/scripts/ws-move " .. i))
+    hl.bind(mainMod .. " + " .. i, function()
+        hl.dispatch(hl.dsp.focus({ workspace = tostring(monitors.focused_workspace(i)) }))
+    end)
+    hl.bind(mainMod .. " + SHIFT + " .. i, function()
+        hl.dispatch(hl.dsp.window.move({ workspace = tostring(monitors.focused_workspace(i)), follow = false }))
+    end)
 end
 
 -- Example special workspace (scratchpad)

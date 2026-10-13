@@ -3,8 +3,8 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.common
 
-// Workspaces of one monitor, numbered 1..9 along the bar: Hyprland ids 1-9 live on DP-2 and 10-18 on DP-1
-// (workspace rules in hyprland.lua, keys in ws-switch / ws-move). Hyprland only keeps active or
+// Workspaces of one monitor, numbered 1..9 along the bar: Hyprland ids 1-9 live on the main monitor, 10-18 on
+// the second and so on (hypr/monitors.lua: workspace rules and keys). Hyprland only keeps active or
 // occupied workspaces, so empty ones are skipped. Wheel: next/previous workspace on this monitor.
 Strip {
     id: root
