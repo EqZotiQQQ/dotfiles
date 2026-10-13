@@ -11,7 +11,7 @@ Singleton {
 
     property string layout: ""
 
-    function short(name) {
+    function abbrev(name) {
         return name.slice(0, 2).toUpperCase();
     }
 
@@ -24,7 +24,7 @@ Singleton {
                     const kbs = JSON.parse(this.text).keyboards;
                     const kb = kbs.find(k => k.main) ?? kbs[kbs.length - 1];
                     if (kb)
-                        root.layout = root.short(kb.active_keymap);
+                        root.layout = root.abbrev(kb.active_keymap);
                 } catch (e) {
                     console.warn("Keyboard:", e);
                 }
@@ -38,7 +38,7 @@ Singleton {
 
         function onRawEvent(event) {
             if (event.name === "activelayout")
-                root.layout = root.short(event.data.slice(event.data.indexOf(",") + 1));
+                root.layout = root.abbrev(event.data.slice(event.data.indexOf(",") + 1));
         }
     }
 }

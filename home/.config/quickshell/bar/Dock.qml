@@ -119,17 +119,17 @@ Rectangle {
 
                     // running indicator on the screen-edge side, long for the focused app
                     Rectangle {
-                        property real long: app.focused ? 16 : 4
+                        property real length: app.focused ? 16 : 4
 
                         x: root.edge === "left" ? 1 : root.edge === "right" ? slot.width - 4 : (slot.width - width) / 2
                         y: root.edge === "top" ? 1 : root.edge === "bottom" ? slot.height - 4 : (slot.height - height) / 2
-                        width: root.vertical ? 3 : long
-                        height: root.vertical ? long : 3
+                        width: root.vertical ? 3 : length
+                        height: root.vertical ? length : 3
                         radius: 2
                         color: Theme.primary
                         opacity: app.running ? 1 : 0
 
-                        Behavior on long {
+                        Behavior on length {
                             ThemeAnim {}
                         }
                     }
