@@ -73,9 +73,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal dotfiles for Manjaro Linux. Window manager: Hyprland (migrated from AwesomeWM). Shell: Zsh with Zinit + Powerlevel10k. Editor: Neovim (AstroNvim).
 
-The repo has two config trees:
-- `home/` — current active configs, symlinked into `~`
-- `home.legacy/` — archived configs (AwesomeWM era, X11-based), kept for reference
+Configs live in `home/`, symlinked into `~`.
 
 ## Setup
 
@@ -86,8 +84,8 @@ The repo has two config trees:
 # Fresh Manjaro install — desktop profile + symlinks:
 ./dot --profile desktop --symlinks -f
 
-# Fresh Ubuntu install — workstation + build from source + symlinks:
-./dot --os ubuntu --profile workstation --open-source --symlinks -f
+# Fresh Ubuntu install — workstation + symlinks:
+./dot --os ubuntu --profile workstation --symlinks -f
 
 # Отдельные компоненты вместо профиля (OS определяется автоматически):
 ./dot --wm --editor
@@ -100,7 +98,6 @@ OS берётся из `ID=` в `/etc/os-release`, если не задана ч
 - `install/main.py` + `install/app_settings.py` — вся логика: пакеты, симлинки, status, adopt
 - `install/manjaro.sh` — paru-based; profiles: `minimal`, `desktop`, `full`
 - `install/ubuntu.sh` — apt-based; profiles: `minimal`, `workstation`, `full`
-- `install/open_source.sh` — builds from source: `--i3lock`, `--rofi`, `--picom`
 
 **Симлинки** — `home/` → `~`, `etc/` → `/etc` (если каталог есть), `wallpapers/` → `~/Pictures/wallpapers`:
 
@@ -150,10 +147,8 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
   Если тема не читается — эти значения остаются дефолтными Hyprland, остальной конфиг грузится
   (`require` в Hyprland сам сообщает об ошибке и возвращает заглушку, а не бросает исключение)
 - `hyprpaper.conf`, `hypridle.conf` — обои / автоблокировка (остаются на hyprlang); `hypridle` → `lock_cmd = ~/.local/bin/lock`
-- `hyprlock.conf` — не используется (локскрин теперь Quickshell, см. «Локскрин»)
 
-**Лаунчер** на `SUPER+R` — Quickshell (`qs ipc call launcher toggle`, см. «Quickshell»); wofi — запасной вариант
-(закомментированный `menu` в hyprland.lua): полупрозрачный, размытие — `hl.layer_rule` для namespace `wofi`;
+**Лаунчер** на `SUPER+R` — wofi (`menu` в hyprland.lua): полупрозрачный, размытие — `hl.layer_rule` для namespace `wofi`;
 действия приложений (`.desktop` actions): Right раскрывает, Tab — по действиям. Клик мимо закрывает wofi — это бинд
 на `mouse:272/273` в keybindings.lua (`close_on_focus_loss` не срабатывает: эксклюзивный layer-фокус по клику не уходит). `hyprpaper-set` — выбор
 обоев в wofi с превью (миниатюры через `magick`, кэш `~/.cache/hyprpaper-set`).
@@ -165,7 +160,7 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 
 **Автозапуск** (`hl.on("hyprland.start", ...)` в hyprland.lua):
 ```
-hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + лаунчер + обзор воркспейсов), mako-theme + mako, hyprpolkitagent
+hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + обзор воркспейсов), mako-theme + mako, hyprpolkitagent
 ```
 Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (`workspace` 1–9 на мониторе `monitor` по порядку из monitors.lua; событие `window.open`).
 Не через правила `exec_cmd`: они привязаны к PID, а `code` / `spotify-launcher` открывают окно из другого процесса.
@@ -228,8 +223,6 @@ JS в QML не знает `??=` (ошибка разбора всего файл
   его фокусирует `raiseUrgent`, как у календаря; так же после пункта меню («Open Telegram»). `DesktopEntries.heuristicLookup`
   для сопоставления не годится: на пустую строку отдаёт случайное приложение
 - воркспейсы: номера 1–9 своего монитора (id 1–9 — главный монитор, 10–18 — второй…, см. `hypr/monitors.lua`), пустые не показываются
-- `launcher/Launcher.qml` — лаунчер приложений в стиле бара (один на все экраны, открывается на мониторе с фокусом),
-  слой `overlay`, namespace `quickshell-launcher`; открывается по IPC: `qs ipc call launcher toggle` (`SUPER+R`)
 - `overview/Overview.qml` — обзор воркспейсов (`SUPER+Tab`: `qs ipc call overview toggle`): на каждом мониторе сетка его
   воркспейсов, включая пустые (по `hyprctl workspacerules -j`), с живыми превью окон (`ScreencopyView` по `toplevel.wayland`;
   окна скрытых воркспейсов тоже захватываются). Захват идёт, только пока обзор открыт; геометрия окон — `lastIpcObject`
@@ -259,46 +252,6 @@ lock-theme list | link <тема> | install <тема>
 `lock --fetch` накладывает на клон `home/.config/lockscreen/qylock-shim.patch`: без него Enter на пустом пароле вешает
 PAM-разговор шима, и локскрин больше не принимает ввод. Перед блокировкой `lock` включает первую раскладку (us).
 
-## eww (не используется)
-
-Заменён Quickshell-баром; конфиги оставлены в репо. Конфиги в `home/.config/eww/`:
-- `eww.yuck` — все виджеты и окна
-- `eww.scss` — стили (Catppuccin Mocha)
-
-**Окна eww:**
-- `bar` (monitor 1) + `bar2` (monitor 0) — топ-бары с воркспейсами, клоком, модулями
-- Popup-окна для каждого модуля: `cpu-popup-window`, `temp-popup-window`, `ram-popup-window`, `sink-popup-window`, `power-popup-window`
-
-**Поллинг (интервалы разнесены чтобы не бить залпом):**
-- 1s: `clock-time`, `volume-text`, `cpu-usage`, `temperature`, `memory-pct`, `cpu-cores`
-- 2s: `dnd-status`
-- 3s: `network-text`
-- 5s: `language`
-- 60s: `clock-date`
-
-**Скрипты** в `home/.config/eww/scripts/` (полная документация в `scripts/README.md`):
-
-| Скрипт | Что делает | Вывод |
-|---|---|---|
-| `active-window` | Заголовок активного окна с иконкой класса; стримит события через Hyprland socket2 | строка |
-| `workspaces` | JSON-массив из 5 воркспейсов (`id`, `active`, `occupied`); стримит события | JSON array |
-| `cpu` | Загрузка CPU в % (два чтения /proc/stat с sleep 0.3) | int |
-| `cpu-cores` | Загрузка по ядрам + топ-5 процессов по CPU (кэш в /tmp/eww_cpu_cores) | JSON |
-| `memory-details` | RAM/cache/swap + топ-5 процессов по памяти из /proc/meminfo | JSON |
-| `temperatures` | Все hwmon-сенсоры из /sys/class/hwmon | JSON array |
-| `network` | Интерфейс, Wi-Fi сигнал или имя iface, скорость ↓↑ (кэш в /tmp) | строка |
-| `volume [up\|down\|mute]` | Чтение/управление дефолтным sink (wpctl); flash-анимация при изменении | строка |
-| `audio-sinks` | Список всех PipeWire sinks с флагом active (pactl) | JSON array |
-| `audio-sink-select <name>` | Выставить default sink, обновить переменную eww, закрыть popup | — |
-| `popup-open <prefix> <pin>` | Открыть popup на активном мониторе + запустить таймер auto-close | — |
-| `popup-toggle <prefix> <pin>` | Переключить пин; при unpin — закрыть popup на обоих мониторах | — |
-| `popup-hover-out <prefix> <pin>` | Закрыть popup при уходе мыши, если не запинен | — |
-| `popup-auto-close <prefix> <pin>` | Фоновый процесс: закрыть через 5s если не запинен | — |
-
-> **При добавлении или изменении скрипта** — обновить эту таблицу И `scripts/README.md`.
-
-**Перезагрузка eww:** `eww reload`
-
 ## Zsh config structure
 
 `home/.zshenv` → sets `ZDOTDIR=~/.config/zsh` and sources `~/.config/zsh/.zshenv`.
@@ -307,7 +260,8 @@ All zsh config lives in `home/.config/zsh/`:
 - `.zshrc` — plugins (Zinit), prompt (p10k), sources all `aliases/*`
 - `settings/plugins.zsh` — Zinit plugin declarations
 - `settings/bindings.zsh` — key bindings
-- `aliases/01_standard_app_replacement.zsh` — modern CLI replacements: `eza`→`ls`, `bat`→`cat`, `duf`→`df`, `rg`→`grep`, `nvim`→`vim`
+- `aliases/01_standard_app_replacement.zsh` — modern CLI replacements: `bat`→`cat`, `duf`→`df`, `rg`→`grep`, `nvim`→`vim`
+- `aliases/02_fs_navigation.zsh` — directory stack, `eza`→`ls` (`l`, `ll`, `la`)
 - `aliases/03_git.zsh` — git shortcuts (`gs`, `gaa`, `gps`, `gpl`, `gd`, `gl`, `gc`, `gcm`, etc.)
 
 ## Scripts
@@ -315,17 +269,8 @@ All zsh config lives in `home/.config/zsh/`:
 `home/.local/bin/` — shell scripts used by the WM and keybindings:
 - `lock` — Quickshell lockscreen (см. «Локскрин»)
 - `lock-theme` — выбор / скачивание / включение темы локскрина
-- `lock_screen.sh` — i3lock wrapper
 - `mako-dnd` — toggle do-not-disturb mode (mako)
 - `mako-theme` — цвета mako из theme.json (см. «Тема»)
 - `mako-history` — показать историю уведомлений
 - `mount_disk.sh` — mounts Windows disk (iCloud/Obsidian access)
-- `brightness_handle.sh` — brightness control
-- `hypr-keys` — показать список кейбайндингов
 - `hypr-reload` — перезагрузить Hyprland конфиг
-- `~/.local/scripts/workspaces` — воркспейсы для eww (не используется; монитор передаётся аргументом)
-- `waybar_live_reload.sh` / `waybar-reload` / `waybar-watch` — waybar утилиты (не используются, eww заменил waybar)
-
-## Submodule
-
-`home/.config/awesome/cosy` — AwesomeWM widget library (legacy, not used in current Hyprland setup).

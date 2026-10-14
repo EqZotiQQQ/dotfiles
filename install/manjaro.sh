@@ -8,7 +8,7 @@ set -euo pipefail
 #   cli       — modern CLI replacements: eza, bat, duf, ripgrep, fzf, htop, delta
 #   terminal  — kitty, terminator
 #   editor    — neovim + AstroNvim, VS Code
-#   wm        — Hyprland stack: waybar, mako, wofi, wlogout, rofi, flameshot, i3lock, quickshell (bar), qylock (lockscreen)
+#   wm        — Hyprland stack: mako, wofi, flameshot, quickshell (bar), qylock (lockscreen)
 #   dev       — cmake, make, bash-lsp, docker
 #   apps      — discord, telegram, chrome, obsidian, qbittorrent, nekobox, mpv
 #   fonts     — Iosevka
@@ -39,7 +39,7 @@ Component flags:
   --cli         eza, bat, duf, ripgrep, fzf, htop, delta
   --terminal    Kitty, Terminator
   --editor      Neovim (AstroNvim), VS Code
-  --wm          Hyprland, Waybar, Mako, Wofi, Wlogout, Rofi, Flameshot, i3lock, Quickshell, qylock
+  --wm          Hyprland, Mako, Wofi, Flameshot, Quickshell, qylock
   --dev         cmake, make, bash-language-server, Docker
   --apps        Discord, Telegram, Chrome, Obsidian, qBittorrent, Nekobox, mpv
   --fonts       Iosevka
@@ -139,19 +139,14 @@ install_wm() {
     echo "==> [wm] Hyprland stack"
     paru -S --skipreview --noconfirm \
         hyprland \
-        waybar \
         mako \
         wofi \
         imagemagick \
         hyprpaper \
-        wlogout \
         flameshot \
-        i3lock-color \
-        hyprpaper \
         hyprshot \
         hypridle \
         hyprpolkitagent \
-        hyprlock \
         xdg-desktop-portal-hyprland \
         socat \
         jq \

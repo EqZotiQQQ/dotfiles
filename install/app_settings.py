@@ -11,7 +11,7 @@ examples:
   %(prog)s --adopt ~/.config/kitty -f                pull an existing config into the repo
   %(prog)s --profile desktop --symlinks -f           fresh install: packages + symlinks
   %(prog)s -sf --setup-vscode-profiles               symlinks, then Claude + VS Code profiles
-  %(prog)s --os ubuntu --profile workstation --open-source --symlinks -f
+  %(prog)s --os ubuntu --profile workstation --symlinks -f
   %(prog)s --wm --editor                             install single components
 """
 
@@ -25,7 +25,6 @@ class AppSettings:
     overwrite: bool
     os_name: str
     profile: str
-    open_source: bool
     setup_vscode_profiles: bool
     extra_flags: list
     config_directory: pathlib.Path
@@ -99,11 +98,6 @@ class AppSettings:
             help="Profile for the OS install script: manjaro: minimal | desktop | full; "
                  "ubuntu: minimal | workstation | full",
         )
-        packages.add_argument(
-            "--open-source",
-            action="store_true",
-            help="Build from source via open_source.sh --all",
-        )
 
     @staticmethod
     def from_args(args, extra_flags: list):
@@ -118,7 +112,6 @@ class AppSettings:
             overwrite=args.overwrite_existing_files,
             os_name=args.os_name,
             profile=args.profile,
-            open_source=args.open_source,
             setup_vscode_profiles=args.setup_vscode_profiles,
             extra_flags=extra_flags,
             config_directory=args.path,

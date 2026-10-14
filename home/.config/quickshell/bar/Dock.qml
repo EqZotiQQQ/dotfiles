@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -114,6 +115,13 @@ Rectangle {
                             implicitSize: 26
                             asynchronous: true
                             source: Quickshell.iconPath(app.modelData.entry?.icon || "application-x-executable", "application-x-executable")
+
+                            // flat icon colors look dull on the dark tile
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                brightness: 0.1
+                                saturation: 0.3
+                            }
                         }
                     }
 

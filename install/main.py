@@ -288,11 +288,6 @@ if __name__ == "__main__":
     elif settings.os_name:
         logging.warning("--os given without --profile or component flags — nothing to install")
 
-    if settings.open_source:
-        ret = run_script(install_dir / "open_source.sh", ["--all"])
-        if ret != 0:
-            sys.exit(ret)
-
     if settings.symlinks:
         targets = dict(bindings)
         if (wallpapers := repo_root / "wallpapers").is_dir():

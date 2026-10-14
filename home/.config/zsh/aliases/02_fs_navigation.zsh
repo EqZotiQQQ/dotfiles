@@ -20,9 +20,6 @@ alias md='mkdir -p'
 alias rd='rmdir'
 alias d='dirs -v | head -10'
 
-alias l='ls --long --all --group'
-alias ll='ls --long'
-alias la='ls --long --almost-all'
 alias lsa='ls --long --all --group --header'
 
 if (( $+commands[eza] )); then
