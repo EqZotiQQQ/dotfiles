@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Wayland
+import Quickshell.Services.SystemTray
 import qs.common
 import qs.services
 import qs.bar.popouts
@@ -17,7 +19,8 @@ import qs.bar.popouts
 Item {
     id: root
 
-    property string open: ""      // shown popout: cpu | temp | mem | audio | notifications | calendar | power, "" = closed
+    property string open: ""      // shown popout: tray | media | cpu | temp | mem | audio | network | notifications | calendar | power, "" = closed
+                                  // (tray: the menu of the tray app at anchorChip)
     property string pinned: ""
     property string shown: ""     // last opened popout, stays loaded while the panel slides back
     property Item anchorChip: null // the module the panel lines up with
@@ -77,8 +80,9 @@ Item {
         }
     }
 
+    // tray apps share one key: a click on another one switches to it
     function click(key, chip) {
-        if (pinned === key) {
+        if (pinned === key && anchorChip === chip) {
             close();
         } else {
             pinned = key;
@@ -100,7 +104,27 @@ Item {
         close();
     }
 
+    // Tray app click: to its window. A window whose class is the app's tray id or title, case aside, is focused
+    // right away (Spotify: "spotify", its tray icon can't be activated); else the app is asked (Telegram shows or
+    // hides its window), and the window it asks to raise is only marked urgent, as with the calendar
+    function activateTray(item) {
+        const names = [item.id, item.title].filter(n => n !== "").map(n => n.toLowerCase());
+        const window = ToplevelManager.toplevels.values.find(t => names.includes(t.appId.toLowerCase()));
+        if (window && !window.activated) {
+            window.activate();
+        } else {
+            item.activate();
+            raiseUrgent.restart();
+        }
+        close();
+    }
+
+    // a popout typing into a field (the Wi-Fi password): the bar takes the keyboard meanwhile (Bar.qml)
+    // and the popout stays pinned
+    readonly property bool keyboard: open !== "" && (popout.item?.wantsKeyboard ?? false)
+
     onOpenChanged: if (open !== "") shown = open
+    onKeyboardChanged: if (keyboard) pinned = open
 
     width: vertical ? bar + depth : length + overhang
     height: vertical ? length + overhang : bar + depth
@@ -262,6 +286,57 @@ Item {
         y: area.y
         spacing: 2
 
+        // Tray apps (StatusNotifierItem): Telegram and the like hide here. Hover: the app's menu, click: to the
+        // app's window (activateTray; its menu if it has nothing else), right click: pin the menu, middle click:
+        // the app's second action, wheel: to the app
+        Repeater {
+            id: tray
+
+            model: SystemTray.items
+
+            delegate: Chip {
+                id: trayApp
+
+                required property SystemTrayItem modelData
+
+                image: modelData.icon
+                active: root.open === "tray" && root.anchorChip === trayApp
+                onEntered: if (modelData.hasMenu) root.hover("tray", trayApp)
+                onWheel: delta => modelData.scroll(delta, false)
+                onClicked: button => {
+                    if (button === Qt.MiddleButton) {
+                        modelData.secondaryActivate();
+                    } else if (button === Qt.RightButton || modelData.onlyMenu) {
+                        if (modelData.hasMenu)
+                            root.click("tray", trayApp);
+                    } else {
+                        root.activateTray(modelData);
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            width: root.vertical ? 20 : 1
+            height: root.vertical ? 1 : 20
+            color: Theme.outlineVariant
+            visible: tray.count > 0
+        }
+
+        // only while there is a player. Middle click: play / pause
+        Chip {
+            id: media
+
+            visible: Media.player !== null
+            icon: Media.player?.isPlaying ? Icons.music : Icons.pause
+            text: root.vertical ? "" : Media.player?.trackTitle || Media.player?.identity || ""
+            mono: false
+            maxTextWidth: 200
+            active: root.open === "media"
+            onEntered: root.hover("media", media)
+            onClicked: button => button === Qt.MiddleButton ? Media.player.togglePlaying() : root.click("media", media)
+        }
+
         Chip {
             id: cpu
 
@@ -309,10 +384,15 @@ Item {
         }
 
         Chip {
+            id: network
+
             icon: Network.iface === "" ? Icons.offline : Network.wireless ? Icons.wifi : Icons.ethernet
             text: "↓" + Network.fmt(Network.rx) + (root.vertical ? "\n↑" : " ↑") + Network.fmt(Network.tx)
             textSize: root.vertical ? 10 : Theme.fontSize
             widthTemplate: "↓10.0M ↑10.0M"
+            active: root.open === "network"
+            onEntered: root.hover("network", network)
+            onClicked: root.click("network", network)
         }
 
         Chip {
@@ -376,10 +456,13 @@ Item {
             width: item?.preferredWidth ?? 0
             active: root.open !== "" || root.depth > 0.5
             sourceComponent: ({
+                    tray: trayPopout,
+                    media: mediaPopout,
                     cpu: cpuPopout,
                     temp: tempPopout,
                     mem: memPopout,
                     audio: audioPopout,
+                    network: networkPopout,
                     notifications: notificationsPopout,
                     calendar: calendarPopout,
                     power: powerPopout
@@ -404,6 +487,20 @@ Item {
     }
 
     Component {
+        id: trayPopout
+
+        // an entry like "Open Telegram" asks to raise the app's window: Hyprland only marks it urgent
+        TrayMenu {
+            item: root.anchorChip?.modelData ?? null
+            onDone: raiseUrgent.restart()
+        }
+    }
+    Component {
+        id: mediaPopout
+
+        MediaPopout {}
+    }
+    Component {
         id: cpuPopout
 
         CpuPopout {}
@@ -422,6 +519,11 @@ Item {
         id: audioPopout
 
         AudioPopout {}
+    }
+    Component {
+        id: networkPopout
+
+        NetworkPopout {}
     }
     Component {
         id: notificationsPopout

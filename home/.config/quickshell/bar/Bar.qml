@@ -38,6 +38,8 @@ PanelWindow {
     exclusiveZone: margin + Theme.barSize
     color: "transparent"
     WlrLayershell.namespace: "quickshell-bar"
+    // only while a popout types into a field: Escape there gives the keyboard back
+    WlrLayershell.keyboardFocus: status.keyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     mask: Region {
         item: start

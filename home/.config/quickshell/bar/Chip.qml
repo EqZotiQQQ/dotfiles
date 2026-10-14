@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell.Widgets
 import qs.common
 
 // Status module: icon + value, side by side on a horizontal bar, stacked on a vertical one.
@@ -7,11 +8,13 @@ Rectangle {
     id: root
 
     property string icon: ""
+    property string image: ""           // an image instead of the glyph (tray apps)
     property string text: ""
     property string note: ""            // dimmer text after the value, horizontal bar only
     property bool mono: true            // numbers in the mono font
     property int textSize: Theme.barVertical ? 11 : Theme.fontSize
     property string widthTemplate: ""   // widest expected value: on a horizontal bar changing values don't shift the island
+    property int maxTextWidth: 0        // horizontal bar: longer text is elided, 0 = no limit
     property bool active: false         // its popout is open
     property color iconColor: active ? Theme.textOnPrimaryContainer : Theme.text
 
@@ -55,12 +58,19 @@ Rectangle {
             color: root.iconColor
         }
 
+        IconImage {
+            visible: root.image !== ""
+            implicitSize: 18
+            source: root.image
+        }
+
         StyledText {
             id: label
 
             visible: root.text !== ""
-            width: Theme.barVertical ? implicitWidth : Math.max(implicitWidth, template.advanceWidth)
+            width: Theme.barVertical ? implicitWidth : Math.min(Math.max(implicitWidth, template.advanceWidth), root.maxTextWidth || Infinity)
             horizontalAlignment: Theme.barVertical ? Text.AlignHCenter : Text.AlignRight
+            elide: Text.ElideRight
             lineHeight: 0.95
             text: root.text
             font.family: root.mono ? Theme.monoFont : Theme.uiFont

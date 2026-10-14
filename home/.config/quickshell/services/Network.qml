@@ -3,8 +3,10 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Networking
 
-// Default-route interface and its download/upload speed, from /proc/net/route and /proc/net/dev
+// Default-route interface and its download/upload speed, from /proc/net/route and /proc/net/dev;
+// devices, Wi-Fi on/off and networks in range from NetworkManager (Quickshell.Networking)
 Singleton {
     id: root
 
@@ -12,6 +14,14 @@ Singleton {
     readonly property bool wireless: iface.startsWith("wl")
     property real rx: 0   // bytes/s
     property real tx: 0
+
+    readonly property var wifi: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
+    readonly property var wired: Networking.devices.values.filter(d => d.type === DeviceType.Wired)
+    readonly property bool wifiEnabled: Networking.wifiEnabled
+    readonly property bool wifiHardwareEnabled: Networking.wifiHardwareEnabled
+    // the connected one first, then by signal; hidden ones (no name) left out
+    readonly property var networks: (wifi?.networks.values ?? []).filter(n => n.name !== "").sort((a, b) => b.connected - a.connected || b.signalStrength - a.signalStrength)
+    property int watchers: 0   // popouts showing `networks`: the Wi-Fi device scans while one is open
 
     property var _last: null
 
@@ -21,6 +31,27 @@ Singleton {
         if (bytes >= 1024)
             return Math.round(bytes / 1024) + "K";
         return Math.round(bytes) + "B";
+    }
+
+    function setWifiEnabled(on) {
+        Networking.wifiEnabled = on;
+    }
+
+    // no password: open and OWE ("enhanced open") networks
+    function isOpen(net) {
+        return [WifiSecurityType.Open, WifiSecurityType.Owe].includes(net.security);
+    }
+
+    // WPA/WPA2/WPA3 Personal: the password is typed in the popout (enterprise ones aren't handled)
+    function needsPsk(net) {
+        return [WifiSecurityType.WpaPsk, WifiSecurityType.Wpa2Psk, WifiSecurityType.Sae].includes(net.security);
+    }
+
+    Binding {
+        target: root.wifi
+        property: "scannerEnabled"
+        value: root.watchers > 0
+        when: root.wifi !== null
     }
 
     FileView {

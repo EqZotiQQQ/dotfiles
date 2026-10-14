@@ -165,7 +165,7 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 
 **Автозапуск** (`hl.on("hyprland.start", ...)` в hyprland.lua):
 ```
-hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + лаунчер), mako-theme + mako, hyprpolkitagent
+hyprpaper, hypridle, qs (Quickshell: бар + spectrum за ним + лаунчер + обзор воркспейсов), mako-theme + mako, hyprpolkitagent
 ```
 Плюс приложения из `startup_apps` в hyprland.lua: первое окно каждого класса уходит на свой воркспейс (`workspace` 1–9 на мониторе `monitor` по порядку из monitors.lua; событие `window.open`).
 Не через правила `exec_cmd`: они привязаны к PID, а `code` / `spotify-launcher` открывают окно из другого процесса.
@@ -190,12 +190,16 @@ hyprpaper) → бар (`top`, острова висят над полосой). 
 
 Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `qs`. Перезапуск: `pkill -x qs; qs -d` (`qs kill` экземпляр, запущенный с `-d`, не находит). Логи: `qs log`.
 Правки QML подхватываются сами, но замену файла (`sed -i`, новый inode) вотчер по симлинку теряет — тогда перезапуск.
-- `shell.qml` — на каждый экран бар (`bar/Bar.qml`) и полоса spectrum (`bar/Spectrum.qml`)
+Новый файл в репо `qs` не видит, пока нет симлинка (`./dot -s -f`): `import` нового каталога до этого роняет весь конфиг.
+JS в QML не знает `??=` (ошибка разбора всего файла) — `x = x ?? …`.
+- `shell.qml` — на каждый экран бар (`bar/Bar.qml`) и полоса spectrum (`bar/Spectrum.qml`); тема иконок —
+  `//@ pragma IconTheme` (как в qt6ct: `qs` его не читает и без прагмы видит только hicolor), читается при старте — перезапуск
 - `common/` — синглтоны `Theme` (theme.json), `Icons` (глифы Nerd Font), `Time` (часы + локаль `LC_TIME`); `ThemeAnim`, `StyledText`,
   `Strip` (ряд на горизонтальном баре / колонка на вертикальном)
-- `services/` — данные: `Cpu`, `Memory` (/proc), `Sensors` (hwmon, `scripts/sensors`), `Network`, `Audio` (PipeWire),
+- `services/` — данные: `Cpu`, `Memory` (/proc), `Sensors` (hwmon, `scripts/sensors`), `Network` (скорость — /proc;
+  устройства и Wi-Fi — NetworkManager через `Quickshell.Networking`), `Audio` (PipeWire),
   `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (mako: «не беспокоить», уведомления и история;
-  перечитывается по сигналу D-Bus `PropertiesChanged` через `dbus-monitor`, без опроса)
+  перечитывается по сигналу D-Bus `PropertiesChanged` через `dbus-monitor`, без опроса), `Media` (плееры MPRIS)
 - `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету), слой `top`,
   namespace `quickshell-bar`, без размытия (виден spectrum); поверхность глубже бара для поповеров, ввод только на островах
   (`mask`); бар прячется на мониторе с полноэкранным окном
@@ -207,12 +211,34 @@ Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `
 - колокольчик — центр уведомлений mako (`popouts/NotificationsPopout.qml`: живые + история, «вернуть последнее»,
   «не беспокоить»), средний клик — «не беспокоить», число — новые с прошлого открытия; mako возвращает из истории
   только последнее (`makoctl restore`), очистки истории у него нет
+- сеть — `popouts/NetworkPopout.qml`: проводные устройства, Wi-Fi вкл/выкл, сети рядом (сканирование — пока поповер
+  открыт), клик подключает / отключает; пароль новой WPA-сети вводится в поповере: на это время бар берёт клавиатуру
+  (`keyboardFocus: Exclusive`) и поповер закрепляется, Esc — отмена
+- медиаплеер — чип с названием трека (только пока есть MPRIS-плеер), средний клик — пауза; `popouts/MediaPopout.qml`:
+  обложка, прогресс (клик / перетаскивание — перемотка; у стримов длины нет — полосы нет), shuffle / назад / пауза /
+  вперёд / повтор, вкладки плееров, если их несколько. Показывается выбранный во вкладках, иначе последний начавший
+  играть; `playerctld` пропускается (он лишь зеркалит остальных). Позицию MPRIS сам не шлёт — пока поповер открыт,
+  её раз в секунду перечитывает таймер (`positionChanged()`)
+- трей — значки `Quickshell.Services.SystemTray` в начале острова, за разделителем; `org.kde.StatusNotifierWatcher` держит
+  сам `qs`, после его перезапуска приложения регистрируются заново. Наведение — меню приложения (`popouts/TrayMenu.qml`:
+  D-Bus-меню через `QsMenuOpener`, подменю открываются на месте), клик — к окну приложения (`activateTray`), правый —
+  закрепить меню, средний — второе действие, колесо — приложению. Окно, чей класс совпадает с `id`/`title` значка
+  (Spotify), фокусируется сразу; иначе — `Activate` приложению (Telegram показывает / прячет окно). Поднять окно
+  приложение может только запросом активации, а Hyprland (`focus_on_activate` выкл.) лишь помечает окно urgent —
+  его фокусирует `raiseUrgent`, как у календаря; так же после пункта меню («Open Telegram»). `DesktopEntries.heuristicLookup`
+  для сопоставления не годится: на пустую строку отдаёт случайное приложение
 - воркспейсы: номера 1–9 своего монитора (id 1–9 — главный монитор, 10–18 — второй…, см. `hypr/monitors.lua`), пустые не показываются
 - `launcher/Launcher.qml` — лаунчер приложений в стиле бара (один на все экраны, открывается на мониторе с фокусом),
   слой `overlay`, namespace `quickshell-launcher`; открывается по IPC: `qs ipc call launcher toggle` (`SUPER+R`)
+- `overview/Overview.qml` — обзор воркспейсов (`SUPER+Tab`: `qs ipc call overview toggle`): на каждом мониторе сетка его
+  воркспейсов, включая пустые (по `hyprctl workspacerules -j`), с живыми превью окон (`ScreencopyView` по `toplevel.wayland`;
+  окна скрытых воркспейсов тоже захватываются). Захват идёт, только пока обзор открыт; геометрия окон — `lastIpcObject`
+  после `Hyprland.refreshToplevels()` при открытии. Клик по окну — фокус на нём, по воркспейсу — переход; Esc / клик мимо — закрыть
 
 **Подводный камень QML:** свойства с именем `onXxx` (как `onSurface`) читаются как обработчики сигналов и дают
 `#000000` — поэтому в `Theme.qml` цвета текста названы `text`, `textVariant`, `textOnPrimary`, `textOnPrimaryContainer`.
+`Quickshell.Networking` экспортирует тип `Network`: в файле, где есть и `import qs.services`, он молча перекрывает
+синглтон (`Network.x` → `undefined`) — поэтому перечисления Wi-Fi (`WifiSecurityType` и т.п.) используются только в `services/Network.qml`.
 
 ## Локскрин
 
