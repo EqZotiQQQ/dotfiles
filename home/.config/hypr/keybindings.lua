@@ -76,10 +76,11 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
 hl.bind("CTRL + Insert",  hl.dsp.exec_cmd("wtype -M ctrl c -m ctrl"))
 hl.bind("SHIFT + Insert", hl.dsp.exec_cmd("wl-paste | wtype -"))
 
--- Screenshots
-hl.bind("Print",              hl.dsp.exec_cmd("hyprshot -m region -o ~/Pictures/Screenshots"))
-hl.bind("SHIFT + Print",      hl.dsp.exec_cmd("hyprshot -m output -o ~/Pictures/Screenshots"))
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("hyprshot -m window -o ~/Pictures/Screenshots"))
+-- Screenshots. hyprshot на Manjaro из пакета (/usr/bin), на Ubuntu — в ~/.local/bin, которого нет в PATH у Hyprland
+local hyprshot = "PATH=$HOME/.local/bin:$PATH hyprshot -o ~/Pictures/Screenshots -m "
+hl.bind("Print",              hl.dsp.exec_cmd(hyprshot .. "region"))
+hl.bind("SHIFT + Print",      hl.dsp.exec_cmd(hyprshot .. "output"))
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(hyprshot .. "window"))
 
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })

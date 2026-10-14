@@ -1,0 +1,8 @@
+[
+    // Ctrl+W без открытых вкладок закрывает окно — по умолчанию VS Code так делает только на macOS
+    {
+        "key": "ctrl+w",
+        "command": "workbench.action.closeWindow",
+        "when": "!editorIsOpen && !multipleEditorGroups"
+    }
+]

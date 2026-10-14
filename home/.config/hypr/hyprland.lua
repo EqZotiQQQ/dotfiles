@@ -30,8 +30,32 @@ for slot, m in ipairs(monitors.list()) do
 end
 -- A monitor came or went: reload, so the rules above are rebuilt for the new set
 -- (checked against `ruled`, so the reload itself doesn't trigger another one)
-hl.on("monitor.added", function(m) if not ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
+hl.on("monitor.added", function(m) if m.name ~= "FALLBACK" and not ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
 hl.on("monitor.removed", function(m) if ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
+-- The rules only place new workspaces, so after a reload the existing ones are brought in line: one in a present
+-- monitor's range goes to that monitor; one past the last monitor (left from a monitor that's gone) has its windows
+-- moved to the same key on the monitor it's on now. So each monitor keeps only its own 1-9.
+hl.on("config.reloaded", function()
+    local mons = monitors.list()
+    local slot_of = {}
+    for slot, m in ipairs(mons) do slot_of[m.name] = slot end
+    for _, ws in ipairs(hl.get_workspaces()) do
+        local slot = ws.id > 0 and ws.monitor and slot_of[ws.monitor.name] -- normal workspace, real monitor
+        if slot then
+            local owner = mons[math.ceil(ws.id / monitors.per_monitor)]
+            if owner and owner.name ~= ws.monitor.name then
+                hl.dispatch(hl.dsp.workspace.move({ workspace = tostring(ws.id), monitor = owner.name }))
+            elseif not owner then
+                local target = tostring(monitors.workspace(slot, (ws.id - 1) % monitors.per_monitor + 1))
+                local active = ws.active
+                for _, w in ipairs(ws:get_windows()) do
+                    hl.dispatch(hl.dsp.window.move({ workspace = target, follow = false, window = "address:" .. w.address }))
+                end
+                if active then hl.dispatch(hl.dsp.focus({ workspace = target })) end
+            end
+        end
+    end
+end)
 
 
 ---------------------
@@ -382,6 +406,23 @@ hl.window_rule({
 
     move  = "20 monitor_h-120",
     float = true,
+})
+
+-- Полупрозрачные (с размытием) только редакторы: VS Code (класс code на Manjaro, com.microsoft.VSCode на Ubuntu)
+-- и kitty, пока в нём neovim: shell integration kitty ставит заголовком команду («nvim file», «vim file»);
+-- opacity — динамический эффект, пересчитывается при смене заголовка, после выхода из nvim окно снова непрозрачное
+hl.window_rule({
+    name  = "translucent-vscode",
+    match = { class = "^(code|com\\.microsoft\\.VSCode)$" },
+
+    opacity = "0.9 0.8",
+})
+
+hl.window_rule({
+    name  = "translucent-neovim",
+    match = { class = "^kitty$", title = "^n?vim( .*)?$" },
+
+    opacity = "0.9 0.80",
 })
 
 -- wofi: размытие под полупрозрачным фоном (wofi/style.css); прозрачные скруглённые углы не размываются

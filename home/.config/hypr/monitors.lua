@@ -9,7 +9,9 @@ M.per_monitor = 9
 function M.list()
     local mons = {}
     for _, m in ipairs(hl.get_monitors()) do
-        if not m.is_mirror then table.insert(mons, m) end
+        -- FALLBACK: Hyprland's placeholder while no monitor is connected (one that drops off when the screen
+        -- sleeps); given workspaces 1-9, it leaves the returning monitor on 11
+        if not m.is_mirror and m.name ~= "FALLBACK" then table.insert(mons, m) end
     end
     table.sort(mons, function(a, b)
         local area_a, area_b = a.width * a.height, b.width * b.height

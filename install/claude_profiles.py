@@ -3,8 +3,8 @@
 Every profile gets its own CLAUDE_CONFIG_DIR, so each one keeps its own login
 (.credentials.json, .claude.json). Everything else is shared: the config dir
 only holds symlinks into ~/.claude. The VS Code profile gets the default
-profile's settings plus CLAUDE_CONFIG_DIR, and the extensions from
-vscode_extensions.txt.
+profile's settings plus CLAUDE_CONFIG_DIR, a symlink to its keybindings, and
+the extensions from vscode_extensions.txt.
 """
 
 import json
@@ -178,6 +178,25 @@ def write_settings(path: pathlib.Path, content: str, apply: bool) -> None:
     logging.info(f"written: {path}")
 
 
+def link_keybindings(location: pathlib.Path, apply: bool) -> int:
+    # a profile has its own keybindings.json unless created with "use default"; share the default one
+    src = VSCODE_USER / "keybindings.json"
+    dst = location / "keybindings.json"
+    if dst.is_symlink() and dst.readlink() == src:
+        return 0
+    if dst.exists() and not dst.is_symlink():
+        logging.error(f"real file in the way — merge it into {src} and remove: {dst}")
+        return 1
+    if not apply:
+        logging.info(f"[dry-run] {dst} -> {src}")
+        return 0
+    if dst.is_symlink():
+        dst.unlink()
+    dst.symlink_to(src)
+    logging.info(f"linked: {dst} -> {src}")
+    return 0
+
+
 def wanted_extensions() -> list[str]:
     if not EXTENSIONS_LIST.exists():
         return []
@@ -242,6 +261,7 @@ def setup_profiles(apply: bool) -> int:
         except ValueError as e:
             logging.error(f"{default_settings}: {e}")
             failed += 1
+        failed += link_keybindings(location, apply)
         failed += install_extensions(name, apply)
 
     if not apply:
