@@ -97,7 +97,10 @@ OS берётся из `ID=` в `/etc/os-release`, если не задана ч
 **`install/`** — все скрипты установки:
 - `install/main.py` + `install/app_settings.py` — вся логика: пакеты, симлинки, status, adopt
 - `install/manjaro.sh` — paru-based; profiles: `minimal`, `desktop`, `full`
-- `install/ubuntu.sh` — apt-based; profiles: `minimal`, `workstation`, `full`
+- `install/ubuntu.sh` — apt-based; profiles: `minimal`, `workstation`, `desktop`, `full`. `--wm` собирает стек Hyprland
+  из исходников через hyprbuntu (`~/open_source/hyprbuntu`) и Quickshell (`~/open_source/quickshell`); что и зачем —
+  раздел «Ubuntu: Hyprland» в `README.md`
+- `install/open_source.sh` — builds from source: `--i3lock`, `--rofi`, `--picom`
 
 **Симлинки** — `home/` → `~`, `etc/` → `/etc` (если каталог есть), `wallpapers/` → `~/Pictures/wallpapers`:
 

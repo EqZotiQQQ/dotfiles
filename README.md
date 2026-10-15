@@ -15,7 +15,18 @@ TBD
 # Ubuntu: Hyprland
 
 Что пришлось доставить поверх `./dot --os ubuntu`, чтобы WM заработал (проверено на Ubuntu 26.04,
-Hyprland 0.56.2, RTX 5070 Ti). `install/ubuntu.sh` этого пока не делает.
+Hyprland 0.56.2, RTX 5070 Ti). Всё это делает `./dot --os ubuntu --wm` (входит в `--profile desktop`),
+шрифты — `--fonts`; ниже — что и зачем.
+
+## Hyprland
+
+Стек hyprwm (Hyprland, hyprpaper, hypridle, hyprlock, hyprpolkitagent, xdg-desktop-portal-hyprland, uwsm…)
+в apt старый — собирается из исходников скриптом [hyprbuntu](https://gitlab.com/kralos/hyprbuntu)
+(клон в `~/open_source/hyprbuntu`, сборка в `~/hyprbuntu`), без вопросов: опции заданы в `ubuntu.sh`.
+
+`hyprland` и прочие `hypr*` из apt не ставить: после `apt remove hyprland` остаются `libhypr*` / `libaquamarine*`
+в `/usr/lib/x86_64-linux-gnu`, линкер смотрит туда раньше `/usr/lib` (куда ставит hyprbuntu), и Hyprland
+грузит старые библиотеки (`ldd $(which Hyprland) | grep hypr`). `--wm` такие пакеты сносит перед сборкой.
 
 ## NVIDIA (RTX 50xx)
 
@@ -33,7 +44,7 @@ nvidia-smi   # карта должна быть видна
 ## Пакеты
 
 ```bash
-sudo apt install wofi wtype imagemagick hyprpicker
+sudo apt install wofi wtype imagemagick jq flameshot
 ```
 
 `hyprpolkitagent` на Ubuntu лежит в `/usr/libexec`, а `hyprland.lua` запускает его по пути из Arch:
@@ -71,8 +82,8 @@ sudo apt install cmake ninja-build pkg-config spirv-tools libcli11-dev \
   qml6-module-qtquick-effects qml6-module-qtquick-controls qml6-module-qtquick-window \
   qml6-module-qtqml-workerscript qml6-module-qt5compat-graphicaleffects
 
-git clone --branch v0.3.2 https://git.outfoxxed.me/quickshell/quickshell ~/src/quickshell
-cd ~/src/quickshell
+git clone --branch v0.3.2 https://git.outfoxxed.me/quickshell/quickshell ~/open_source/quickshell
+cd ~/open_source/quickshell
 cmake -GNinja -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCRASH_HANDLER=OFF
 cmake --build build && sudo cmake --install build
 
@@ -98,8 +109,9 @@ Quickshell ищет бинарник в `~/my_projects/spectrum/build/spectrum`;
 
 ## Необязательно
 
-- `dolphin` (`fileManager` в hyprland.lua) — на Ubuntu есть только nautilus.
-- Приложения из `startup_apps`: `code`, `google-chrome-stable`, `telegram-desktop`, `obsidian`, `spotify-launcher`.
+- `dolphin` (`fileManager` в hyprland.lua) — на Ubuntu есть только nautilus; ставит `--apps`.
+- Приложения из `startup_apps`: `code` (`--editor`), `google-chrome-stable`, `telegram-desktop` (`--apps`);
+  `obsidian`, `spotify-launcher` — нет.
 
 # TODO
 transparent and blur for term
