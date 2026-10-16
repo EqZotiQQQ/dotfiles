@@ -42,6 +42,7 @@ Singleton {
     readonly property bool barVertical: barPosition === "left" || barPosition === "right"
 
     readonly property int barSize: shape.barSize ?? 48        // bar thickness
+    readonly property int chipSize: Math.round(barSize * 0.75) // modules, dock tiles, the active workspace: they follow the bar
     readonly property int barMargin: shape.barMargin ?? 10
     readonly property int islandRadius: shape.islandRadius ?? 24
     readonly property int tileRadius: shape.tileRadius ?? 12

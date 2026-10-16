@@ -22,8 +22,8 @@ Rectangle {
     signal clicked(int button)
     signal wheel(int delta)
 
-    implicitWidth: Theme.barVertical ? Theme.barSize - 8 : content.implicitWidth + 18
-    implicitHeight: Theme.barVertical ? content.implicitHeight + 10 : 36
+    implicitWidth: Theme.barVertical ? Theme.barSize - 8 : content.implicitWidth + 14
+    implicitHeight: Theme.barVertical ? content.implicitHeight + 10 : Theme.chipSize
     radius: Math.min(Theme.chipRadius, width / 2, height / 2)
     color: active ? Theme.primaryContainer : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
 

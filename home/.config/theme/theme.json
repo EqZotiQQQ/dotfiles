@@ -27,9 +27,9 @@
     "border": 1,
     "gapsIn": 2,
     "gapsOut": 3,
-    "barSize": 48,
+    "barSize": 40,
     "barMargin": 10,
-    "islandRadius": 24,
+    "islandRadius": 20,
     "tileRadius": 12,
     "chipRadius": 18
   },

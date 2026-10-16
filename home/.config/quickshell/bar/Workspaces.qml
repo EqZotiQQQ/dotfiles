@@ -30,9 +30,9 @@ Strip {
             readonly property bool occupied: modelData.toplevels.values.length > 0
 
             // the active one is longer along the bar
-            width: active && !Theme.barVertical ? 36 : 26
-            height: active && Theme.barVertical ? 36 : 26
-            radius: 13
+            width: active && !Theme.barVertical ? Theme.chipSize : Math.round(Theme.chipSize * 0.72)
+            height: active && Theme.barVertical ? Theme.chipSize : Math.round(Theme.chipSize * 0.72)
+            radius: Math.min(width, height) / 2
             color: active ? Theme.primary : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
 
             Behavior on width {

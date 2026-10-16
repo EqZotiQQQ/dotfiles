@@ -61,8 +61,8 @@ PanelWindow {
 
         x: bar.vertical ? bar.across(width) : bar.margin
         y: bar.vertical ? bar.margin : bar.across(height)
-        width: bar.vertical ? Theme.barSize : content.implicitWidth + 22
-        height: bar.vertical ? content.implicitHeight + 22 : Theme.barSize
+        width: bar.vertical ? Theme.barSize : content.implicitWidth + 16
+        height: bar.vertical ? content.implicitHeight + 16 : Theme.barSize
         radius: Theme.islandRadius
         color: Theme.panel
         border.width: 1
@@ -79,7 +79,7 @@ PanelWindow {
             id: content
 
             anchors.centerIn: parent
-            spacing: 10
+            spacing: 8
 
             Workspaces {
                 monitor: bar.monitor

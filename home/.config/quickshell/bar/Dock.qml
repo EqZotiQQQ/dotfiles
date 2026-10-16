@@ -42,8 +42,8 @@ Rectangle {
         windows[(current + 1) % windows.length].activate();
     }
 
-    width: vertical ? Theme.barSize : tiles.implicitWidth + 16
-    height: vertical ? tiles.implicitHeight + 16 : Theme.barSize
+    width: vertical ? Theme.barSize : tiles.implicitWidth + 10
+    height: vertical ? tiles.implicitHeight + 10 : Theme.barSize
     radius: Theme.islandRadius
     color: Theme.panel
     border.width: 1
@@ -87,8 +87,8 @@ Rectangle {
                 Item {
                     id: slot
 
-                    width: root.vertical ? Theme.barSize : 40
-                    height: root.vertical ? 40 : Theme.barSize
+                    width: root.vertical ? Theme.barSize : Theme.chipSize + 2
+                    height: root.vertical ? Theme.chipSize + 2 : Theme.barSize
 
                     // hovered: grows away from the screen edge
                     Rectangle {
@@ -96,8 +96,8 @@ Rectangle {
 
                         x: (slot.width - width) / 2 + (root.edge === "left" ? push : root.edge === "right" ? -push : 0)
                         y: (slot.height - height) / 2 + (root.edge === "top" ? push : root.edge === "bottom" ? -push : 0)
-                        width: 36
-                        height: 36
+                        width: Theme.chipSize
+                        height: Theme.chipSize
                         radius: Theme.tileRadius
                         color: Theme.surfaceHigh
                         transformOrigin: ({ left: Item.Left, right: Item.Right, top: Item.Top, bottom: Item.Bottom })[root.edge]
@@ -112,7 +112,7 @@ Rectangle {
 
                         IconImage {
                             anchors.centerIn: parent
-                            implicitSize: 30
+                            implicitSize: Math.round(Theme.chipSize * 5 / 6)
                             asynchronous: true
                             source: Quickshell.iconPath(app.modelData.entry?.icon || "application-x-executable", "application-x-executable")
 

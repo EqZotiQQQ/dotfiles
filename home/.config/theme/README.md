@@ -25,7 +25,7 @@ Kitty и wofi в тему не входят (остаются на своей Gr
 - `bar.position` — край экрана для бара и полосы spectrum за ним: `top`, `bottom`, `left`, `right`.
 - `opacity.panel` — непрозрачность островов бара в покое (без размытия: сквозь них виден spectrum);
   `opacity.popout` — непрозрачность острова, пока открыт поповер (окна под ним не мешают тексту), и фона уведомлений mako.
-- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland (`rounding`, `border` — и для уведомлений mako); `barSize` (толщина бара), `barMargin`,
+- `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland (`rounding`, `border` — и для уведомлений mako); `barSize` (толщина бара; модули, плитки дока и воркспейсы — ¾ от неё), `barMargin`,
   `islandRadius`, `tileRadius`, `chipRadius` для бара.
 - `blur` — размытие Hyprland для окон (`size`, `passes`); на бар не действует.
 - `motion` — `curve`: кривая Безье `[x1, y1, x2, y2]` для окон Hyprland и анимаций бара
