@@ -37,7 +37,8 @@ class AppSettings:
             "-s",
             "--symlinks",
             action="store_true",
-            help=f"Link the repo into {DEFAULT_USER_LOCATION} (and wallpapers into ~/Pictures). Dry-run unless -f",
+            help=f"Link the repo into {DEFAULT_USER_LOCATION} (and wallpapers into ~/Pictures), "
+                 "copy etc/ into /etc through sudo. Dry-run unless -f",
         )
         links.add_argument(
             "--status",

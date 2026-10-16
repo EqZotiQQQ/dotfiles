@@ -1,0 +1,5 @@
+# hidraw of Logitech and Razer mice / keyboards for the user at the seat (uaccess, applied by 73-seat-late):
+# Quickshell's scripts/wireless reads their battery and report rate. Over USB (receiver, dongle, cable) the
+# vendor is on the USB parent; over Bluetooth there is none, the HID device is named 0005:<vendor>:<product>.<n>
+KERNEL=="hidraw*", ATTRS{idVendor}=="046d|1532", TAG+="uaccess"
+KERNEL=="hidraw*", KERNELS=="0005:046D:*|0005:1532:*", TAG+="uaccess"

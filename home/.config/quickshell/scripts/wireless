@@ -1,0 +1,352 @@
+#!/usr/bin/env python3
+"""Wireless mice and keyboards over hidraw, as JSON for services/Wireless.qml.
+
+wireless            JSON array, one object per device:
+                    id, name, kind (mouse | keyboard | device), link (Lightspeed | HyperSpeed | Bluetooth | USB | радио),
+                    online, battery (%), charging, full, rate (Hz), rates ([Hz]), dpi, profile, profiles, host, hosts,
+                    firmware, idle (s before it sleeps), address (Bluetooth), seen (off: when last on air, unix time),
+                    drain (%/h), hoursLeft, history ([[unix time, %]], the last day). Unchanged devices print the
+                    same JSON every run
+wireless --measure  JSON lines {"id", "hz"}: the polling rate seen on each mouse's input events, once a second while it moves
+
+Logitech: HID++ 2.0, through a receiver (device 1..6) or direct (cable, Bluetooth: device 0xFF).
+Razer: 90-byte feature reports; only the models in RAZER (transaction id and command interface differ per model).
+Access to hidraw: etc/udev/rules.d/70-wireless-hid.rules. Battery history: ~/.cache/quickshell/wireless.json;
+a device that is off shows there with its last values while its receiver is plugged in.
+"""
+
+import fcntl
+import json
+import os
+import pathlib
+import select
+import struct
+import sys
+import time
+
+BUS_USB, BUS_BLUETOOTH = 0x03, 0x05
+LOGITECH, RAZER_VENDOR = 0x046D, 0x1532
+RECEIVERS = {(LOGITECH, 0xC547): "Lightspeed", (RAZER_VENDOR, 0x025C): "HyperSpeed"}
+RAZER = {0x025A: "keyboard", 0x025C: "keyboard"}   # BlackWidow V3 Pro: cable, HyperSpeed dongle
+
+CACHE = pathlib.Path(os.environ.get("XDG_CACHE_HOME") or pathlib.Path.home() / ".cache") / "quickshell" / "wireless.json"
+HISTORY_KEEP = 7 * 86400
+SAMPLE_EVERY = 600   # s: a sample also whenever the battery or charging changes
+
+
+class Node:
+    """One hidraw device node"""
+
+    def __init__(self, sysdir):
+        self.path = "/dev/" + sysdir.name
+        self.hid = (sysdir / "device").resolve()
+        props = dict(line.split("=", 1) for line in (self.hid / "uevent").read_text().splitlines() if "=" in line)
+        self.bus, self.vid, self.pid = (int(x, 16) for x in props["HID_ID"].split(":"))
+        self.name = props.get("HID_NAME", "")
+        self.uniq = props.get("HID_UNIQ", "").lower()
+        self.descriptor = (self.hid / "report_descriptor").read_bytes()
+
+    @property
+    def usb(self):
+        """the USB device: one per receiver / dongle / cable, its interfaces are the other nodes"""
+        return self.hid.parent.parent if self.bus == BUS_USB else self.hid
+
+    @property
+    def via(self):
+        return f"{self.vid:04x}:{self.pid:04x}"
+
+    def pointer_events(self):
+        """input event nodes that move a pointer (REL_X)"""
+        pattern = "*/*/input/input*/event*" if self.bus == BUS_USB else "input/input*/event*"
+        return sorted("/dev/input/" + e.name for e in self.usb.glob(pattern)
+                      if int((e.parent / "capabilities" / "rel").read_text(), 16) & 1)
+
+
+def exclusive(fd):
+    """One run at a time talks to a device (the listing, a --measure starting up, a second qs): replies carry no
+    trace of the request (HID++ root, Razer's SET / GET pairs), another run's would be taken for its own"""
+    fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def nodes():
+    for sysdir in sorted(pathlib.Path("/sys/class/hidraw").iterdir()):
+        try:
+            yield Node(sysdir)
+        except (OSError, KeyError, ValueError):
+            continue
+
+
+# --- Logitech HID++ 2.0 ------------------------------------------------------------------------------------------
+
+SW_ID = 0x0A
+F_FW, F_NAME, F_BATTERY, F_HOST, F_DPI, F_RATE, F_PROFILES = 0x0003, 0x0005, 0x1004, 0x1814, 0x2201, 0x8060, 0x8100
+KINDS = {0: "keyboard", 3: "mouse", 4: "mouse", 5: "mouse"}   # 0x0005 device type: keyboard, mouse, trackpad, trackball
+
+
+def hidpp(fd, idx, feature, function, *params, timeout=0.5):
+    """A long HID++ request: its 16 reply bytes, None on an error or no answer"""
+    while select.select([fd], [], [], 0)[0]:
+        os.read(fd, 64)
+    os.write(fd, bytes([0x11, idx, feature, function << 4 | SW_ID, *params]).ljust(20, b"\0"))
+    end = time.monotonic() + timeout
+    while (left := end - time.monotonic()) > 0 and select.select([fd], [], [], left)[0]:
+        r = os.read(fd, 64)
+        if len(r) < 5 or r[1] != idx:
+            continue
+        if r[2] in (0x8F, 0xFF) and r[3] == feature:   # HID++ 1.0 / 2.0 error
+            return None
+        if r[2] == feature and r[3] == function << 4 | SW_ID:
+            return r[4:]
+    return None
+
+
+def hidpp_device(fd, idx, node, link):
+    def call(fid, function, *params):
+        return hidpp(fd, idx, features[fid], function, *params) if fid in features else None
+
+    features = {}
+    for fid in (F_FW, F_NAME, F_BATTERY, F_HOST, F_DPI, F_RATE, F_PROFILES):
+        r = hidpp(fd, idx, 0x00, 0, fid >> 8, fid & 0xFF)   # root: feature index, 0 = none
+        if r and r[0]:
+            features[fid] = r[0]
+
+    dev = {"id": f"{node.via}:{idx}", "name": node.name, "kind": "device", "link": link, "online": True,
+           "address": node.uniq if node.bus == BUS_BLUETOOTH else None,
+           "via": None if idx == 0xFF else node.via}
+
+    if r := call(F_NAME, 0):
+        name = b""
+        while len(name) < r[0] and (chunk := call(F_NAME, 1, len(name))):
+            name += bytes(chunk[: r[0] - len(name)])
+        dev["name"] = name.decode(errors="replace").strip("\0 ")
+        if t := call(F_NAME, 2):
+            dev["kind"] = KINDS.get(t[0], "device")
+
+    # the unit id survives a change of link (receiver <-> cable); the main application is the firmware shown
+    if r := call(F_FW, 0):
+        dev["id"] = "logitech-" + r[1:5].hex()
+        for entity in range(r[0]):
+            if (e := call(F_FW, 1, entity)) and e[0] == 0:
+                dev["firmware"] = f"{e[1:4].decode(errors='replace')} {e[4]:02X}.{e[5]:02X}.B{e[6] << 8 | e[7]:04X}"
+                break
+
+    # unified battery: state of charge when the device reports it (capability flag bit 1), else a coarse level
+    if (caps := call(F_BATTERY, 0)) and (r := call(F_BATTERY, 1)):
+        dev["battery"] = r[0] if caps[1] & 0x02 else {8: 100, 4: 50, 2: 20, 1: 5}.get(r[1])
+        dev["charging"] = r[2] in (1, 2)
+        dev["full"] = r[2] == 3
+
+    # report rate: bit n of the list = (n + 1) ms
+    if (rates := call(F_RATE, 0)) and (r := call(F_RATE, 1)):
+        dev["rates"] = [1000 // (n + 1) for n in range(8) if rates[0] >> n & 1][::-1]
+        dev["rate"] = 1000 // r[0] if r[0] else None
+
+    if r := call(F_DPI, 2, 0):
+        dev["dpi"] = (r[1] << 8 | r[2]) or (r[3] << 8 | r[4])
+
+    # onboard profiles: the active one, only while the device runs from them (mode 1) and not from the host
+    if (info := call(F_PROFILES, 0)) and (mode := call(F_PROFILES, 2)) and mode[0] == 1 and (r := call(F_PROFILES, 4)):
+        dev["profile"], dev["profiles"] = r[0] << 8 | r[1], info[3]
+
+    if r := call(F_HOST, 0):   # Easy-Switch channel
+        dev["host"], dev["hosts"] = r[1] + 1, r[0]
+    return dev
+
+
+def logitech(node):
+    if b"\x85\x11" not in node.descriptor or not (b"\x06\x00\xff" in node.descriptor or b"\x06\x43\xff" in node.descriptor):
+        return []   # not the HID++ interface
+    fd = os.open(node.path, os.O_RDWR | os.O_NONBLOCK)
+    try:
+        exclusive(fd)
+        # a device answers a ping as itself; a receiver (HID++ 1.0) doesn't, its devices sit behind it as 1..6
+        if hidpp(fd, 0xFF, 0x00, 1, 0, 0, 0x5A):
+            return [hidpp_device(fd, 0xFF, node, "Bluetooth" if node.bus == BUS_BLUETOOTH else "USB")]
+        link = RECEIVERS.get((node.vid, node.pid), "радио")
+        return [hidpp_device(fd, idx, node, link) for idx in range(1, 7) if hidpp(fd, idx, 0x00, 1, 0, 0, 0x5A)]
+    finally:
+        os.close(fd)
+
+
+# --- Razer -------------------------------------------------------------------------------------------------------
+
+def _ioc(nr, size):   # _IOC(_IOC_READ | _IOC_WRITE, 'H', nr, size)
+    return 3 << 30 | size << 16 | ord("H") << 8 | nr
+
+
+HIDIOCSFEATURE, HIDIOCGFEATURE = _ioc(0x06, 91), _ioc(0x07, 91)
+RAZER_TIDS = (0x9F, 0x1F, 0xFF)   # transaction ids: HyperSpeed answers 0x9F
+
+
+def razer(fd, tid, cls, cid, size):
+    """A command: its 80 argument bytes, None unless the device reports success"""
+    report = bytearray(90)
+    report[1], report[5], report[6], report[7] = tid, size, cls, cid
+    for b in report[2:88]:
+        report[88] ^= b
+    fcntl.ioctl(fd, HIDIOCSFEATURE, bytes(1) + report)
+    for _ in range(20):
+        time.sleep(0.03)
+        reply = bytearray(91)
+        fcntl.ioctl(fd, HIDIOCGFEATURE, reply)
+        if reply[1] != 0x01:   # 0x01 busy, 0x02 success
+            return reply[9:89] if reply[1] == 0x02 and reply[7] == cls and reply[8] == cid else None
+    return None
+
+
+def razer_device(node, siblings):
+    """The interface that answers the commands, with the transaction id it takes. One command processor serves
+    all interfaces: a probe of another one spoils a pending reply, so the whole device is held meanwhile"""
+    lock = os.open(siblings[0], os.O_RDWR)
+    try:
+        exclusive(lock)
+        return razer_query(node, siblings)
+    finally:
+        os.close(lock)
+
+
+def razer_query(node, siblings):
+    link = RECEIVERS.get((node.vid, node.pid), "USB")
+    for path in siblings:
+        try:
+            fd = os.open(path, os.O_RDWR)
+        except OSError:
+            continue
+        try:
+            for tid in RAZER_TIDS:
+                if serial := razer(fd, tid, 0x00, 0x82, 0x16):
+                    break
+            else:
+                continue
+            q = lambda cls, cid, size: razer(fd, tid, cls, cid, size)
+            dev = {"id": "razer-" + bytes(serial[:22]).rstrip(b"\0").decode(errors="replace"),
+                   "name": node.name.replace("Razer Razer", "Razer"), "kind": RAZER[node.pid], "link": link,
+                   "online": True, "address": None, "via": node.via if link != "USB" else None}
+            if r := q(0x07, 0x80, 0x02):
+                dev["battery"] = round(r[1] * 100 / 255)
+            if r := q(0x07, 0x84, 0x02):
+                dev["charging"] = bool(r[1])
+            if r := q(0x00, 0x85, 0x01):
+                dev["rate"] = {0x01: 1000, 0x02: 500, 0x08: 125}.get(r[0])
+                dev["rates"] = [125, 500, 1000]
+            if r := q(0x00, 0x81, 0x02):
+                dev["firmware"] = f"v{r[0]}.{r[1]}"
+            if r := q(0x07, 0x83, 0x02):
+                dev["idle"] = r[0] << 8 | r[1]
+            return dev
+        except OSError:
+            continue
+        finally:
+            os.close(fd)
+    return None
+
+
+# --- discovery, history ------------------------------------------------------------------------------------------
+
+def discover():
+    """(devices on air with their pointer event nodes, the receivers / dongles plugged in)"""
+    found, receivers, razers = [], set(), {}
+    for node in nodes():
+        if (node.vid, node.pid) in RECEIVERS:
+            receivers.add(node.via)
+        try:
+            if node.vid == LOGITECH:
+                found += [(dev, node.pointer_events()) for dev in logitech(node)]
+            elif node.vid == RAZER_VENDOR and node.pid in RAZER:
+                razers.setdefault(node.usb, []).append(node)
+        except PermissionError:
+            print(f"wireless: no access to {node.path} (etc/udev/rules.d/70-wireless-hid.rules)", file=sys.stderr)
+        except OSError:
+            continue
+    for group in razers.values():
+        if dev := razer_device(group[0], [n.path for n in group]):
+            found.append((dev, []))
+    return found, receivers
+
+
+def drain(history):
+    """%/h over the latest stretch on battery, None until it has dropped for an hour"""
+    end = len(history) - 1
+    start = end
+    while start > 0 and not history[start - 1][2] and history[start - 1][1] >= history[start][1]:
+        start -= 1
+    if end < 0 or history[end][2]:
+        return None
+    hours = (history[end][0] - history[start][0]) / 3600
+    dropped = history[start][1] - history[end][1]
+    return round(dropped / hours, 2) if hours >= 1 and dropped >= 2 else None
+
+
+def listing():
+    found, receivers = discover()
+    try:
+        cache = json.loads(CACHE.read_text())
+    except (OSError, ValueError):
+        cache = {}
+
+    now = int(time.time())
+    out = []
+    for dev, _ in found:
+        entry = cache.setdefault(dev["id"], {"history": []})
+        history = entry["history"]
+        if dev.get("battery") is not None:
+            sample = [now, dev["battery"], dev.get("charging", False)]
+            if not history or history[-1][1:] != sample[1:] or now - history[-1][0] >= SAMPLE_EVERY:
+                history.append(sample)
+        entry["history"] = [s for s in history if now - s[0] <= HISTORY_KEEP]
+        entry["device"] = dict(dev, seen=now)
+        out.append(dev)
+
+    online = {dev["id"] for dev, _ in found}
+    out += [dict(e["device"], online=False) for key, e in cache.items()
+            if key not in online and e.get("device", {}).get("via") in receivers]
+
+    for dev in out:
+        history = cache[dev["id"]]["history"]
+        dev["drain"] = drain(history) if dev["online"] else None
+        dev["hoursLeft"] = round(dev["battery"] / dev["drain"], 1) if dev["drain"] else None
+        dev["history"] = [s[:2] for s in history if now - s[0] <= 86400]
+
+    CACHE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = CACHE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(cache))
+    tmp.replace(CACHE)
+
+    out.sort(key=lambda d: (not d["online"], d["kind"] != "mouse", d["name"]))
+    print(json.dumps(out, ensure_ascii=False))
+
+
+def measure():
+    """Median gap between SYN_REPORTs on each mouse's event nodes, per second with enough movement"""
+    fds = {}
+    for dev, events in discover()[0]:
+        if dev["kind"] == "mouse":
+            for path in events:
+                fds[os.open(path, os.O_RDONLY | os.O_NONBLOCK)] = dev["id"]
+    if not fds:
+        return
+    event = struct.Struct("llHHi")   # struct input_event: timeval, type, code, value
+    stamps = {fd: [] for fd in fds}
+    tick = time.monotonic() + 1
+    while fds:
+        for fd in select.select(list(fds), [], [], max(0, tick - time.monotonic()))[0]:
+            try:
+                data = os.read(fd, event.size * 256)
+            except OSError:   # unplugged
+                del fds[fd], stamps[fd]
+                continue
+            for sec, usec, kind, code, _ in event.iter_unpack(data[: len(data) // event.size * event.size]):
+                if kind == 0 and code == 0:
+                    stamps[fd].append(sec + usec / 1e6)
+        if time.monotonic() < tick:
+            continue
+        tick += 1
+        for fd, times in stamps.items():
+            gaps = sorted(b - a for a, b in zip(times, times[1:]))
+            if len(gaps) >= 20 and gaps[len(gaps) // 2] > 0:
+                print(json.dumps({"id": fds[fd], "hz": round(1 / gaps[len(gaps) // 2])}), flush=True)
+            times.clear()
+
+
+if __name__ == "__main__":
+    measure() if sys.argv[1:] == ["--measure"] else listing()

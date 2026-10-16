@@ -19,7 +19,7 @@ import qs.bar.popouts
 Item {
     id: root
 
-    property string open: ""      // shown popout: tray | media | cpu | temp | mem | audio | network | notifications | calendar | power, "" = closed
+    property string open: ""      // shown popout: tray | media | cpu | temp | mem | audio | network | wireless | notifications | calendar | power, "" = closed
                                   // (tray: the menu of the tray app at anchorChip)
     property string pinned: ""
     property string shown: ""     // last opened popout, stays loaded while the panel slides back
@@ -395,6 +395,20 @@ Item {
             onClicked: root.click("network", network)
         }
 
+        // wireless mice and keyboards: the one with the least battery. Hidden with none, nor paired Bluetooth ones
+        Chip {
+            id: wireless
+
+            visible: Wireless.devices.length > 0 || Wireless.bluetooth.length > 0
+            icon: Wireless.weakest?.charging ? Icons.batteryCharging : Wireless.icon(Wireless.weakest?.kind ?? "")
+            iconColor: active ? Theme.textOnPrimaryContainer : (Wireless.weakest?.battery ?? 100) <= 15 ? Theme.error : Theme.text
+            text: Wireless.weakest ? Wireless.weakest.battery + "%" : ""
+            widthTemplate: "100%"
+            active: root.open === "wireless"
+            onEntered: root.hover("wireless", wireless)
+            onClicked: root.click("wireless", wireless)
+        }
+
         Chip {
             text: Keyboard.layout
             mono: false
@@ -463,6 +477,7 @@ Item {
                     mem: memPopout,
                     audio: audioPopout,
                     network: networkPopout,
+                    wireless: wirelessPopout,
                     notifications: notificationsPopout,
                     calendar: calendarPopout,
                     power: powerPopout
@@ -524,6 +539,11 @@ Item {
         id: networkPopout
 
         NetworkPopout {}
+    }
+    Component {
+        id: wirelessPopout
+
+        WirelessPopout {}
     }
     Component {
         id: notificationsPopout

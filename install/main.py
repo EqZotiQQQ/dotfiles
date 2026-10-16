@@ -15,6 +15,9 @@ from app_settings import EXAMPLES, AppSettings
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
+ETC = pathlib.Path("/etc")
+UDEV_RULES = ETC / "udev" / "rules.d"
+
 
 def recursive_update_symlinks(
     source: pathlib.Path,
@@ -77,6 +80,47 @@ def link_status(src: pathlib.Path, dst: pathlib.Path) -> tuple[str, str]:
     return "differs", "real file, content diverged from the repo"
 
 
+def update_copies(
+    source: pathlib.Path,
+    dst_dir: pathlib.Path,
+    apply: bool,
+    overwrite: bool,
+) -> tuple[int, int, int]:
+    """Install root-owned copies through sudo, not links: a link from /etc into the repo would let
+    anything running as the user edit root's config (a udev rule can RUN a command as root)."""
+    created = skipped = failed = 0
+    installed = []
+    for src_object in sorted(p for p in source.rglob("*") if p.is_file()):
+        dst_object = dst_dir / src_object.relative_to(source)
+        status, _ = link_status(src_object, dst_object)
+        if status == "copy":
+            logging.info(f"skip (up to date): {dst_object}")
+            skipped += 1
+            continue
+        if status != "missing" and not overwrite:
+            logging.info(f"skip ({status}): {dst_object} — -o replaces it with the repo version")
+            skipped += 1
+            continue
+        if not apply:
+            logging.info(f"[dry-run] sudo install {src_object} -> {dst_object}")
+            skipped += 1
+            continue
+        mode = f"{src_object.stat().st_mode & 0o755:o}"
+        if subprocess.call(["sudo", "install", "-D", "-m", mode, str(src_object), str(dst_object)]) == 0:
+            logging.info(f"installed: {src_object} -> {dst_object}")
+            installed.append(dst_object)
+            created += 1
+        else:
+            logging.error(f"sudo install failed: {dst_object}")
+            failed += 1
+
+    # devices already plugged in get new rules only after a reload and a re-trigger
+    if any(UDEV_RULES in path.parents for path in installed):
+        subprocess.call(["sudo", "udevadm", "control", "--reload"])
+        subprocess.call(["sudo", "udevadm", "trigger"])
+    return created, skipped, failed
+
+
 def orphan_links(source: pathlib.Path, dst_dir: pathlib.Path, repo_root: pathlib.Path):
     if not dst_dir.is_dir():
         return
@@ -108,10 +152,13 @@ def recursive_check_symlinks(
 def report_status(bindings: dict, repo_root: pathlib.Path) -> int:
     rows = []
     for source, dst_dir in bindings.items():
-        rows.extend(recursive_check_symlinks(source, dst_dir, repo_root))
+        for status, dst, note in recursive_check_symlinks(source, dst_dir, repo_root):
+            if dst_dir == ETC and status == "copy":
+                status, note = "installed", ""  # /etc gets copies, see update_copies
+            rows.append((status, dst, note))
 
     home = str(pathlib.Path.home())
-    problems = [row for row in rows if row[0] != "linked"]
+    problems = [row for row in rows if row[0] not in ("linked", "installed")]
 
     for status, dst, note in problems:
         shown = str(dst).replace(home, "~", 1)
@@ -254,6 +301,10 @@ if __name__ == "__main__":
     except ValueError as e:
         parser.error(str(e))
 
+    # under sudo the links in ~ would belong to root; /etc is written through sudo anyway
+    if os.geteuid() == 0:
+        parser.error("run as your user, not root: files for /etc are installed through sudo on their own")
+
     logging.debug(f"settings: {settings}")
 
     install_dir = pathlib.Path(__file__).parent
@@ -261,7 +312,7 @@ if __name__ == "__main__":
 
     bindings = {settings.config_directory: settings.config_destination}
     if (etc_src := repo_root / "etc").exists():
-        bindings[etc_src] = pathlib.Path("/etc")
+        bindings[etc_src] = ETC
 
     if settings.status:
         sys.exit(report_status(bindings, repo_root))
@@ -295,15 +346,23 @@ if __name__ == "__main__":
 
         total_created = total_skipped = total_failed = 0
         for source, dst_dir in targets.items():
-            if settings.update_symlinks:
-                dst_dir.mkdir(parents=True, exist_ok=True)
+            if dst_dir == ETC:
+                c, s, f = update_copies(
+                    source=source,
+                    dst_dir=dst_dir,
+                    apply=settings.update_symlinks,
+                    overwrite=settings.overwrite,
+                )
+            else:
+                if settings.update_symlinks:
+                    dst_dir.mkdir(parents=True, exist_ok=True)
 
-            c, s, f = recursive_update_symlinks(
-                source=source,
-                dst_dir=dst_dir,
-                apply=settings.update_symlinks,
-                overwrite=settings.overwrite,
-            )
+                c, s, f = recursive_update_symlinks(
+                    source=source,
+                    dst_dir=dst_dir,
+                    apply=settings.update_symlinks,
+                    overwrite=settings.overwrite,
+                )
             total_created += c
             total_skipped += s
             total_failed += f

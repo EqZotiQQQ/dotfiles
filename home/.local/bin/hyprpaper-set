@@ -12,10 +12,8 @@ apply() {
   mapfile -t monitors < <(hyprctl monitors -j | \
     python3 -c "import sys,json; [print(m['name']) for m in json.load(sys.stdin)]")
 
-  hyprctl hyprpaper preload "$img"
-
   for mon in "${monitors[@]}"; do
-    hyprctl hyprpaper wallpaper \"$mon,$img\"
+    hyprctl hyprpaper wallpaper "$mon,$img"
     echo "hyprctl hyprpaper wallpaper $mon,$img"
   done
 }
