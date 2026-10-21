@@ -56,6 +56,18 @@ Singleton {
 
     onWatchersChanged: if (watchers > 0) list.running = true
 
+    // DEBUG: the wireless popout closing by itself
+    onDevicesChanged: console.log("[dbg]", Date.now() % 100000, "devices", devices.map(d => d.name + " " + d.battery + "%" + (d.online ? "" : " off")).join(", "))
+    onMeasuredChanged: console.log("[dbg]", Date.now() % 100000, "measured", JSON.stringify(measured))
+    Connections {
+        target: root
+        function onWatchersChanged() { console.log("[dbg]", Date.now() % 100000, "watchers", root.watchers); }
+    }
+    Connections {
+        target: list
+        function onRunningChanged() { console.log("[dbg]", Date.now() % 100000, "listing", list.running ? "started" : "finished"); }
+    }
+
     Process {
         id: list
         command: [Quickshell.shellDir + "/scripts/wireless"]

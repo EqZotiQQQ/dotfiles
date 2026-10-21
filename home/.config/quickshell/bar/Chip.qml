@@ -93,6 +93,7 @@ Rectangle {
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
+        onContainsMouseChanged: console.log("[dbg]", Date.now() % 100000, "chip", root.text, "containsMouse", containsMouse, mouseX, mouseY) // DEBUG
         onEntered: root.entered()
         onClicked: event => root.clicked(event.button)
         onWheel: event => root.wheel(event.angleDelta.y)

@@ -190,6 +190,28 @@ Item {
         interval: 3000
     }
 
+    // DEBUG: the wireless popout closing by itself
+    Connections {
+        target: root
+        function onOpenChanged() { console.log("[dbg]", Date.now() % 100000, "open", JSON.stringify(root.open)); }
+    }
+    Connections {
+        target: hoverArea
+        function onHoveredChanged() { console.log("[dbg]", Date.now() % 100000, "island hovered", hoverArea.hovered, hoverArea.point.position); }
+    }
+    Connections {
+        target: hoverDelay
+        function onTriggered() { console.log("[dbg]", Date.now() % 100000, "hoverDelay", hoverDelay.key, "island hovered", hoverArea.hovered); }
+    }
+    Connections {
+        target: leaveDelay
+        function onTriggered() { console.log("[dbg]", Date.now() % 100000, "leaveDelay -> close"); }
+    }
+    Connections {
+        target: root
+        function onDepthChanged() { if (root.depth === (root.vertical ? root.contentWidth : root.contentHeight) || root.depth === 0) console.log("[dbg]", Date.now() % 100000, "depth settled", root.depth); }
+    }
+
     // data: the window's address, without 0x
     Connections {
         target: Hyprland
