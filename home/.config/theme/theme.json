@@ -16,7 +16,8 @@
     "outlineVariant": "#53433F"
   },
   "bar": {
-    "position": "top"
+    "position": "top",
+    "flush": true
   },
   "opacity": {
     "panel": 0.5,

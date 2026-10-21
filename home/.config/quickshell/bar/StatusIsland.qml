@@ -211,19 +211,25 @@ Item {
         ShapePath {
             id: outline
 
+            // the theme curve overshoots: closing, depth and extent dip a few px below 0. Negative radii would turn k
+            // negative and blow the joints up into arcs as big as the panel (square corners: nothing in r + f to
+            // outweigh f), so below 0 there is no panel
+            readonly property real depth: Math.max(0, root.depth)
+            readonly property real extent: Math.max(0, root.extent)
             readonly property real w: root.bar
             readonly property real h: root.length
             readonly property real r: Math.min(root.corner, w / 2)
-            readonly property real top: root.offset
-            readonly property real bottom: root.offset + root.extent
-            readonly property real out: w + root.depth
-            readonly property real pr: Math.min(root.corner, root.depth / 2, root.extent / 2)
-            readonly property real f: Math.min(root.fillet, root.depth / 2)
+            readonly property real top: root.end - extent
+            readonly property real bottom: root.end
+            readonly property real out: w + depth
+            readonly property real pr: Math.min(root.corner, depth / 2, extent / 2)
+            readonly property real f: Math.min(root.fillet, depth / 2)
             // where the panel starts: below the island's start corner, the joint is on the island's side
             // (a = that corner, b = the joint); hanging past the island, it is on the island's start edge
             // (a = the joint, b = the panel's corner). Both shrink to 0 as the panel's start crosses the island's
             readonly property bool hanging: top < 0
-            readonly property real k: hanging ? Math.min(1, -top / (f + pr)) : Math.min(1, top / (r + f))
+            // square corners (bar.flush) and the panel level with the island's start: 0/0, nothing to round anyway
+            readonly property real k: (hanging ? Math.min(1, -top / (f + pr)) : Math.min(1, top / (r + f))) || 0
             readonly property real a: k * (hanging ? f : r)
             readonly property real b: k * (hanging ? pr : f)
             readonly property real sideFrom: hanging ? -a : a

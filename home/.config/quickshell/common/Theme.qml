@@ -40,13 +40,15 @@ Singleton {
     // screen edge of the bar (and of the spectrum strip behind it): top | bottom | left | right
     readonly property string barPosition: ["top", "bottom", "left", "right"].includes(json.bar?.position) ? json.bar.position : "top"
     readonly property bool barVertical: barPosition === "left" || barPosition === "right"
+    // bar.flush: the islands sit right on the screen edge, the outer ones in its corners; square corners throughout
+    readonly property bool barFlush: json.bar?.flush ?? false
 
     readonly property int barSize: shape.barSize ?? 48        // bar thickness
     readonly property int chipSize: Math.round(barSize * 0.75) // modules, dock tiles, the active workspace: they follow the bar
-    readonly property int barMargin: shape.barMargin ?? 10
-    readonly property int islandRadius: shape.islandRadius ?? 24
-    readonly property int tileRadius: shape.tileRadius ?? 12
-    readonly property int chipRadius: shape.chipRadius ?? 18
+    readonly property int barMargin: barFlush ? 0 : shape.barMargin ?? 10
+    readonly property int islandRadius: barFlush ? 0 : shape.islandRadius ?? 24
+    readonly property int tileRadius: barFlush ? 0 : shape.tileRadius ?? 12
+    readonly property int chipRadius: barFlush ? 0 : shape.chipRadius ?? 18
 
     // Theme curve as a QML BezierSpline: control points + end point
     readonly property var curve: motion.curve ?? [0.05, 0.9, 0.1, 1.05]

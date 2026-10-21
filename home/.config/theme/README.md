@@ -23,6 +23,9 @@ Kitty и wofi в тему не входят (остаются на своей Gr
   - `outline`, `outlineVariant` — разделители, рамки неактивных окон.
   - `error` — ошибки, перегрев.
 - `bar.position` — край экрана для бара и полосы spectrum за ним: `top`, `bottom`, `left`, `right`.
+- `bar.flush` — `true`: острова бара стоят вплотную к краю экрана, крайние — в его углах (`barMargin` = 0), док по-прежнему
+  по центру; углы прямые: `islandRadius`, `tileRadius`, `chipRadius` считаются нулевыми (бар, поповеры, обзор воркспейсов).
+  Окна Hyprland и mako это не трогает — у них `shape.rounding`.
 - `opacity.panel` — непрозрачность островов бара в покое (без размытия: сквозь них виден spectrum);
   `opacity.popout` — непрозрачность острова, пока открыт поповер (окна под ним не мешают тексту), и фона уведомлений mako.
 - `shape` — `rounding`, `border`, `gapsIn`, `gapsOut` для окон Hyprland (`rounding`, `border` — и для уведомлений mako); `barSize` (толщина бара; модули, плитки дока и воркспейсы — ¾ от неё), `barMargin`,

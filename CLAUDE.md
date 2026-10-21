@@ -210,7 +210,8 @@ JS в QML не знает `??=` (ошибка разбора всего файл
   перечитывается по сигналу D-Bus `PropertiesChanged` через `dbus-monitor`, без опроса), `Media` (плееры MPRIS),
   `Wireless` (беспроводные мыши и клавиатуры: `scripts/wireless` + сопряжённые устройства из `Quickshell.Bluetooth`),
   `Layouts` (лейауты воркспейсов: `hypr-layouts.json` из `hypr/layouts.lua`; переключение — `Hyprland.dispatch` Lua-функции)
-- `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету), слой `top`,
+- `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету; `bar.flush` —
+  острова вплотную к краю и углам экрана, без скруглений), слой `top`,
   namespace `quickshell-bar`, без размытия (виден spectrum); поверхность глубже бара для поповеров, ввод только на островах
   (`mask`); бар прячется на мониторе с полноэкранным окном
 - три острова вдоль края: `LayoutBox` (пиктограмма лейаута воркспейса, как layoutbox в awesome: клик /
