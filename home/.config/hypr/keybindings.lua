@@ -22,6 +22,11 @@ hl.bind(mainMod .. " + Tab",    hl.dsp.exec_cmd("qs ipc call overview toggle")) 
 hl.bind(mainMod .. " + P",      hl.dsp.window.pseudo())      -- dwindle
 hl.bind(mainMod .. " + J",      hl.dsp.layout("togglesplit")) -- dwindle
 
+-- Layout of the focused workspace, AwesomeWM style: next / previous (layouts.lua; the icon is on the bar)
+local layouts = require("layouts")
+hl.bind(mainMod .. " + CTRL + SPACE",         function() layouts.cycle(1) end)
+hl.bind(mainMod .. " + CTRL + SHIFT + SPACE", function() layouts.cycle(-1) end)
+
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))

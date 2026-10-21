@@ -140,6 +140,12 @@ Hyprland 0.56 — конфиг на **Lua** (hyprlang `.conf` deprecated с 0.55
 Конфиги в `home/.config/hypr/`:
 - `hyprland.lua` — основной конфиг; keybindings вынесены в `keybindings.lua` (`require("keybindings")`)
 - `keybindings.lua` — все бинды клавиш (`hl.bind`); `terminal`/`fileManager`/`menu` — глобалы из `hyprland.lua`
+- `layouts.lua` — лейаут у каждого воркспейса свой, как у тегов AwesomeWM: `SUPER+CTRL+Space` — следующий, `+SHIFT` —
+  предыдущий; значок — `bar/LayoutBox.qml`. Список `M.list`: dwindle, tile / tile.left / tile.bottom / tile.top (master с
+  `orientation`; имена как в awesome — где стек), scrolling; первый — стартовый, он же `general.layout`. Выбор — правило
+  воркспейса (`layout` + `layout_opts`): Hyprland сливает его с правилом монитора и перекладывает видимый воркспейс сразу,
+  скрытый — при переходе на него. Выборы — в `$XDG_RUNTIME_DIR/hypr-layouts.json` (его же читает бар): Lua при
+  перезагрузке конфига стартует заново, `restore()` их возвращает
 - `monitors.lua` — мониторы берутся у Hyprland на лету (`hl.get_monitors()`), имена выходов нигде не прописаны.
   Порядок: самый большой — главный, дальше слева направо; n-му монитору принадлежат id 9(n−1)+1…9n
   (`SUPER+1..9` — i-й воркспейс монитора с фокусом). Правила воркспейсов строятся при загрузке конфига;
@@ -202,11 +208,13 @@ JS в QML не знает `??=` (ошибка разбора всего файл
   устройства и Wi-Fi — NetworkManager через `Quickshell.Networking`), `Audio` (PipeWire),
   `Keyboard` (раскладка: событие Hyprland `activelayout`), `Mako` (mako: «не беспокоить», уведомления и история;
   перечитывается по сигналу D-Bus `PropertiesChanged` через `dbus-monitor`, без опроса), `Media` (плееры MPRIS),
-  `Wireless` (беспроводные мыши и клавиатуры: `scripts/wireless` + сопряжённые устройства из `Quickshell.Bluetooth`)
+  `Wireless` (беспроводные мыши и клавиатуры: `scripts/wireless` + сопряжённые устройства из `Quickshell.Bluetooth`),
+  `Layouts` (лейауты воркспейсов: `hypr-layouts.json` из `hypr/layouts.lua`; переключение — `Hyprland.dispatch` Lua-функции)
 - `bar/Bar.qml` — бар у края `bar.position` из theme.json (`top|bottom|left|right`, переключается на лету), слой `top`,
   namespace `quickshell-bar`, без размытия (виден spectrum); поверхность глубже бара для поповеров, ввод только на островах
   (`mask`); бар прячется на мониторе с полноэкранным окном
-- три острова вдоль края: `Workspaces` + `ActiveWindow` (на вертикальном — только иконка), `Dock` (по центру, но не наезжает
+- три острова вдоль края: `Workspaces` + `LayoutBox` (пиктограмма лейаута воркспейса, как layoutbox в awesome: клик /
+  колесо вверх — следующий, правый клик / колесо вниз — предыдущий) + `ActiveWindow` (на вертикальном — только иконка), `Dock` (по центру, но не наезжает
   на соседей; закреплённые: `pinned` в `Dock.qml`, плюс запущенные), `StatusIsland` — модули `Chip` и поповеры
   `bar/popouts/*`: наведение открывает, клик закрепляет; панель выезжает от края на уровне модуля, остров и панель —
   одна `Shape` с вогнутыми стыками, геометрия считается в системе «от края / вдоль края» и отображается на нужный край;
@@ -280,6 +288,16 @@ All zsh config lives in `home/.config/zsh/`:
 - `aliases/01_standard_app_replacement.zsh` — modern CLI replacements: `bat`→`cat`, `duf`→`df`, `rg`→`grep`, `nvim`→`vim`
 - `aliases/02_fs_navigation.zsh` — directory stack, `eza`→`ls` (`l`, `ll`, `la`)
 - `aliases/03_git.zsh` — git shortcuts (`gs`, `gaa`, `gps`, `gpl`, `gd`, `gl`, `gc`, `gcm`, etc.)
+
+## Claude Code
+
+`home/.claude/settings.json` — общий для профилей (`~/.claude-eqzotiqqq`, `~/.claude-panda` ссылаются на `~/.claude/settings.json`).
+Хук `SessionEnd` → `home/.claude/hooks/session-summary`: выжимка сессии (`claude -p --model sonnet` по тексту транскрипта,
+без вывода инструментов) в `$CLAUDE_SESSION_SUMMARY_DIR` (по умолчанию `~/Documents/claude-sessions`)`/<проект>/<начало>_<id>.md`;
+повторное закрытие той же сессии перезаписывает файл. Затем весь каталог — `rsync` на `beelink:claude-sessions`
+(`Host beelink` в `.ssh/config` — tailnet-имя `homebase`; нужен ключ без пароля); недоступен — файлы уйдут при следующей
+удачной отправке. Сам хук отцепляется через `setsid` и сразу выходит; от рекурсии (`claude -p` — тоже сессия) —
+`CLAUDE_SESSION_SUMMARY=1`. Лог — `~/.cache/claude-session-summary.log`.
 
 ## Scripts
 

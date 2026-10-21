@@ -28,6 +28,8 @@ for slot, m in ipairs(monitors.list()) do
         hl.workspace_rule({ workspace = tostring(monitors.workspace(slot, n)), monitor = m.name })
     end
 end
+-- Their layouts chosen with SUPER+CTRL+Space, kept over reloads (layouts.lua)
+require("layouts").restore()
 -- A monitor came or went: reload, so the rules above are rebuilt for the new set
 -- (checked against `ruled`, so the reload itself doesn't trigger another one)
 hl.on("monitor.added", function(m) if m.name ~= "FALLBACK" and not ruled[m.name] then hl.exec_cmd("hyprctl reload") end end)
@@ -183,7 +185,7 @@ hl.config({
         -- Please see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Tearing/ before you turn this on
         allow_tearing = false,
 
-        layout = "dwindle",
+        layout = "dwindle", -- a workspace's first layout: the first one in layouts.lua
     },
 
     decoration = {

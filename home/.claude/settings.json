@@ -37,5 +37,15 @@
       "effortLevel": "xhigh"
     }
   },
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "theme": "dark",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/session-summary" }
+        ]
+      }
+    ]
+  }
 }

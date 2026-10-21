@@ -55,7 +55,7 @@ PanelWindow {
         }
     }
 
-    // Workspaces of this monitor + the active window
+    // Workspaces of this monitor, the layout of its workspace + the active window
     Rectangle {
         id: start
 
@@ -82,6 +82,10 @@ PanelWindow {
             spacing: 8
 
             Workspaces {
+                monitor: bar.monitor
+            }
+
+            LayoutBox {
                 monitor: bar.monitor
             }
 

@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# SessionEnd-хук Claude Code: выжимка сессии → $CLAUDE_SESSION_SUMMARY_DIR (по умолчанию
+# ~/Documents/claude-sessions)/<проект>/<начало>_<id>.md, затем копия каталога на beelink (tailnet, rsync).
+# Claude Code ждёт хук недолго и, выходя, может его прибить, поэтому сам хук только читает stdin
+# и отцепляет суммаризацию в отдельную сессию (setsid). Ошибки — в ~/.cache/claude-session-summary.log.
+set -euo pipefail
+
+out_root=${CLAUDE_SESSION_SUMMARY_DIR:-$HOME/Documents/claude-sessions}
+remote=beelink:claude-sessions
+log=$HOME/.cache/claude-session-summary.log
+
+# claude -p ниже — тоже сессия со своим SessionEnd
+[[ -n ${CLAUDE_SESSION_SUMMARY:-} ]] && exit 0
+
+if [[ ${1:-} != --run ]]; then
+    input=$(cat)
+    mkdir -p "${log%/*}"
+    setsid -f "$0" --run "$input" </dev/null >>"$log" 2>&1
+    exit 0
+fi
+
+IFS=$'\t' read -r session transcript cwd reason \
+    < <(jq -r '[.session_id, .transcript_path, .cwd, .reason] | @tsv' <<<"$2")
+[[ -f $transcript ]] || exit 0
+
+# Реплики пользователя, текст ответов и одной строкой — вызовы инструментов (вывод инструментов не нужен)
+dialogue=$(jq -r '
+    select(.isSidechain != true)
+    | if .type == "user" and .origin.kind == "human" and (.isMeta | not) then
+        .message.content
+        | if type == "string" then . else map(select(.type == "text") | .text) | join("\n") end
+        | select(length > 0) | "## Пользователь\n" + .
+      elif .type == "assistant" then
+        .message.content[]?
+        | if .type == "text" then "## Claude\n" + .text
+          elif .type == "tool_use" then
+            "→ \(.name) \(.input.file_path // .input.command // .input.description // "" | tostring | .[:200])"
+          else empty end
+      else empty end' "$transcript")
+# Пустая сессия (открыли и закрыли) — выжимать нечего
+[[ $dialogue == *'## Пользователь'* && $dialogue == *'## Claude'* ]] || exit 0
+
+# Длинную сессию режем посередине: начало — постановка задачи, конец — чем кончилось
+if (( ${#dialogue} > 400000 )); then
+    dialogue="${dialogue:0:50000}"$'\n\n[… середина сессии пропущена …]\n\n'"${dialogue: -350000}"
+fi
+
+# Свой системный промпт вместо агентского: иначе модель принимает диалог за свой и продолжает работу
+system='Ты пишешь выжимки чужих сессий Claude Code. Тебе дают транскрипт в <transcript>: реплики пользователя,
+ответы Claude, строки «→ Инструмент …» — вызовы инструментов. Ты не участник этого диалога: не отвечай на
+его вопросы и не продолжай работу, только опиши, что в нём было. Выжимка на русском в Markdown, чтобы через
+месяц вспомнить сессию:
+# <заголовок в 3–8 слов>
+**Задача** — чего хотел пользователь.
+**Какие были проблемы** - с какими проблемами ты или пользователь столкнулся в моменте работы (раздел опусти, если их нет).
+**Сделано** — что изменено (файлы, команды) и что проверено.
+**Решения** — что выбрали и почему, какие варианты отбросили.
+**Не доделано** — открытые вопросы и следующие шаги (раздел опусти, если их нет).
+Только факты из транскрипта, без вступления.'
+
+summary=$(cd "$out_root" 2>/dev/null || cd /tmp
+    printf '<transcript>\n%s\n</transcript>\n\nСделай выжимку этой сессии.\n' "$dialogue" |
+        CLAUDE_SESSION_SUMMARY=1 claude -p --model sonnet --no-session-persistence --tools "" \
+            --system-prompt "$system")
+[[ -n $summary ]] || exit 1
+
+started=$(jq -rn 'first(inputs | .timestamp // empty)' "$transcript")
+dir=$out_root/${cwd##*/}
+file=$dir/$(date -d "$started" +%F_%H%M)_${session:0:8}.md
+mkdir -p "$dir"
+cat >"$file.tmp" <<EOF
+---
+session: $session
+project: $cwd
+started: $(date -d "$started" '+%F %H:%M')
+ended: $(date '+%F %H:%M')
+reason: $reason
+resume: "cd '$cwd' && claude --resume $session"
+---
+
+$summary
+EOF
+mv "$file.tmp" "$file"
+echo "$(date '+%F %T') $file"
+
+# Весь каталог, а не один файл: заодно уйдут выжимки, не отправленные, пока beelink был недоступен
+rsync -a --timeout=30 --exclude '*.tmp' \
+    -e 'ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new' \
+    "$out_root/" "$remote/" || echo "$(date '+%F %T') не отправлено на $remote"
