@@ -56,14 +56,13 @@ sudo ln -s /usr/libexec/hyprpolkitagent /usr/lib/hyprpolkitagent/hyprpolkitagent
 
 ## Шрифты
 
-Бару нужен `Hack Nerd Font` (иконки), kitty — `Iosevka Nerd Font`. В apt только обычные Hack/Iosevka:
+Бару нужен `Hack Nerd Font` (иконки), в apt только обычный Hack. kitty хватает обычного Iosevka:
+значки Nerd Font встроены в сам kitty.
 
 ```bash
 mkdir -p ~/.local/share/fonts/nerd && cd ~/.local/share/fonts/nerd
-for f in Hack Iosevka; do
-  curl -fLO "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$f.tar.xz"
-  tar -xf "$f.tar.xz" && rm "$f.tar.xz"
-done
+curl -fLO "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.tar.xz"
+tar -xf Hack.tar.xz && rm Hack.tar.xz
 fc-cache -f
 ```
 

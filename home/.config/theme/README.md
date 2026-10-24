@@ -34,7 +34,9 @@ Kitty и wofi в тему не входят (остаются на своей Gr
 - `motion` — `curve`: кривая Безье `[x1, y1, x2, y2]` для окон Hyprland и анимаций бара
   (y > 1 даёт лёгкий «перелёт»); `durationMs` — длительность анимаций бара; `hyprSpeed` — скорость
   анимации окон Hyprland; `windowPopin` — с какого масштаба окно «выпрыгивает».
-- `fonts` — `ui` (бар), `mono` (числа в баре), `icons` (Nerd Font с иконками), `size`.
+- `fonts` — `ui` (бар, уведомления mako), `mono` (числа в баре), `icons` (Nerd Font с иконками), `size` (бар, px).
+  Те же `ui` / `mono` стоят в `~/.config/fontconfig/fonts.conf` как `sans-serif` / `monospace` — для остальных
+  программ; меняя шрифт здесь, поменяй и там.
 - `spectrum` — `size`: толщина полосы spectrum за баром, px; `colors`: цвета полос от тихих к громким,
   имена из `colors` или `"#rrggbb"`.
 - `lock.theme` — тема локскрина: имя каталога в `~/.config/lockscreen/themes/` или тема qylock.

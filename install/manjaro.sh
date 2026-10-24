@@ -11,7 +11,7 @@ set -euo pipefail
 #   wm        — Hyprland stack: mako, wofi, flameshot, quickshell (bar), qylock (lockscreen)
 #   dev       — cmake, make, bash-lsp, docker
 #   apps      — discord, telegram, chrome, obsidian, qbittorrent, nekobox, mpv
-#   fonts     — Iosevka
+#   fonts     — Iosevka, Hack Nerd Font
 #
 # Profiles
 #   --minimal   base + shell + cli + terminal
@@ -42,7 +42,7 @@ Component flags:
   --wm          Hyprland, Mako, Wofi, Flameshot, Quickshell, qylock
   --dev         cmake, make, bash-language-server, Docker
   --apps        Discord, Telegram, Chrome, Obsidian, qBittorrent, Nekobox, mpv
-  --fonts       Iosevka
+  --fonts       Iosevka, Hack Nerd Font
 
 Profiles:
   --minimal     base + shell + cli + terminal
@@ -204,6 +204,10 @@ install_fonts() {
     cp "$tmp"/iosevka/*.ttc ~/.local/share/fonts/iosevka/ 2>/dev/null \
         || cp "$tmp"/iosevka/*.ttf ~/.local/share/fonts/iosevka/
     fc-cache -f -v
+
+    # the bar's icons
+    echo "==> [fonts] Hack Nerd Font"
+    paru -S --skipreview --noconfirm ttf-hack-nerd
 }
 
 # ---------------------------------------------------------------------------

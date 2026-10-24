@@ -1,7 +1,5 @@
 # ── mako notification daemon ──────────────────────────────────
-# Colours, border, rounding: ~/.config/theme/theme.json (see "colours" below)
-
-font=Iosevka 12
+# Font, colours, border, rounding: ~/.config/theme/theme.json (see "colours" below)
 
 # ── layout ────────────────────────────────────────────────────
 anchor=top-right
@@ -33,7 +31,7 @@ default-timeout=5000
 ignore-timeout=0
 
 # ── colours ───────────────────────────────────────────────────
-# Generated from theme.json by ~/.local/bin/mako-theme: at login before mako, and by Quickshell on every
+# Font and colours generated from theme.json by ~/.local/bin/mako-theme: at login before mako, and by Quickshell on every
 # theme change. mako won't start without this file
 include=~/.cache/mako-theme
 

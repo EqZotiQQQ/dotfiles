@@ -194,6 +194,11 @@ hyprpaper) → бар (`top`, острова висят над полосой). 
 `lock` (при блокировке), mako (`mako-theme` → `~/.cache/mako-theme`, `include` в `mako/config`; при входе и сразу —
 его перезапускает Quickshell; без этого файла mako не стартует). Ключи — `home/.config/theme/README.md`. Kitty и wofi в тему не входят (Gruvbox в `kitty/theme.conf`, `wofi/style.css`).
 
+Шрифты — по ролям: `fonts.ui` (Rubik) — бар и mako, `fonts.mono` (Iosevka) — числа в баре, `fonts.icons` — только значки.
+Остальным программам те же два шрифта отдаёт fontconfig (`home/.config/fontconfig/fonts.conf`: `sans-serif` → Rubik,
+`monospace` → Iosevka; у GTK в `gsettings` — `Sans` / `Monospace`; qt5ct/qt6ct не задействованы — `QT_QPA_PLATFORMTHEME`
+не задан). Iosevka прописан и явно: kitty (обычный, не Nerd — значки Nerd Font встроены в kitty), wofi, VS Code, proctree.
+
 ## Quickshell (статусбар)
 
 Quickshell 0.3 (QML), конфиг в `home/.config/quickshell/`, запуск `qs`. Перезапуск: `pkill -x qs; qs -d` (`qs kill` экземпляр, запущенный с `-d`, не находит). Логи: `qs log`.

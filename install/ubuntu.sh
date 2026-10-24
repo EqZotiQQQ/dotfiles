@@ -17,7 +17,7 @@ set -euo pipefail
 #   audio     — pavucontrol
 #   perf      — linux-tools (perf)
 #   apps      — telegram, discord, vlc, google chrome, dolphin
-#   fonts     — Iosevka, Nerd Fonts (Hack, Iosevka)
+#   fonts     — Iosevka, Hack Nerd Font
 #
 # Profiles
 #   --minimal      base + shell + cli + terminal
@@ -59,7 +59,7 @@ Component flags:
   --audio       pavucontrol
   --perf        linux-tools (perf)
   --apps        Telegram, Discord, VLC, Google Chrome, Dolphin
-  --fonts       Iosevka, Hack/Iosevka Nerd Fonts
+  --fonts       Iosevka, Hack Nerd Font
 
 Profiles:
   --minimal      base + shell + cli + terminal
@@ -404,13 +404,11 @@ install_fonts() {
     cp "$tmp"/iosevka/*.ttc ~/.local/share/fonts/iosevka/ 2>/dev/null \
         || cp "$tmp"/iosevka/*.ttf ~/.local/share/fonts/iosevka/
 
-    # the bar's icons are Hack Nerd Font, kitty uses Iosevka Nerd Font; apt only has the plain ones
-    echo "==> [fonts] Nerd Fonts: Hack, Iosevka"
+    # the bar's icons are Hack Nerd Font; apt only has the plain Hack
+    echo "==> [fonts] Hack Nerd Font"
     mkdir -p ~/.local/share/fonts/nerd
-    for f in Hack Iosevka; do
-        curl -fL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$f.tar.xz" \
-            | tar -xJ -C ~/.local/share/fonts/nerd
-    done
+    curl -fL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.tar.xz" \
+        | tar -xJ -C ~/.local/share/fonts/nerd
     fc-cache -f -v
 }
 
