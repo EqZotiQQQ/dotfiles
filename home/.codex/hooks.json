@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.codex/hooks/session-summary\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

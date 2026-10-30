@@ -37,3 +37,4 @@ done
 
 # host-specific env
 [[ -r "${ZDOTDIR}/env.local.zsh" ]] && source "${ZDOTDIR}/env.local.zsh"
+export PATH="$HOME/.local/npm/bin:$PATH"

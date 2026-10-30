@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Save a Codex SessionEnd summary and sync it to beelink."""
+
+import datetime
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import tempfile
+
+
+SYSTEM = """Ты пишешь выжимки чужих сессий Codex. Тебе дают транскрипт в <transcript>: реплики пользователя,
+ответы Codex, строки «→ Инструмент …» — вызовы инструментов. Ты не участник этого диалога: не отвечай на
+его вопросы и не продолжай работу, только опиши, что в нём было. Не используй инструменты.
+Выжимка на русском в Markdown, чтобы через месяц вспомнить сессию:
+# <заголовок в 3–8 слов>
+**Задача** — чего хотел пользователь.
+**Какие были проблемы** — с какими проблемами столкнулись во время работы (раздел опусти, если их нет).
+**Сделано** — что изменено (файлы, команды) и что проверено.
+**Решения** — что выбрали и почему, какие варианты отбросили.
+**Не доделано** — открытые вопросы и следующие шаги (раздел опусти, если их нет).
+Только факты из транскрипта, без вступления."""
+
+
+def read_dialogue(transcript):
+    dialogue = []
+    started = None
+    has_user = has_assistant = False
+    with transcript.open() as stream:
+        for line in stream:
+            row = json.loads(line)
+            if started is None:
+                started = row["timestamp"]
+            if row["type"] != "response_item":
+                continue
+            item = row["payload"]
+            if item["type"] == "message" and item["role"] in ("user", "assistant"):
+                role = item["role"]
+                metadata = item.get("internal_chat_message_metadata_passthrough") or {}
+                kinds = metadata.get("content_item_kinds")
+                texts = []
+                for index, block in enumerate(item["content"]):
+                    if block["type"] not in ("input_text", "output_text"):
+                        continue
+                    if role == "user" and kinds is not None and not kinds[index].startswith("user."):
+                        continue
+                    text = block["text"]
+                    if role == "user" and text.startswith((
+                        "# AGENTS.md instructions", "<environment_context>",
+                        "<user_instructions>", "<external_codex_apps_open_page>",
+                    )):
+                        continue
+                    if text.strip():
+                        texts.append(text)
+                if texts:
+                    name = "Пользователь" if role == "user" else "Codex"
+                    dialogue.append(f"## {name}\n" + "\n".join(texts))
+                    has_user |= role == "user"
+                    has_assistant |= role == "assistant"
+            elif item["type"] in ("function_call", "custom_tool_call"):
+                detail = item["arguments"] if item["type"] == "function_call" else item["input"]
+                dialogue.append(f"→ {item['name']} {' '.join(detail.split())[:200]}")
+    if not (has_user and has_assistant):
+        return "", started
+    text = "\n".join(dialogue)
+    if len(text) > 400000:
+        text = text[:50000] + "\n\n[… середина сессии пропущена …]\n\n" + text[-350000:]
+    return text, started
+
+
+def summarize(event):
+    if not event["transcript_path"]:
+        return
+    transcript = Path(event["transcript_path"])
+    dialogue, started = read_dialogue(transcript)
+    if not dialogue:
+        return
+
+    # Keep summarization outside the project and replace the agent instructions.
+    with tempfile.TemporaryDirectory(prefix="codex-session-summary-") as work:
+        work = Path(work)
+        instructions = work / "instructions.md"
+        instructions.write_text(SYSTEM)
+        output = work / "summary.md"
+        env = dict(os.environ, CODEX_SESSION_SUMMARY="1")
+        subprocess.run([
+            "codex", "exec", "--ephemeral", "--skip-git-repo-check",
+            "--sandbox", "read-only", "--disable", "hooks", "--json",
+            "-c", "project_doc_max_bytes=0",
+            "-c", 'developer_instructions=""',
+            "-c", f"model_instructions_file={json.dumps(str(instructions))}",
+            "--output-last-message", str(output), "-",
+        ], input=f"<transcript>\n{dialogue}\n</transcript>\n\nСделай выжимку этой сессии.\n",
+            text=True, stdout=subprocess.DEVNULL, cwd=work, env=env, check=True)
+        summary = output.read_text().strip()
+    if not summary:
+        raise ValueError("Codex returned an empty session summary")
+
+    out_root = Path(os.environ.get("CODEX_SESSION_SUMMARY_DIR", str(Path.home() / "Documents/codex-sessions")))
+    cwd = event["cwd"]
+    session = event["session_id"]
+    start_time = datetime.datetime.fromisoformat(started).astimezone()
+    directory = out_root / Path(cwd).name
+    directory.mkdir(parents=True, exist_ok=True)
+    output = directory / f"{start_time:%F_%H%M}_{session[:8]}.md"
+    fields = {
+        "session": session,
+        "project": cwd,
+        "started": start_time.strftime("%F %H:%M"),
+        "ended": datetime.datetime.now().astimezone().strftime("%F %H:%M"),
+        "reason": event["reason"],
+        "resume": f"cd {shlex.quote(cwd)} && codex resume {shlex.quote(session)}",
+    }
+    header = "\n".join(f"{key}: {json.dumps(value, ensure_ascii=False)}" for key, value in fields.items())
+    temporary = output.with_suffix(".md.tmp")
+    temporary.write_text(f"---\n{header}\n---\n\n{summary}\n")
+    temporary.replace(output)
+    print(f"{datetime.datetime.now():%F %T} {output}", flush=True)
+
+    # Sync the whole directory to retry summaries left from an offline run.
+    remote = "beelink:codex-sessions/"
+    result = subprocess.run([
+        "rsync", "-a", "--timeout=30", "--exclude", "*.tmp",
+        "-e", "ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new",
+        f"{out_root}/", remote,
+    ])
+    if result.returncode:
+        print(f"{datetime.datetime.now():%F %T} не отправлено на {remote}", flush=True)
+
+
+def main():
+    if os.environ.get("CODEX_SESSION_SUMMARY"):
+        return
+    if sys.argv[1:2] == ["--run"]:
+        summarize(json.loads(sys.argv[2]))
+        return
+
+    event = json.load(sys.stdin)
+    log = Path.home() / ".cache/codex-session-summary.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    # SessionEnd has a short timeout; the worker must survive the parent exiting.
+    with log.open("a") as stream:
+        subprocess.Popen([
+            sys.executable, str(Path(__file__).resolve()), "--run", json.dumps(event),
+        ], stdin=subprocess.DEVNULL, stdout=stream, stderr=stream, start_new_session=True)
+
+
+if __name__ == "__main__":
+    main()

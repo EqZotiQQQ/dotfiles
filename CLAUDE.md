@@ -78,3 +78,11 @@ Kitty и wofi в тему не входят. Остальным программ
 `home/.claude/settings.json` общий для профилей `~/.claude-eqzotiqqq` и `~/.claude-panda`. Хук `SessionEnd`
 (`home/.claude/hooks/session-summary`) пишет выжимку сессии и отправляет её rsync-ом на `beelink`; от рекурсии —
 `CLAUDE_SESSION_SUMMARY=1`, лог — `~/.cache/claude-session-summary.log`.
+
+## Codex
+
+`home/.codex/hooks.json` подключает `SessionEnd` → `home/.codex/hooks/session-summary`.
+Фоновый Python-процесс создаёт выжимку через `codex exec` в
+`~/Documents/codex-sessions` (`CODEX_SESSION_SUMMARY_DIR`) и синхронизирует её на
+`beelink:codex-sessions`. От рекурсии — `--disable hooks` и `CODEX_SESSION_SUMMARY=1`,
+лог — `~/.cache/codex-session-summary.log`. После установки хук нужно доверить через `/hooks`.
