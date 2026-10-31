@@ -50,14 +50,20 @@ class SessionSummaryTests(unittest.TestCase):
         codex = commands / "codex"
         codex.write_text("""#!/usr/bin/env python3
 import json, os, pathlib, sys, time
-record = {'args': sys.argv[1:], 'input': sys.stdin.read(),
+instructions_arg = next(arg for arg in sys.argv if arg.startswith('model_instructions_file='))
+instructions = pathlib.Path(json.loads(instructions_arg.split('=', 1)[1])).read_text()
+record = {'args': sys.argv[1:], 'input': sys.stdin.read(), 'instructions': instructions,
           'guard': os.environ.get('CODEX_SESSION_SUMMARY'), 'cwd': os.getcwd()}
 pathlib.Path(os.environ['HOME'], 'codex-call.json').write_text(json.dumps(record))
 time.sleep(float(os.environ.get('TEST_CODEX_DELAY', '0')))
 if os.environ.get('TEST_CODEX_FAIL'):
     sys.exit(7)
 output = pathlib.Path(sys.argv[sys.argv.index('--output-last-message') + 1])
-output.write_text('' if os.environ.get('TEST_CODEX_EMPTY') else '# Экспорт данных\\n\\n**Сделано** — добавлен экспорт.')
+output.write_text('' if os.environ.get('TEST_CODEX_EMPTY') else
+                  '# Для экспорта данных мы сделали: добавили экспорт\\n\\n'
+                  '1: Добавили экспорт — данные выгружаются.\\n\\n'
+                  '## Нюансы\\nНе выявлены.\\n\\n## Ограничения\\nНе выявлены.\\n\\n'
+                  '## Плюсы\\nНе выявлены.\\n\\n## Минусы\\nНе выявлены.')
 """)
         codex.chmod(0o755)
         rsync = commands / "rsync"
@@ -139,13 +145,20 @@ sys.exit(10 if os.environ.get('TEST_RSYNC_FAIL') else 0)
         self.assertEqual(fields["reason"], "other")
         self.assertEqual(shlex.split(fields["resume"]),
                          ["cd", self.event["cwd"], "&&", "codex", "resume", self.event["session_id"]])
-        self.assertIn("# Экспорт данных", content)
+        self.assertIn("# Для экспорта данных мы сделали: добавили экспорт", content)
+        self.assertIn("1: Добавили экспорт", content)
+        for section in ("Нюансы", "Ограничения", "Плюсы", "Минусы"):
+            self.assertIn(f"## {section}", content)
         self.assertFalse(list(self.out_root.rglob("*.tmp")))
         call = json.loads((self.work / "codex-call.json").read_text())
         self.assertIn("--ephemeral", call["args"])
         self.assertIn("hooks", call["args"])
         self.assertEqual(call["guard"], "1")
         self.assertIn("## Пользователь\nДобавь экспорт", call["input"])
+        self.assertIn("# Для <цель пользователя> мы сделали:", call["instructions"])
+        self.assertIn("Продолжай нумерацию по числу реальных шагов", call["instructions"])
+        for section in ("Нюансы", "Ограничения", "Плюсы", "Минусы"):
+            self.assertIn(f"## {section}", call["instructions"])
         sync = json.loads((self.work / "rsync-call.json").read_text())
         self.assertEqual(sync[-2:], [str(self.out_root) + "/", "beelink:codex-sessions/"])
 

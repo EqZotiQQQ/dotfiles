@@ -10,6 +10,7 @@
     "[cpp]": {},
     "workbench.colorCustomizations": {},
     "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "chat.disableAIFeatures": true,
     "workbench.settings.applyToAllProfiles": [
         "chat.disableAIFeatures"
     ],
