@@ -38,3 +38,5 @@ done
 # host-specific env
 [[ -r "${ZDOTDIR}/env.local.zsh" ]] && source "${ZDOTDIR}/env.local.zsh"
 export PATH="$HOME/.local/npm/bin:$PATH"
+
+export OLLAMA_HOST=100.83.75.83:11434
