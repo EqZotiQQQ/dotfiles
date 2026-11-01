@@ -1,0 +1,30 @@
+model_provider = "OpenAI"
+model = "gpt-6.1-sol"
+review_model = "gpt-6-astra"
+model_reasoning_effort = "low"
+
+[model_providers.OpenAI]
+name = "OpenAI"
+base_url = "https://sub2api.eqzotiqqq.dedyn.io/v1"
+model_catalog_url = "https://sub2api.eqzotiqqq.dedyn.io/v1/models"
+wire_api = "responses"
+requires_openai_auth = false
+env_key = "SUB2API_API_KEY"
+
+[features]
+api_key_model_discovery = true
+goals = true
+
+[tui]
+screen_reader_detection_done = true
+
+[tui.model_availability_nux]
+"gpt-6.1-sol" = 4
+
+[projects."/home/eqzotiqqq/my_projects/dotfiles"]
+trust_level = "trusted"
+
+[hooks.state]
+
+[hooks.state."/home/eqzotiqqq/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:45d52d89cbb9f5a56840c6a21a25b3f869a31992c3ff341837a674d6c0e8c415"

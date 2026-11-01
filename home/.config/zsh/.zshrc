@@ -40,3 +40,9 @@ done
 export PATH="$HOME/.local/npm/bin:$PATH"
 
 export OLLAMA_HOST=100.83.75.83:11434
+
+export SUB2API_API_KEY=
+
+codex() {
+    command codex -c 'model_provider="OpenAI"' "$@"
+}
