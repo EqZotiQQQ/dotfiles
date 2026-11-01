@@ -1,4 +1,10 @@
 {
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://sub2api.eqzotiqqq.dedyn.io",
+    "ANTHROPIC_AUTH_TOKEN": "$SUB2API_KEY_ANTHROPIC_KEY",
+    "ANTHROPIC_MODEL": "claude-opus-5.5",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
   "model": "opus[1m]",
   "enabledPlugins": {
     "clangd-lsp@claude-plugins-official": true,
@@ -43,7 +49,10 @@
     "SessionEnd": [
       {
         "hooks": [
-          { "type": "command", "command": "$HOME/.claude/hooks/session-summary" }
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/session-summary"
+          }
         ]
       }
     ]
