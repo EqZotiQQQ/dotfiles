@@ -14,6 +14,41 @@ Singleton {
     property string error: ""
     property string _snapshot: ""
     readonly property real now: Time.date.getTime() / 1000
+    readonly property int enabledCount: accounts.filter(a => enabled(a)).length
+    readonly property int limitedCount: accounts.filter(a => enabled(a) && blockedUntil(a) !== null).length
+
+    function enabled(account) {
+        return account.status === "active" && account.schedulable;
+    }
+
+    function blockedUntil(account) {
+        let until = Math.max(account.rate_limit_reset_at ?? 0, account.overload_until ?? 0,
+            account.temp_unschedulable_until ?? 0);
+        if (!stale(account.updated_at)) {
+            for (const window of account.windows) {
+                if (window.remaining_percent === 0 && window.reset_at !== null)
+                    until = Math.max(until, window.reset_at);
+            }
+        }
+        return until > now ? until : null;
+    }
+
+    function state(account) {
+        if (account.status === "error")
+            return "ошибка";
+        if (account.status !== "active")
+            return "выключен";
+        if (!account.schedulable)
+            return "пауза";
+        const until = blockedUntil(account);
+        if (until === null)
+            return "включён";
+        if (until === account.overload_until)
+            return "перегрузка";
+        if (until === account.temp_unschedulable_until)
+            return "пауза";
+        return "лимит";
+    }
 
     function stale(updatedAt) {
         return updatedAt === null || now - updatedAt >= 300 || updatedAt > now + 60;

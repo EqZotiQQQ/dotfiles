@@ -36,7 +36,7 @@ PanelWindow {
         x: 14
         y: 14
         width: parent.width - 28
-        spacing: 12
+        spacing: 10
 
         Row {
             width: parent.width
@@ -55,6 +55,14 @@ PanelWindow {
             }
         }
 
+        StyledText {
+            visible: AiLimits.loaded
+            text: "Включены: " + AiLimits.enabledCount + "/" + AiLimits.accounts.length
+                + " · ограничены: " + AiLimits.limitedCount
+            color: Theme.textVariant
+            font.pixelSize: Theme.fontSize - 1
+        }
+
         Repeater {
             model: AiLimits.accounts
 
@@ -63,10 +71,12 @@ PanelWindow {
 
                 required property var modelData
                 readonly property bool stale: AiLimits.stale(modelData.updated_at)
-                readonly property bool unavailable: modelData.status !== "active" || !modelData.schedulable
+                readonly property string accountState: AiLimits.state(modelData)
+                readonly property bool unavailable: accountState !== "включён"
+                readonly property var blockedUntil: AiLimits.blockedUntil(modelData)
 
                 width: content.width
-                spacing: 6
+                spacing: 4
 
                 Row {
                     width: parent.width
@@ -81,7 +91,7 @@ PanelWindow {
                     StyledText {
                         id: state
 
-                        text: account.unavailable ? "недоступен" : "#" + account.modelData.id
+                        text: account.accountState
                         color: account.unavailable ? Theme.error : Theme.textVariant
                     }
                 }
@@ -102,6 +112,17 @@ PanelWindow {
                     width: parent.width
                     text: (account.stale ? "Устарело · " : "Снимок · ") + AiLimits.age(account.modelData.updated_at)
                     color: account.stale ? Theme.tertiary : Theme.textVariant
+                    font.pixelSize: Theme.fontSize - 1
+                    elide: Text.ElideRight
+                }
+
+                StyledText {
+                    width: parent.width
+                    text: (account.blockedUntil === null ? ""
+                        : "До " + Qt.formatDateTime(new Date(account.blockedUntil * 1000), "dd.MM HH:mm") + " · ")
+                        + "Запрос: " + (account.modelData.last_used_at === null ? "нет данных"
+                            : AiLimits.age(account.modelData.last_used_at))
+                    color: Theme.textVariant
                     font.pixelSize: Theme.fontSize - 1
                     elide: Text.ElideRight
                 }

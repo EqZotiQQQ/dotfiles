@@ -17,6 +17,10 @@ SET LOCAL lock_timeout = '1s';
 SELECT COALESCE(json_agg(json_build_object(
     'id', id, 'name', name, 'status', status, 'schedulable', schedulable,
     'updated_at', extra->>'codex_usage_updated_at',
+    'last_used_at', last_used_at,
+    'rate_limit_reset_at', rate_limit_reset_at,
+    'overload_until', overload_until,
+    'temp_unschedulable_until', temp_unschedulable_until,
     'windows', json_build_array(
         json_build_object('label', '5 ч',
             'minutes', extra->'codex_5h_window_minutes',
@@ -64,6 +68,10 @@ def normalize(rows):
         accounts.append({
             "id": row["id"], "name": row["name"], "status": row["status"],
             "schedulable": row["schedulable"], "updated_at": timestamp(row["updated_at"]),
+            "last_used_at": timestamp(row["last_used_at"]),
+            "rate_limit_reset_at": timestamp(row["rate_limit_reset_at"]),
+            "overload_until": timestamp(row["overload_until"]),
+            "temp_unschedulable_until": timestamp(row["temp_unschedulable_until"]),
             "windows": windows,
         })
     return accounts

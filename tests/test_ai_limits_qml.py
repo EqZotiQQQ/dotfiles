@@ -60,6 +60,32 @@ ShellRoot {
                 check(!AiLimits.stale(AiLimits.now), "fresh timestamp");
                 check(AiLimits.reset(AiLimits.now - 1) === "ожидаем новый снимок", "expired window");
                 check(AiLimits.reset(null) === "сброс неизвестен", "unknown reset");
+                check(typeof AiLimits.state === "function", "account state helper");
+                const a = {status: "active", schedulable: true, updated_at: AiLimits.now,
+                    rate_limit_reset_at: null, overload_until: null, temp_unschedulable_until: null,
+                    windows: [{remaining_percent: 80, reset_at: AiLimits.now + 3600}]};
+                check(AiLimits.state(a) === "включён", "enabled does not claim confirmed availability");
+                a.rate_limit_reset_at = AiLimits.now + 3600;
+                a.overload_until = AiLimits.now + 60;
+                check(AiLimits.state(a) === "лимит", "longest restriction determines status");
+                check(AiLimits.blockedUntil(a) === AiLimits.now + 3600, "latest restriction deadline");
+                a.rate_limit_reset_at = AiLimits.now - 60;
+                check(AiLimits.state(a) === "перегрузка", "expired rate limit does not hide overload");
+                a.overload_until = null;
+                a.temp_unschedulable_until = AiLimits.now + 120;
+                check(AiLimits.state(a) === "пауза", "temporary pause");
+                a.temp_unschedulable_until = null;
+                a.windows[0].remaining_percent = 0;
+                check(AiLimits.state(a) === "лимит", "fresh exhausted quota");
+                check(AiLimits.blockedUntil(a) === a.windows[0].reset_at, "quota reset deadline");
+                a.updated_at = AiLimits.now - 600;
+                check(AiLimits.state(a) === "включён", "old quota does not assert a current restriction");
+                a.status = "error";
+                check(AiLimits.state(a) === "ошибка" && !AiLimits.enabled(a), "account error");
+                a.status = "disabled";
+                check(AiLimits.state(a) === "выключен", "disabled account");
+                a.status = "active"; a.schedulable = false;
+                check(AiLimits.state(a) === "пауза" && !AiLimits.enabled(a), "manual scheduling pause");
                 stage = 1;
             } else if (stage === 1 && AiLimits.error === "Сервер недоступен") {
                 check(AiLimits.accounts[0].remaining === 80, "retain last snapshot on SSH failure");

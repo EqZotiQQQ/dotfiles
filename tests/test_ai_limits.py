@@ -17,6 +17,8 @@ def account(**changes):
     row = {
         "id": 3, "name": "Personal", "status": "active", "schedulable": True,
         "updated_at": "2026-11-02T16:02:44+03:00",
+        "last_used_at": None, "rate_limit_reset_at": None,
+        "overload_until": None, "temp_unschedulable_until": None,
         "windows": [
             {"label": "5 ч", "minutes": 300, "used_percent": 0,
              "reset_at": "2026-11-02T21:02:44+03:00"},
@@ -73,6 +75,24 @@ class QuotaTests(unittest.TestCase):
         for value in ("broken", "2026-11-02T16:02:44"):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 NORMALIZE([account(updated_at=value)])
+
+    def test_activity_and_restrictions_preserve_absolute_times(self):
+        row = account(
+            last_used_at="2026-11-02T16:02:44.123456+03:00",
+            rate_limit_reset_at="2026-11-02T17:02:44+03:00",
+            overload_until="2026-11-02T13:03:44Z",
+            temp_unschedulable_until="2026-11-02T16:12:44+03:00",
+        )
+        result = NORMALIZE([row])[0]
+        self.assertEqual(result["last_used_at"], 1793624564)
+        self.assertEqual(result["rate_limit_reset_at"] - result["last_used_at"], 3600)
+        self.assertEqual(result["overload_until"] - result["last_used_at"], 60)
+        self.assertEqual(result["temp_unschedulable_until"] - result["last_used_at"], 600)
+
+    def test_missing_activity_and_restrictions_stay_unknown(self):
+        result = NORMALIZE([account()])[0]
+        for field in ("last_used_at", "rate_limit_reset_at", "overload_until", "temp_unschedulable_until"):
+            self.assertIsNone(result[field])
 
 
 class TransportTests(unittest.TestCase):
