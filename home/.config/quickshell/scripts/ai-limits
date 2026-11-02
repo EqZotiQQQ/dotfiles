@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Read Codex quota snapshots on the VPS; never call a model or refresh a quota."""
+
+import argparse
+from datetime import datetime
+import json
+import math
+from pathlib import Path
+import subprocess
+import sys
+
+
+QUERY = """
+BEGIN READ ONLY;
+SET LOCAL statement_timeout = '3s';
+SET LOCAL lock_timeout = '1s';
+SELECT COALESCE(json_agg(json_build_object(
+    'id', id, 'name', name, 'status', status, 'schedulable', schedulable,
+    'updated_at', extra->>'codex_usage_updated_at',
+    'windows', json_build_array(
+        json_build_object('label', '5 ч',
+            'minutes', extra->'codex_5h_window_minutes',
+            'used_percent', extra->'codex_5h_used_percent',
+            'reset_at', extra->>'codex_5h_reset_at'),
+        json_build_object('label', '7 д',
+            'minutes', extra->'codex_7d_window_minutes',
+            'used_percent', extra->'codex_7d_used_percent',
+            'reset_at', extra->>'codex_7d_reset_at')
+    )
+) ORDER BY id), '[]'::json)
+FROM accounts
+WHERE platform = 'openai' AND type = 'oauth' AND deleted_at IS NULL;
+ROLLBACK;
+"""
+
+
+def timestamp(value):
+    if value is None:
+        return None
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("Snapshot timestamp has no timezone")
+    return int(parsed.timestamp())
+
+
+def normalize(rows):
+    accounts = []
+    for row in rows:
+        windows = []
+        for window in row["windows"]:
+            used = window["used_percent"]
+            minutes = window["minutes"]
+            if used is not None and (type(used) not in (int, float)
+                                     or not math.isfinite(used) or not 0 <= used <= 100):
+                raise ValueError("Invalid quota percentage")
+            if minutes is not None and (type(minutes) not in (int, float)
+                                        or not math.isfinite(minutes) or minutes < 0):
+                raise ValueError("Invalid quota window")
+            windows.append({
+                "label": window["label"],
+                "remaining_percent": 100 - used if used is not None and minutes else None,
+                "reset_at": timestamp(window["reset_at"]),
+            })
+        accounts.append({
+            "id": row["id"], "name": row["name"], "status": row["status"],
+            "schedulable": row["schedulable"], "updated_at": timestamp(row["updated_at"]),
+            "windows": windows,
+        })
+    return accounts
+
+
+def read_accounts():
+    result = subprocess.run(
+        ["docker", "exec", "-i", "--user", "postgres", "sub2api-postgres", "sh", "-c",
+         'exec psql -X -qAt -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'],
+        input=QUERY, text=True, capture_output=True, check=True, timeout=8,
+    )
+    return json.loads(result.stdout)
+
+
+def fetch(host):
+    # Send this exact source to avoid installing a second copy on the VPS.
+    result = subprocess.run(
+        ["ssh", "-T", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5",
+         "-o", "ServerAliveInterval=5", "-o", "ServerAliveCountMax=1",
+         "--", host, "python3", "-", "--snapshot"],
+        input=Path(__file__).read_text(), text=True, capture_output=True, check=True, timeout=20,
+    )
+    return json.loads(result.stdout)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--host", default="ruweb_hosting", help="SSH host (default: ruweb_hosting)")
+    parser.add_argument("--snapshot", action="store_true", help=argparse.SUPPRESS)
+    args = parser.parse_args()
+    try:
+        payload = {"accounts": normalize(read_accounts())} if args.snapshot else fetch(args.host)
+        print(json.dumps(payload, ensure_ascii=False, allow_nan=False))
+        return 0
+    except subprocess.TimeoutExpired:
+        error, code = "Сервер не ответил вовремя", 2
+    except subprocess.CalledProcessError as exc:
+        if args.snapshot:
+            error, code = "Ошибка чтения квот", 4
+        elif exc.returncode in (2, 3, 4):
+            error, code = "Не удалось получить квоты", exc.returncode
+        else:
+            error, code = "Сервер недоступен", 1
+    except (ValueError, TypeError, KeyError):
+        error, code = "Некорректные данные квот", 3
+    except OSError:
+        error, code = "Не удалось запустить сборщик", 1
+    print(error, file=sys.stderr)
+    return code
+
+
+if __name__ == "__main__":
+    sys.exit(main())
