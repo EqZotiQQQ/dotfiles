@@ -157,10 +157,18 @@ engineering-плагина. Зависимости от Claude Skill tool, `supe
 [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) и
 [скиллы](https://learn.chatgpt.com/docs/build-skills).
 
-### Выжимки сессий Codex
+### История и выжимки сессий Codex
 
 `home/.codex/hooks.json` подключает `SessionEnd`-хук
-`home/.codex/hooks/session-summary`. После установки ссылок (`./dot -s -f`)
+`home/.codex/hooks/session-summary` и `home/.codex/hooks/session-history`.
+История сохраняется локально в
+`~/codex-conversations-history/<проект>/<session_id>.jsonl` как полная копия
+транскрипта Codex: реплики, вызовы инструментов с командами и их результаты.
+Формат JSONL сохраняет также служебные записи; файл может содержать приватные
+данные из диалога и вывода команд. Ошибки записи пишутся в
+`~/.cache/codex-session-history.log`.
+
+После установки ссылок (`./dot -s -f`)
 перезапустите Codex и откройте `/hooks` в CLI, чтобы проверить и доверить новый
 хук. Существующий `~/.codex/hooks.json` установщик без `-o` не заменяет —
 если он уже есть, объедините настройки вручную.

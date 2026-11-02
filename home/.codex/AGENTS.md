@@ -1,6 +1,5 @@
 Ниже — версия для `AGENTS.md`. Повторяющиеся правила объединены; требование к RTK Query применяется только к проектам, где он уже используется.
 
-```md
 # Working agreements
 
 ## Scope and communication
@@ -24,6 +23,10 @@
 - Preserve unrelated user changes. Review the final diff for accidental edits.
 - When you we fix bugs - first of all write tests that fail, then work untill tests that failed passes. Write simple summary, how to run tests by myself + result of tests and how did you fix that.
 - Suggest libraries or approaches that can simplify or impruve solution.
+- No assert in production code
+- Comment only when context is not readily apparent from the code. Generic purpose explanation do not qualify: # Log for debugging above logging.debug(...), # Validate for safety, # Retry for reliability and similar provide no useful information. Useful comments record a specific constraint, invariant, compatibility quirk, or tradeoff. Before adding a comment, identify the misunderstanding or incorrect change it would prevent. If removing a comment will lose non-code-related context, omit it. Do not narrate code, repeat code, or invent a rationale in comments. Keep necessary explanations short, precise and at the source of truth. Do not repeat comments at each call site. Judge each comment value by the preserved context only.
+- time.monotonic() for durations, not time.time() and same for CPP.
+
 
 ## Documentation
 
@@ -56,4 +59,6 @@ Skills live in `~/.agents/skills/`. When a skill's description matches the task,
 - `improve`: an explicit codebase audit or handoff plan; ordinary fixes should not become an audit.
 - `grill-me`: an explicitly requested interview about a plan or design.
 - `find-skills`: discovery or installation of reusable agent capabilities.
-```
+
+## After job
+- Write how to: launch tests manualy and deploy app
