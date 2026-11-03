@@ -1,7 +1,7 @@
 model_provider = "OpenAI"
 model = "gpt-6-astra"
 review_model = "gpt-6-astra"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 
 [model_providers.OpenAI]
 name = "OpenAI"
@@ -22,6 +22,12 @@ screen_reader_detection_done = true
 "gpt-6.1-sol" = 4
 
 [projects."/home/eqzotiqqq/my_projects/dotfiles"]
+trust_level = "trusted"
+
+[projects."/home/eqzotiqqq/work/aip_swarm"]
+trust_level = "trusted"
+
+[projects."/home/eqzotiqqq/dotfiles"]
 trust_level = "trusted"
 
 [hooks.state]

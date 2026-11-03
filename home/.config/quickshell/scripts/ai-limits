@@ -107,18 +107,18 @@ def main():
         print(json.dumps(payload, ensure_ascii=False, allow_nan=False))
         return 0
     except subprocess.TimeoutExpired:
-        error, code = "Сервер не ответил вовремя", 2
+        error, code = "Server timeout", 2
     except subprocess.CalledProcessError as exc:
         if args.snapshot:
-            error, code = "Ошибка чтения квот", 4
+            error, code = "Quota read error", 4
         elif exc.returncode in (2, 3, 4):
-            error, code = "Не удалось получить квоты", exc.returncode
+            error, code = "Failed to fetch quota data", exc.returncode
         else:
-            error, code = "Сервер недоступен", 1
+            error, code = "Server unavailable", 1
     except (ValueError, TypeError, KeyError):
-        error, code = "Некорректные данные квот", 3
+        error, code = "Invalid quota data", 3
     except OSError:
-        error, code = "Не удалось запустить сборщик", 1
+        error, code = "Failed to launch collector", 1
     print(error, file=sys.stderr)
     return code
 
