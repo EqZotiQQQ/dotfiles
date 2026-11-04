@@ -43,7 +43,7 @@ PanelWindow {
 
             StyledText {
                 width: parent.width - provider.implicitWidth
-                text: "Лимиты ИИ"
+                text: "AI Limits"
                 font.pixelSize: Theme.fontSize + 2
                 font.weight: Font.DemiBold
             }
@@ -110,7 +110,7 @@ PanelWindow {
 
                 StyledText {
                     width: parent.width
-                    text: (account.stale ? "Устарело · " : "Снимок · ") + AiLimits.age(account.modelData.updated_at)
+                    text: (account.stale ? "Outdated · " : "Snapshot · ") + AiLimits.age(account.modelData.updated_at)
                     color: account.stale ? Theme.tertiary : Theme.textVariant
                     font.pixelSize: Theme.fontSize - 1
                     elide: Text.ElideRight
@@ -133,7 +133,7 @@ PanelWindow {
             width: parent.width
             visible: AiLimits.error !== "" || AiLimits.accounts.length === 0
             text: AiLimits.error !== "" ? AiLimits.error
-                : AiLimits.loaded ? "Нет аккаунтов Codex" : "Получаем квоты…"
+                : AiLimits.loaded ? "No Codex accounts" : "Fetching quotas..."
             textFormat: Text.PlainText
             color: AiLimits.error !== "" ? Theme.error : Theme.textVariant
             wrapMode: Text.Wrap
@@ -169,7 +169,7 @@ PanelWindow {
             }
             StyledText {
                 width: parent.width - 92
-                text: row.known ? AiLimits.reset(row.quota.reset_at) : "нет данных"
+                text: row.known ? AiLimits.reset(row.quota.reset_at) : "no data"
                 color: Theme.textVariant
                 horizontalAlignment: Text.AlignRight
                 font.pixelSize: Theme.fontSize - 1
