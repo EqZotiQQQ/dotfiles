@@ -68,6 +68,7 @@ Item {
         self.assertEqual(log.count("POPOUT_HANDOFF_PASSED"), 4, log)
         self.assertIn("POPOUT_SCREEN_BOUNDARY_PASSED", log)
         self.assertIn("POPOUT_INTERRUPTION_PASSED", log)
+        self.assertIn("SELECTION_VISIBILITY_PASSED", log)
 
     def test_popout_hover_and_leave(self):
         log = self.run_qml_test("status_popout_hover.qml")

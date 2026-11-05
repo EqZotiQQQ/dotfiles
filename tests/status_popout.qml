@@ -38,6 +38,21 @@ ShellRoot {
             return strip.children.find(c => c.icon === icon);
         }
 
+        function selection() {
+            const highlight = status.children.find(c => c instanceof Rectangle);
+            check(highlight !== undefined, "selection has one moving background");
+            return highlight;
+        }
+
+        function selectionAt(module) {
+            const highlight = selection();
+            const position = highlight.mapToItem(module, 0, 0);
+            near(position.x, 0, "selection matches the module's x");
+            near(position.y, 0, "selection matches the module's y");
+            near(highlight.width, module.width, "selection matches the module's width");
+            near(highlight.height, module.height, "selection matches the module's height");
+        }
+
         function configure(edge, flush, duration) {
             status.close();
             wait(Theme.duration + 40);
@@ -124,29 +139,84 @@ ShellRoot {
             };
             status.click("cpu", cpu);
             wait(440);
+            const highlight = selection();
+            selectionAt(cpu);
+            const selectionPosition = () => {
+                const point = highlight.mapToItem(null, 0, 0);
+                return status.vertical ? point.y : point.x;
+            };
+            const selectionOrigin = selectionPosition();
+            const selectionDistance = status.vertical ? temp.y - cpu.y : temp.x - cpu.x;
             const origin = position(), depth = status.depth;
             const distance = center(temp) - center(cpu);
             status.click("temp", temp);
+            check(temp.active && !cpu.active, "selection changes immediately");
+            near(selectionPosition(), selectionOrigin, "selection starts at the previous module");
             near(position(), origin, "switch starts at the current box position");
             const samples = [];
+            const selectionSamples = [];
             for (let i = 0; i < 4; ++i) {
                 wait(100);
                 samples.push((position() - origin) / distance);
+                selectionSamples.push((selectionPosition() - selectionOrigin) / selectionDistance);
                 near(status.depth, depth, "switch moves the open box without folding it");
             }
+            check(selectionSamples[0] > 0 && selectionSamples[0] < 0.2, "selection starts gently: " + selectionSamples);
+            check(selectionSamples[1] > 0.35 && selectionSamples[1] < 0.65, "selection moves through the gap: " + selectionSamples);
+            check(selectionSamples[2] > 0.8 && selectionSamples[2] <= 1, "selection slows near its destination: " + selectionSamples);
             check(samples[0] > 0 && samples[0] < 0.2, "box starts moving gently toward the next module: " + samples);
             check(samples[1] > 0.35 && samples[1] < 0.65, "box travels fastest in the middle: " + samples);
             check(samples[2] > 0.8 && samples[2] <= 1, "box slows near the next module: " + samples);
             wait(40);
+            selectionAt(temp);
+            near(temp.color.a, 0, "active module lets the moving background show through");
             near(position() - origin, distance, "box follows the distance between modules");
             status.click("cpu", cpu);
             wait(100);
             const interrupted = position();
+            const interruptedSelection = selectionPosition();
+            const interruptedWidth = highlight.width, interruptedHeight = highlight.height;
             status.click("mem", mem);
+            near(selectionPosition(), interruptedSelection, "rapid selection changes keep the current position");
+            near(highlight.width, interruptedWidth, "rapid selection changes keep the current width");
+            near(highlight.height, interruptedHeight, "rapid selection changes keep the current height");
             near(position(), interrupted, "rapid hover changes keep the current position");
             wait(440);
+            selectionAt(mem);
             near(status.offset + status.extent / 2, 8 + center(mem), "box reaches the latest module");
             console.log("POPOUT_HANDOFF_PASSED");
+        }
+
+        function test_selection_visibility() {
+            configure("right", false, 240);
+            const highlight = selection();
+            const cpu = chip(Icons.cpu), power = chip(Icons.power);
+            near(highlight.opacity, 0, "closed selection is hidden");
+            status.click("cpu", cpu);
+            selectionAt(cpu);
+            near(highlight.opacity, 0, "first selection fades in at its module");
+            wait(100);
+            check(highlight.opacity > 0 && highlight.opacity < 1, "selection fades in gradually");
+            wait(180);
+            near(highlight.opacity, 1, "open selection is visible");
+            status.close();
+            near(highlight.opacity, 1, "closing starts at the current opacity");
+            wait(100);
+            check(highlight.opacity > 0 && highlight.opacity < 1, "selection fades out gradually");
+            const interrupted = highlight.mapToItem(cpu, 0, 0);
+            const opacity = highlight.opacity;
+            status.click("power", power);
+            near(highlight.opacity, opacity, "reopening keeps the current opacity");
+            near(highlight.mapToItem(cpu, 0, 0).y, interrupted.y, "reopening keeps the current position");
+            wait(280);
+            selectionAt(power);
+            near(highlight.opacity, 1, "reopened selection is visible");
+            status.close();
+            wait(280);
+            near(highlight.opacity, 0, "closed selection disappears");
+            status.click("cpu", cpu);
+            selectionAt(cpu);
+            console.log("SELECTION_VISIBILITY_PASSED");
         }
 
         function test_screen_boundary() {

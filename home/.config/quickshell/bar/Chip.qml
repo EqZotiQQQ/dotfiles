@@ -26,7 +26,14 @@ Rectangle {
     implicitWidth: Theme.barVertical ? Theme.barSize - 8 : content.implicitWidth + 14
     implicitHeight: Theme.barVertical ? content.implicitHeight + 10 : Theme.chipSize
     radius: Math.min(Theme.chipRadius, width / 2, height / 2)
-    color: active ? Theme.primaryContainer : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
+    color: !active && mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
+
+    Behavior on iconColor {
+        ColorAnimation {
+            duration: Theme.duration
+            easing.type: Easing.InOutCubic
+        }
+    }
 
     Behavior on color {
         ColorAnimation {
@@ -78,12 +85,26 @@ Rectangle {
             font.pixelSize: root.textSize
             font.weight: root.mono ? Font.Medium : Font.DemiBold
             color: root.active ? Theme.textOnPrimaryContainer : Theme.text
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.duration
+                    easing.type: Easing.InOutCubic
+                }
+            }
         }
 
         StyledText {
             visible: !Theme.barVertical && root.note !== ""
             text: root.note
             color: root.active ? Theme.textOnPrimaryContainer : Theme.textVariant
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.duration
+                    easing.type: Easing.InOutCubic
+                }
+            }
         }
     }
 

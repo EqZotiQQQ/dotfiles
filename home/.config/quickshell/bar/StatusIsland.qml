@@ -300,6 +300,36 @@ Item {
         height: area.height
     }
 
+    Rectangle {
+        id: selection
+
+        property rect geometry: root.anchorChip
+            ? Qt.rect(root.anchorChip.x, root.anchorChip.y, root.anchorChip.width, root.anchorChip.height)
+            : Qt.rect(0, 0, 0, 0)
+
+        x: modules.x + geometry.x
+        y: modules.y + geometry.y
+        width: geometry.width
+        height: geometry.height
+        radius: Math.min(Theme.chipRadius, width / 2, height / 2)
+        color: Theme.primaryContainer
+        opacity: root.open !== "" && root.anchorChip ? 1 : 0
+
+        Behavior on geometry {
+            enabled: selection.opacity > 0
+            PropertyAnimation {
+                duration: Theme.duration
+                easing.type: Easing.InOutCubic
+            }
+        }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.duration
+                easing.type: Easing.InOutCubic
+            }
+        }
+    }
+
     Strip {
         id: modules
 
