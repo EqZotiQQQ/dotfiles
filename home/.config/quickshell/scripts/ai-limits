@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read Codex quota snapshots on the VPS; never call a model or refresh a quota."""
+"""Read Codex/Claude quota snapshots and last-request cache tokens on the VPS."""
 
 import argparse
 from datetime import datetime
@@ -15,25 +15,39 @@ BEGIN READ ONLY;
 SET LOCAL statement_timeout = '3s';
 SET LOCAL lock_timeout = '1s';
 SELECT COALESCE(json_agg(json_build_object(
-    'id', id, 'name', name, 'status', status, 'schedulable', schedulable,
-    'updated_at', extra->>'codex_usage_updated_at',
-    'last_used_at', last_used_at,
-    'rate_limit_reset_at', rate_limit_reset_at,
-    'overload_until', overload_until,
-    'temp_unschedulable_until', temp_unschedulable_until,
+    'id', a.id, 'platform', a.platform, 'name', a.name, 'status', a.status, 'schedulable', a.schedulable,
+    'updated_at', CASE a.platform WHEN 'openai' THEN a.extra->>'codex_usage_updated_at'
+        ELSE a.extra->>'passive_usage_sampled_at' END,
+    'last_used_at', a.last_used_at,
+    'rate_limit_reset_at', a.rate_limit_reset_at,
+    'overload_until', a.overload_until,
+    'temp_unschedulable_until', a.temp_unschedulable_until,
+    'input_tokens', u.input_tokens,
+    'cache_creation_tokens', u.cache_creation_tokens,
+    'cache_read_tokens', u.cache_read_tokens,
     'windows', json_build_array(
-        json_build_object('label', '5 ч',
-            'minutes', extra->'codex_5h_window_minutes',
-            'used_percent', extra->'codex_5h_used_percent',
-            'reset_at', extra->>'codex_5h_reset_at'),
-        json_build_object('label', '7 д',
-            'minutes', extra->'codex_7d_window_minutes',
-            'used_percent', extra->'codex_7d_used_percent',
-            'reset_at', extra->>'codex_7d_reset_at')
+        json_build_object('label', '5h',
+            'minutes', CASE a.platform WHEN 'openai' THEN a.extra->'codex_5h_window_minutes' ELSE '300'::jsonb END,
+            'used', CASE a.platform WHEN 'openai' THEN a.extra->'codex_5h_used_percent'
+                ELSE a.extra->'session_window_utilization' END,
+            'reset_at', CASE a.platform WHEN 'openai' THEN a.extra->>'codex_5h_reset_at'
+                ELSE a.session_window_end::text END),
+        json_build_object('label', '7d',
+            'minutes', CASE a.platform WHEN 'openai' THEN a.extra->'codex_7d_window_minutes' ELSE '10080'::jsonb END,
+            'used', CASE a.platform WHEN 'openai' THEN a.extra->'codex_7d_used_percent'
+                ELSE a.extra->'passive_usage_7d_utilization' END,
+            'reset_at', CASE a.platform WHEN 'openai' THEN a.extra->>'codex_7d_reset_at'
+                ELSE CASE WHEN (a.extra->>'passive_usage_7d_reset')::double precision > 0
+                    THEN to_timestamp((a.extra->>'passive_usage_7d_reset')::double precision)::text END END)
     )
-) ORDER BY id), '[]'::json)
-FROM accounts
-WHERE platform = 'openai' AND type = 'oauth' AND deleted_at IS NULL;
+) ORDER BY CASE a.platform WHEN 'openai' THEN 0 ELSE 1 END, a.id), '[]'::json)
+FROM accounts a
+LEFT JOIN LATERAL (
+    SELECT input_tokens, cache_creation_tokens, cache_read_tokens
+    FROM usage_logs WHERE account_id = a.id
+    ORDER BY created_at DESC, id DESC LIMIT 1
+) u ON TRUE
+WHERE a.platform IN ('openai', 'anthropic') AND a.type = 'oauth' AND a.deleted_at IS NULL;
 ROLLBACK;
 """
 
@@ -49,29 +63,43 @@ def timestamp(value):
 
 def normalize(rows):
     accounts = []
+    claude_count = 0
     for row in rows:
+        provider = {"openai": "Codex", "anthropic": "Claude"}[row["platform"]]
+        if provider == "Claude":
+            claude_count += 1
         windows = []
         for window in row["windows"]:
-            used = window["used_percent"]
+            used = window["used"]
             minutes = window["minutes"]
             if used is not None and (type(used) not in (int, float)
-                                     or not math.isfinite(used) or not 0 <= used <= 100):
+                                     or not math.isfinite(used) or not 0 <= used <= (1 if provider == "Claude" else 100)):
                 raise ValueError("Invalid quota percentage")
+            if used is not None and provider == "Claude":
+                used *= 100
             if minutes is not None and (type(minutes) not in (int, float)
                                         or not math.isfinite(minutes) or minutes < 0):
                 raise ValueError("Invalid quota window")
             windows.append({
                 "label": window["label"],
-                "remaining_percent": 100 - used if used is not None and minutes else None,
+                "used_percent": used if used is not None and minutes else None,
                 "reset_at": timestamp(window["reset_at"]),
             })
+        tokens = [row[field] for field in ("input_tokens", "cache_creation_tokens", "cache_read_tokens")]
+        if any(value is not None and (type(value) is not int or value < 0) for value in tokens):
+            raise ValueError("Invalid cache token count")
+        # sub2api stores ordinary input, cache writes and cache reads as disjoint token buckets.
+        cache_miss = tokens[0] + tokens[1] if tokens[0] is not None and tokens[1] is not None else None
         accounts.append({
-            "id": row["id"], "name": row["name"], "status": row["status"],
+            "id": row["id"], "name": row["name"] if provider == "Codex" else f"ClaudeAccount{claude_count}",
+            "provider": provider,
+            "status": row["status"],
             "schedulable": row["schedulable"], "updated_at": timestamp(row["updated_at"]),
             "last_used_at": timestamp(row["last_used_at"]),
             "rate_limit_reset_at": timestamp(row["rate_limit_reset_at"]),
             "overload_until": timestamp(row["overload_until"]),
             "temp_unschedulable_until": timestamp(row["temp_unschedulable_until"]),
+            "cache_miss_tokens": cache_miss, "cache_hit_tokens": tokens[2],
             "windows": windows,
         })
     return accounts

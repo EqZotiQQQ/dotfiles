@@ -15,14 +15,15 @@ READ = MODULE["read_accounts"]
 
 def account(**changes):
     row = {
-        "id": 3, "name": "Personal", "status": "active", "schedulable": True,
+        "id": 3, "platform": "openai", "name": "Alex Example", "status": "active", "schedulable": True,
         "updated_at": "2026-11-02T16:02:44+03:00",
         "last_used_at": None, "rate_limit_reset_at": None,
         "overload_until": None, "temp_unschedulable_until": None,
+        "input_tokens": None, "cache_creation_tokens": None, "cache_read_tokens": None,
         "windows": [
-            {"label": "5 ч", "minutes": 300, "used_percent": 0,
+            {"label": "5h", "minutes": 300, "used": 0,
              "reset_at": "2026-11-02T21:02:44+03:00"},
-            {"label": "7 д", "minutes": 10080, "used_percent": 100,
+            {"label": "7d", "minutes": 10080, "used": 100,
              "reset_at": "2026-11-05T15:38:40+03:00"},
         ],
     }
@@ -31,26 +32,26 @@ def account(**changes):
 
 
 class QuotaTests(unittest.TestCase):
-    def test_remaining_quota_and_timezone(self):
+    def test_used_quota_and_timezone(self):
         result = NORMALIZE([account()])[0]
-        self.assertEqual(result["windows"][0]["remaining_percent"], 100)
-        self.assertEqual(result["windows"][1]["remaining_percent"], 0)
+        self.assertEqual(result["windows"][0]["used_percent"], 0)
+        self.assertEqual(result["windows"][1]["used_percent"], 100)
         self.assertEqual(result["updated_at"], 1793624564)
         self.assertEqual(result["windows"][0]["reset_at"] - result["updated_at"], 5 * 3600)
 
-    def test_unknown_or_absent_window_does_not_show_full_quota(self):
-        for changes in ({"used_percent": None}, {"minutes": None}, {"minutes": 0}):
+    def test_unknown_or_absent_window_does_not_show_zero_usage(self):
+        for changes in ({"used": None}, {"minutes": None}, {"minutes": 0}):
             with self.subTest(changes=changes):
                 row = account()
                 row["windows"][0].update(changes)
                 window = NORMALIZE([row])[0]["windows"][0]
-                self.assertIsNone(window["remaining_percent"])
+                self.assertIsNone(window["used_percent"])
 
     def test_expired_window_keeps_observed_quota(self):
         row = account(updated_at="2020-01-01T00:00:00Z")
-        row["windows"][0].update(used_percent=83.5, reset_at="2020-01-01T05:00:00Z")
+        row["windows"][0].update(used=83.5, reset_at="2020-01-01T05:00:00Z")
         result = NORMALIZE([row])[0]
-        self.assertEqual(result["windows"][0]["remaining_percent"], 16.5)
+        self.assertEqual(result["windows"][0]["used_percent"], 83.5)
         self.assertLess(result["windows"][0]["reset_at"], 1600000000)
 
     def test_accounts_and_missing_timestamps_remain_distinct(self):
@@ -67,7 +68,7 @@ class QuotaTests(unittest.TestCase):
         for value in (-1, 101, "unknown", float("nan"), float("inf"), True):
             with self.subTest(value=value):
                 row = account()
-                row["windows"][0]["used_percent"] = value
+                row["windows"][0]["used"] = value
                 with self.assertRaises(ValueError):
                     NORMALIZE([row])
 
@@ -93,6 +94,33 @@ class QuotaTests(unittest.TestCase):
         result = NORMALIZE([account()])[0]
         for field in ("last_used_at", "rate_limit_reset_at", "overload_until", "temp_unschedulable_until"):
             self.assertIsNone(result[field])
+
+    def test_provider_names_and_claude_fractional_usage(self):
+        claude = account(id=2, platform="anthropic")
+        claude["windows"][0]["used"] = 0.375
+        claude["windows"][1]["used"] = 0.08
+        rows = NORMALIZE([account(), account(id=4, name="Second User"), claude])
+        self.assertEqual([r["name"] for r in rows], ["Alex Example", "Second User", "ClaudeAccount1"])
+        self.assertEqual([r["provider"] for r in rows], ["Codex", "Codex", "Claude"])
+        self.assertEqual(rows[2]["windows"][0]["used_percent"], 37.5)
+        self.assertEqual(rows[2]["windows"][1]["used_percent"], 8)
+
+    def test_cache_miss_includes_new_cache_writes_but_not_cache_hits(self):
+        row = account(input_tokens=314, cache_creation_tokens=1024, cache_read_tokens=27904)
+        result = NORMALIZE([row])[0]
+        self.assertEqual(result["cache_miss_tokens"], 1338)
+        self.assertEqual(result["cache_hit_tokens"], 27904)
+        missing = NORMALIZE([account()])[0]
+        self.assertIsNone(missing["cache_miss_tokens"])
+        self.assertIsNone(missing["cache_hit_tokens"])
+        zero = NORMALIZE([account(input_tokens=0, cache_creation_tokens=0, cache_read_tokens=0)])[0]
+        self.assertEqual(zero["cache_miss_tokens"], 0)
+        self.assertEqual(zero["cache_hit_tokens"], 0)
+
+    def test_invalid_cache_tokens_are_an_error(self):
+        for value in (-1, 0.5, "100", True):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                NORMALIZE([account(cache_read_tokens=value)])
 
 
 class TransportTests(unittest.TestCase):

@@ -8,6 +8,7 @@
 import QtQuick
 import Quickshell
 import qs.bar
+import qs.common
 import qs.limits
 import qs.overview
 
@@ -28,6 +29,10 @@ ShellRoot {
 
             Spectrum {
                 screen: perScreen.modelData
+            }
+
+            DesktopReveal {
+                monitorName: perScreen.modelData.name
             }
 
             Limits {

@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import tempfile
+
+
+def output(command):
+    return subprocess.check_output(command, text=True).strip()
+
+
+def build():
+    source = Path(__file__).resolve().parents[1] / "native/widget-edge.cpp"
+    flags = shlex.split(output(["pkg-config", "--cflags", "hyprland", "lua"]))
+    versions = [Path(flag[2:]) / "src/version.h" for flag in flags if flag.startswith("-I")]
+    version = next((path for path in versions if path.is_file()), None)
+    if version is None:
+        raise RuntimeError("Hyprland development headers are missing (src/version.h)")
+    compiler = shlex.split(os.environ.get("CXX", "c++"))
+    fingerprint = hashlib.sha256(source.read_bytes() + version.read_bytes() + Path(__file__).read_bytes()
+                                 + output(compiler + ["--version"]).encode()).hexdigest()[:20]
+    cache = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "quickshell/widget-edge"
+    cache.mkdir(parents=True, exist_ok=True)
+    binary = cache / f"{fingerprint}.so"
+    with (cache / "build.lock").open("w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        if not binary.exists():
+            with tempfile.TemporaryDirectory(dir=cache) as directory:
+                temporary = Path(directory) / "widget-edge.so"
+                subprocess.run(compiler + ["-std=c++23", "-shared", "-fPIC", "-O2",
+                                           f'-DWIDGET_EDGE_BUILD="{fingerprint}"']
+                               + flags + [str(source), "-o", str(temporary)], check=True)
+                temporary.replace(binary)
+    return binary
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Build and load the Quickshell top-edge detector")
+    parser.add_argument("--build", action="store_true", help="build only; print the library path")
+    args = parser.parse_args()
+    binary = build()
+    if args.build:
+        print(binary)
+        return
+    plugins = json.loads(output(["hyprctl", "plugin", "list", "-j"]))
+    for plugin in plugins:
+        if plugin["name"] == "widget-edge":
+            if plugin["version"] == binary.stem:
+                return
+            old = binary.parent / f'{plugin["version"]}.so'
+            subprocess.run(["hyprctl", "plugin", "unload", str(old)], check=True)
+    subprocess.run(["hyprctl", "plugin", "load", str(binary)], check=True)
+    plugins = json.loads(output(["hyprctl", "plugin", "list", "-j"]))
+    if not any(plugin["name"] == "widget-edge" and plugin["version"] == binary.stem for plugin in plugins):
+        raise RuntimeError("Hyprland did not load widget-edge (check matching headers and qs log)")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
+        print(f"widget-edge: {error}", file=sys.stderr)
+        sys.exit(1)

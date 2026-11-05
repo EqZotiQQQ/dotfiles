@@ -16,6 +16,7 @@ Rectangle {
     property string widthTemplate: ""   // widest expected value: on a horizontal bar changing values don't shift the island
     property int maxTextWidth: 0        // horizontal bar: longer text is elided, 0 = no limit
     property bool active: false         // its popout is open
+    readonly property bool hovered: mouse.containsMouse
     property color iconColor: active ? Theme.textOnPrimaryContainer : Theme.text
 
     signal entered

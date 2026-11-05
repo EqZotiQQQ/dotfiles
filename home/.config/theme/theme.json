@@ -19,6 +19,21 @@
     "position": "top",
     "flush": true
   },
+  "widgetReveal": {
+    "mode": "delay",
+    "delayMs": 450,
+    "pressureThreshold": 120,
+    "fadeMs": 360,
+    "gap": 20,
+    "backdrop": {
+      "color": "#242424",
+      "opacity": 0.85,
+      "padding": 16,
+      "radius": 18,
+      "blur": true,
+      "blurOpacity": 0.7
+    }
+  },
   "opacity": {
     "panel": 0.5,
     "popout": 0.92

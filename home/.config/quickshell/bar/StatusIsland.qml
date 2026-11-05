@@ -11,8 +11,8 @@ import qs.bar.popouts
 // Status island at the end of the bar. Hovering a module that has a popout slides a panel out of the
 // island, away from the screen edge and level with that module: island and panel are one shape with
 // concave joints, morphing as the popout opens, moves or changes. A panel longer than the island hangs
-// past its start: the island keeps its size, so nothing else on the bar moves. Leaving the island
-// closes it, a click pins it open until the module is clicked again.
+// past its start: the island keeps its size, so nothing else on the bar moves. Leaving both the module
+// and its panel closes it after a delay; a click pins it open until the module is clicked again.
 //
 // Geometry is worked out in an edge frame, u = away from the screen edge, v = along it, then mapped
 // to x/y for the bar's edge (mx/my): one shape for all four positions.
@@ -35,22 +35,29 @@ Item {
     // popout content size on screen, kept while the loader has no popout
     property real contentWidth: 0
     property real contentHeight: 0
-    // panel in the edge frame (animated): depth slides it out, extent unfolds it from its end (the bar's end,
-    // where the island sits: upwards on a vertical bar) and folds it back there on close, end follows the module
-    property real depth: open !== "" && popout.item ? (vertical ? contentWidth : contentHeight) : 0
-    property real extent: open !== "" ? (vertical ? contentHeight : contentWidth) : 0
     readonly property real modulesLength: vertical ? modules.implicitHeight : modules.implicitWidth
     readonly property real length: modulesLength + 16
-    // the open panel: within the island if it fits, else from its end on, hanging past its start (offset < 0)
-    property real end: {
+    readonly property real chipStart: anchorChip ? 8 + (vertical ? anchorChip.y : anchorChip.x) : length / 2
+    readonly property real chipExtent: anchorChip ? (vertical ? anchorChip.height : anchorChip.width) : 0
+    // The panel may overhang the island's start to stay centered on its chip.
+    readonly property real expandedEnd: {
         const full = vertical ? contentHeight : contentWidth;
-        const chip = anchorChip;
-        // the modules start 8 into the island
-        const center = !chip ? length / 2 : 8 + (vertical ? chip.y + chip.height / 2 : chip.x + chip.width / 2);
-        const lowest = corner + fillet;
-        return Math.min(Math.max(lowest, center - full / 2), length - lowest - full) + full;
+        const center = chipStart + chipExtent / 2;
+        const screenStart = length + 2 * Theme.barMargin - (vertical ? root.parent.height : root.parent.width);
+        const endMargin = corner + fillet;
+        return Math.min(Math.max(screenStart, center - full / 2), length - endMargin - full) + full;
     }
-    readonly property real offset: end - extent
+    // One animation keeps both edges and depth in step, including when a transition is interrupted.
+    property rect panelGeometry: {
+        if (open === "" || !popout.item)
+            return Qt.rect(0, chipStart, 0, chipExtent);
+        const full = vertical ? contentHeight : contentWidth;
+        return Qt.rect(0, expandedEnd - full, vertical ? contentWidth : contentHeight, full);
+    }
+    readonly property real depth: panelGeometry.width
+    readonly property real extent: panelGeometry.height
+    readonly property real offset: panelGeometry.y
+    readonly property real end: offset + extent
     // the item reaches that far past the island's start along the edge, to cover the hanging panel
     readonly property real overhang: Math.max(0, -offset)
 
@@ -122,6 +129,7 @@ Item {
     // a popout typing into a field (the Wi-Fi password): the bar takes the keyboard meanwhile (Bar.qml)
     // and the popout stays pinned
     readonly property bool keyboard: open !== "" && (popout.item?.wantsKeyboard ?? false)
+    readonly property bool popoutHovered: (anchorChip?.hovered ?? false) || panelHover.hovered
 
     onOpenChanged: if (open !== "") shown = open
     onKeyboardChanged: if (keyboard) pinned = open
@@ -129,16 +137,12 @@ Item {
     width: vertical ? bar + depth : length + overhang
     height: vertical ? length + overhang : bar + depth
 
-    Behavior on depth {
-        ThemeAnim {}
-    }
-    Behavior on extent {
-        ThemeAnim {}
-    }
-    // a folded panel doesn't travel to the next module, it unfolds right there
-    Behavior on end {
-        enabled: root.extent > 0
-        ThemeAnim {}
+    Behavior on panelGeometry {
+        enabled: targetValue.width > 0 || root.depth > 0
+        PropertyAnimation {
+            duration: Theme.duration
+            easing.type: Easing.InOutCubic
+        }
     }
 
     Binding {
@@ -156,12 +160,6 @@ Item {
         restoreMode: Binding.RestoreNone
     }
 
-    HoverHandler {
-        id: hoverArea
-
-        onHoveredChanged: hovered ? leaveDelay.stop() : leaveDelay.restart()
-    }
-
     Timer {
         id: hoverDelay
 
@@ -170,7 +168,7 @@ Item {
 
         interval: 120
         onTriggered: {
-            if (root.pinned === "" && hoverArea.hovered) {
+            if (root.pinned === "" && chip?.hovered) {
                 root.anchorChip = chip;
                 root.open = key;
             }
@@ -181,7 +179,8 @@ Item {
         id: leaveDelay
 
         interval: 350
-        onTriggered: if (root.pinned === "") root.open = ""
+        running: root.open !== "" && root.pinned === "" && !root.popoutHovered
+        onTriggered: root.open = ""
     }
 
     Timer {
@@ -196,12 +195,8 @@ Item {
         function onOpenChanged() { console.log("[dbg]", Date.now() % 100000, "open", JSON.stringify(root.open)); }
     }
     Connections {
-        target: hoverArea
-        function onHoveredChanged() { console.log("[dbg]", Date.now() % 100000, "island hovered", hoverArea.hovered, hoverArea.point.position); }
-    }
-    Connections {
         target: hoverDelay
-        function onTriggered() { console.log("[dbg]", Date.now() % 100000, "hoverDelay", hoverDelay.key, "island hovered", hoverArea.hovered); }
+        function onTriggered() { console.log("[dbg]", Date.now() % 100000, "hoverDelay", hoverDelay.key, "chip hovered", hoverDelay.chip?.hovered); }
     }
     Connections {
         target: leaveDelay
@@ -233,16 +228,15 @@ Item {
         ShapePath {
             id: outline
 
-            // the theme curve overshoots: closing, depth and extent dip a few px below 0. Negative radii would turn k
-            // negative and blow the joints up into arcs as big as the panel (square corners: nothing in r + f to
-            // outweigh f), so below 0 there is no panel
-            readonly property real depth: Math.max(0, root.depth)
-            readonly property real extent: Math.max(0, root.extent)
+            readonly property real depth: root.depth
+            readonly property real extent: root.extent
             readonly property real w: root.bar
             readonly property real h: root.length
             readonly property real r: Math.min(root.corner, w / 2)
-            readonly property real top: root.end - extent
-            readonly property real bottom: root.end
+            // A folded panel preserves the island's corners even at its first or last chip.
+            readonly property real cornerProgress: r > 0 ? Math.min(1, depth / r) : 1
+            readonly property real top: root.offset + Math.max(0, r - root.offset) * (1 - cornerProgress)
+            readonly property real bottom: root.end - Math.max(0, root.end - h + r) * (1 - cornerProgress)
             readonly property real out: w + depth
             readonly property real pr: Math.min(root.corner, depth / 2, extent / 2)
             readonly property real f: Math.min(root.fillet, depth / 2)
@@ -254,6 +248,9 @@ Item {
             readonly property real k: (hanging ? Math.min(1, -top / (f + pr)) : Math.min(1, top / (r + f))) || 0
             readonly property real a: k * (hanging ? f : r)
             readonly property real b: k * (hanging ? pr : f)
+            readonly property real endK: Math.min(1, (h - bottom) / (r + f)) || 0
+            readonly property real endCorner: endK * r
+            readonly property real endFillet: endK * f
             readonly property real sideFrom: hanging ? -a : a
             readonly property real sideTo: hanging ? top + b : top - b
             readonly property bool mirrored: root.edge === "right" || root.edge === "top"
@@ -268,7 +265,8 @@ Item {
 
             Behavior on fillColor {
                 ColorAnimation {
-                    duration: 200
+                    duration: Theme.duration
+                    easing.type: Easing.InOutCubic
                 }
             }
 
@@ -280,10 +278,10 @@ Item {
             PathArc { x: root.mx(outline.out, outline.top + outline.pr); y: root.my(outline.out, outline.top + outline.pr); radiusX: outline.pr; radiusY: outline.pr; direction: outline.turn }
             PathLine { x: root.mx(outline.out, outline.bottom - outline.pr); y: root.my(outline.out, outline.bottom - outline.pr) }
             PathArc { x: root.mx(outline.out - outline.pr, outline.bottom); y: root.my(outline.out - outline.pr, outline.bottom); radiusX: outline.pr; radiusY: outline.pr; direction: outline.turn }
-            PathLine { x: root.mx(outline.w + outline.f, outline.bottom); y: root.my(outline.w + outline.f, outline.bottom) }
-            PathArc { x: root.mx(outline.w, outline.bottom + outline.f); y: root.my(outline.w, outline.bottom + outline.f); radiusX: outline.f; radiusY: outline.f; direction: outline.back }
-            PathLine { x: root.mx(outline.w, outline.h - outline.r); y: root.my(outline.w, outline.h - outline.r) }
-            PathArc { x: root.mx(outline.w - outline.r, outline.h); y: root.my(outline.w - outline.r, outline.h); radiusX: outline.r; radiusY: outline.r; direction: outline.turn }
+            PathLine { x: root.mx(outline.w + outline.endFillet, outline.bottom); y: root.my(outline.w + outline.endFillet, outline.bottom) }
+            PathArc { x: root.mx(outline.w, outline.bottom + outline.endFillet); y: root.my(outline.w, outline.bottom + outline.endFillet); radiusX: outline.endFillet; radiusY: outline.endFillet; direction: outline.back }
+            PathLine { x: root.mx(outline.w, outline.h - outline.endCorner); y: root.my(outline.w, outline.h - outline.endCorner) }
+            PathArc { x: root.mx(outline.w - outline.endCorner, outline.h); y: root.my(outline.w - outline.endCorner, outline.h); radiusX: outline.endCorner; radiusY: outline.endCorner; direction: outline.turn }
             PathLine { x: root.mx(outline.r, outline.h); y: root.my(outline.r, outline.h) }
             PathArc { x: root.mx(0, outline.h - outline.r); y: root.my(0, outline.h - outline.r); radiusX: outline.r; radiusY: outline.r; direction: outline.turn }
             PathLine { x: root.mx(0, outline.r); y: root.my(0, outline.r) }
@@ -490,13 +488,17 @@ Item {
         height: area.height
         clip: true
 
+        HoverHandler {
+            id: panelHover
+        }
+
         Loader {
             id: popout
 
             x: root.padding
             y: root.padding
             width: item?.preferredWidth ?? 0
-            active: root.open !== "" || root.depth > 0.5
+            active: root.open !== "" || root.depth > 0
             sourceComponent: ({
                     tray: trayPopout,
                     media: mediaPopout,
@@ -514,7 +516,8 @@ Item {
 
             Behavior on opacity {
                 NumberAnimation {
-                    duration: 200
+                    duration: Theme.duration
+                    easing.type: Easing.InOutCubic
                 }
             }
         }
