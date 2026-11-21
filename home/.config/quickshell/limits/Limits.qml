@@ -55,7 +55,7 @@ PanelWindow {
 
                 StyledText {
                     text: provider.modelData.name
-                    color: Theme.primary
+                    color: Theme.tertiary
                     font.weight: Font.DemiBold
                 }
 

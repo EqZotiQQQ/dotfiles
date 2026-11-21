@@ -10,7 +10,12 @@ TBD
 TBD
 
 # Configuration
-TBD
+Темы рабочего стола: **Asiimov** (белый, графит, оранжевый) и **Bloodsport**
+(красно-оранжевый, чёрный, белый). Выбор — `~/.config/theme/preset.json`,
+применение — `~/.local/bin/theme-apply`.
+Пресет охватывает бар, AI Limits, proctree, spectrum, уведомления, Kitty, wofi,
+локскрин и абстрактные обои без оружия.
+[Выбор пресета, установка и проверки](home/.config/theme/README.md#выбор-пресета).
 
 # Ubuntu: Hyprland
 

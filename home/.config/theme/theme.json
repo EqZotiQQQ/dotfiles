@@ -1,19 +1,19 @@
 {
-  "name": "dusk",
+  "name": "bloodsport",
   "colors": {
-    "primary": "#FFB59C",
-    "onPrimary": "#5C1A04",
-    "primaryContainer": "#7B3118",
-    "onPrimaryContainer": "#FFDBD0",
-    "secondary": "#E7BDB0",
-    "tertiary": "#D8C68F",
-    "error": "#FFB4AB",
-    "surface": "#1F1518",
-    "surfaceHigh": "#3A2E31",
-    "onSurface": "#F1DFDA",
-    "onSurfaceVariant": "#D8C2BC",
-    "outline": "#A08C87",
-    "outlineVariant": "#53433F"
+    "primary": "#D83A25",
+    "onPrimary": "#F0F0EC",
+    "primaryContainer": "#263844",
+    "onPrimaryContainer": "#F0F0EC",
+    "secondary": "#A6ADB1",
+    "tertiary": "#D8AC27",
+    "error": "#FF7865",
+    "surface": "#1C1D20",
+    "surfaceHigh": "#263844",
+    "onSurface": "#F0F0EC",
+    "onSurfaceVariant": "#A6ADB1",
+    "outline": "#A6ADB1",
+    "outlineVariant": "#263844"
   },
   "bar": {
     "position": "top",
@@ -26,7 +26,7 @@
     "fadeMs": 360,
     "gap": 20,
     "backdrop": {
-      "color": "#242424",
+      "color": "#1C1D20",
       "opacity": 0.85,
       "padding": 16,
       "radius": 18,
@@ -74,10 +74,12 @@
     "size": 72,
     "colors": [
       "outlineVariant",
-      "primary"
+      "primary",
+      "tertiary"
     ]
   },
   "lock": {
-    "theme": "forest"
-  }
+    "theme": "bloodsport"
+  },
+  "wallpaper": "bloodsport.png"
 }

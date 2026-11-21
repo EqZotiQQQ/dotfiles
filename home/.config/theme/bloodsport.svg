@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Bloodsport — abstract desktop wallpaper</title>
+  <desc>Charcoal field, red-orange racing panels, white slashes and gold details. The upper right stays clear for desktop widgets.</desc>
+  <defs>
+    <pattern id="grid" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M120 0H0V120" fill="none" stroke="#A6ADB1" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+    <pattern id="hatch" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+      <path d="M0 0V24" stroke="#1C1D20" stroke-width="8"/>
+    </pattern>
+  </defs>
+  <path fill="#1C1D20" d="M0 0H3840V2160H0Z"/>
+  <path fill="url(#grid)" d="M0 0H3840V2160H0Z"/>
+  <path fill="#263844" d="M0 180H460L1580 2160H0Z"/>
+  <path fill="#D83A25" d="M0 420H230L1210 2160H0Z"/>
+  <path fill="#1C1D20" d="M0 670H120L930 2110H0Z"/>
+  <path fill="#D83A25" d="M0 970H120L790 2160H0Z"/>
+  <path fill="url(#hatch)" opacity=".22" d="M0 1530H290L645 2160H0Z"/>
+  <path fill="#F0F0EC" d="M480 1520H570L800 1930H710ZM625 1520H715L945 1930H855ZM770 1520H860L1090 1930H1000Z"/>
+  <path fill="#D8AC27" d="M336 730H360L515 1005H491Z"/>
+  <path fill="#F0F0EC" d="M420 650H430L690 1110H680Z"/>
+  <path fill="none" stroke="#A6ADB1" stroke-opacity=".28" stroke-width="2" d="M130 260H490L1410 1890H2340L2430 1980H3700"/>
+  <path fill="none" stroke="#263844" stroke-width="3" d="M1550 1930H2320L2410 2020H3840"/>
+  <path fill="#D83A25" d="M2410 2110H3840V2160H2460Z"/>
+  <path fill="#F0F0EC" d="M3430 2080H3840V2090H3440Z"/>
+  <path fill="#D8AC27" d="M3280 2080H3390L3400 2090H3290Z"/>
+  <g fill="none" stroke="#A6ADB1" stroke-opacity=".45" stroke-width="2">
+    <path d="M1500 1870V1910M1480 1890H1520M3690 1960V2000M3670 1980H3710"/>
+    <circle cx="1500" cy="1890" r="12"/>
+    <circle cx="3690" cy="1980" r="12"/>
+  </g>
+</svg>

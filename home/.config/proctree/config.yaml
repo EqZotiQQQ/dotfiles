@@ -68,23 +68,21 @@ render:
       avoid_bars: true         # полоса только в свободной от баров части: бар сверху сдвинет её
                                # вниз, справа — влево (bar.position в quickshell theme.json)
       visible_bounds: true    # widget-edge needs these bounds to fit the backdrop to the content
-  background: [0.07, 0.07, 0.09]       # RGB, 0..1
+  background: [0.1098, 0.1137, 0.1255]       # RGB, 0..1
   background_transparency: 100 # percent: 0 = opaque, 100 = only the graph shows (with layer_shell
                                # on the background layer: a live wallpaper)
   edges:
-    color: [0.7, 0.7, 0.75, 0.35]       # RGBA; faint, so hundreds of edges don't drown the rest
+    color: [0.651, 0.6784, 0.6941, 0.35]       # RGBA; faint, so hundreds of edges don't drown the rest
   nodes:
     radius: 3.0                # px
     color_by: branch           # branch = every child of the root starts a branch, its whole
                                # subtree shares one color; single = every node `color`
-    color: [0.95, 0.6, 0.2]    # color_by: single
-    palette: []                # color_by: branch: colors handed to the branches in turn, e.g.
-                               # [[1, 0.55, 0.2], [0.35, 0.7, 1], [0.5, 0.9, 0.4]]; empty = hues
-                               # spread around the color wheel:
+    color: [0.8471, 0.2275, 0.1451]    # color_by: single
+    palette: [[0.8471, 0.2275, 0.1451], [0.651, 0.6784, 0.6941], [0.9412, 0.9412, 0.9255], [0.8471, 0.6745, 0.1529]]
     saturation: 0.55           #   how colorful, 0..1
     brightness: 0.95           #   how bright, 0..1
-    root_color: [0.92, 0.92, 0.92]
-    kernel_color: [0.45, 0.47, 0.52]   # kthreadd and the kernel threads (tree.kernel_threads)
+    root_color: [0.9412, 0.9412, 0.9255]
+    kernel_color: [0.149, 0.2196, 0.2667]   # kthreadd and the kernel threads (tree.kernel_threads)
   animation:
     time_constant: 0.15        # seconds: nodes cover ~63% of the way to a new spot in this
                                # long, 95% in three times that; 0 = jump straight there
@@ -94,8 +92,8 @@ labels:
   enabled: true
   font: Iosevka             # fontconfig pattern: "Noto Sans", "monospace:bold", ...
   size: 13                     # px, rendered at exactly this size so it stays crisp
-  color: [0.95, 0.95, 0.95, 1.0]       # RGBA, the text
-  halo_color: [0.04, 0.04, 0.05, 0.9]  # dark outline that keeps text readable over edges
+  color: [0.9412, 0.9412, 0.9255, 1]       # RGBA, the text
+  halo_color: [0.1098, 0.1137, 0.1255, 0.9]  # dark outline that keeps text readable over edges
   by_usage:                    # bigger labels for processes that use a lot. CPU and RAM
                                # count separately; with both on, the bigger size wins.
                                # A N*[name] group counts its members together.
@@ -121,12 +119,12 @@ stats:
   sample_ms: 500
   history_seconds: 60
   background: [0.0, 0.0, 0.0, 0.0]     # panels: transparent backing, text keeps its dark outline
-  border: [1.0, 1.0, 1.0, 0.15]        # и линии сетки на графиках
-  text_color: [0.95, 0.95, 0.95, 1.0]
-  cpu:  {enabled: true, position: [-320, 20],  size: [290, 140], color: [0.4, 0.75, 1.0]}
-  net:  {enabled: true, position: [-20, 20],   size: [290, 140], color: [1.0, 0.75, 0.3], upload_color: [1.0, 0.45, 0.75]}
-  ram:  {enabled: true, position: [-320, 170], size: [290, 140], color: [0.6, 0.95, 0.45]}
-  disk: {enabled: true, position: [-20, 170],  size: [290, 140], color: [1.0, 0.45, 0.45]}
+  border: [0.651, 0.6784, 0.6941, 0.15]        # и линии сетки на графиках
+  text_color: [0.9412, 0.9412, 0.9255, 1]
+  cpu:  {enabled: true, position: [-320, 20],  size: [290, 140], color: [0.8471, 0.2275, 0.1451]}
+  net:  {enabled: true, position: [-20, 20],   size: [290, 140], color: [0.8471, 0.6745, 0.1529], upload_color: [0.9412, 0.9412, 0.9255]}
+  ram:  {enabled: true, position: [-320, 170], size: [290, 140], color: [0.651, 0.6784, 0.6941]}
+  disk: {enabled: true, position: [-20, 170],  size: [290, 140], color: [0.9412, 0.9412, 0.9255]}
   top:
     count: 5
     cpu: {enabled: true, position: [-320, 320], size: [290, 130]}

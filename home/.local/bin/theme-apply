@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+"""Apply the preset selected in ~/.config/theme/preset.json."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+
+def replace_one(pattern, replacement, text):
+    result, count = re.subn(pattern, replacement, text, flags=re.MULTILINE)
+    if count != 1:
+        raise ValueError(f"expected one setting matching {pattern!r}, found {count}")
+    return result
+
+
+def rgb(color, alpha=None):
+    values = [round(int(color[i:i + 2], 16) / 255, 4) for i in (1, 3, 5)]
+    return values if alpha is None else values + [alpha]
+
+
+def proctree_colors(text, colors):
+    c = colors
+    values = {
+        "render.background": rgb(c["surface"]),
+        "render.edges.color": rgb(c["outline"], 0.35),
+        "render.nodes.color": rgb(c["primary"]),
+        "render.nodes.palette": [rgb(c[key]) for key in ("primary", "secondary", "onSurface", "tertiary")],
+        "render.nodes.root_color": rgb(c["onSurface"]),
+        "render.nodes.kernel_color": rgb(c["surfaceHigh"]),
+        "labels.color": rgb(c["onSurface"], 1),
+        "labels.halo_color": rgb(c["surface"], 0.9),
+        "stats.border": rgb(c["outline"], 0.15),
+        "stats.text_color": rgb(c["onSurface"], 1),
+    }
+    charts = {
+        "stats.cpu": {"color": rgb(c["primary"])},
+        "stats.net": {"color": rgb(c["tertiary"]), "upload_color": rgb(c["onSurface"])},
+        "stats.ram": {"color": rgb(c["secondary"])},
+        "stats.disk": {"color": rgb(c["onSurface"])},
+    }
+    stack = []
+    found = set()
+    lines = []
+    # Only replace color arrays in the repo's block YAML and inline chart maps;
+    # reserializing the whole document would erase its comments and layout.
+    for line in text.splitlines(keepends=True):
+        match = re.match(r"^( *)(\w+):", line)
+        if match:
+            indent, key = len(match[1]), match[2]
+            while stack and stack[-1][0] >= indent:
+                stack.pop()
+            stack.append((indent, key))
+            path = ".".join(key for _, key in stack)
+            code, separator, comment = line.partition("#")
+            if path in values:
+                code = replace_one(r"\[.*\]", json.dumps(values[path]), code)
+                found.add(path)
+            elif path in charts:
+                for field, value in charts[path].items():
+                    code = replace_one(rf"\b{field}:\s*\[[^\]]*\]", f"{field}: {json.dumps(value)}", code)
+                found.add(path)
+            line = code + separator + comment
+        lines.append(line)
+    missing = (values.keys() | charts.keys()) - found
+    if missing:
+        raise ValueError(f"missing proctree color settings: {', '.join(sorted(missing))}")
+    return "".join(lines)
+
+
+def kitty_colors(text, colors, terminal):
+    roles = {
+        "background": "surface", "foreground": "onSurface",
+        "selection_background": "primaryContainer", "selection_foreground": "onPrimaryContainer",
+        "cursor": "onSurface", "cursor_text_color": "surface", "url_color": "secondary",
+        "active_border_color": "primary", "inactive_border_color": "outlineVariant", "bell_border_color": "error",
+        "active_tab_background": "tertiary", "active_tab_foreground": "surface",
+        "inactive_tab_background": "surfaceHigh", "inactive_tab_foreground": "onSurfaceVariant",
+        "tab_bar_background": "surface", "mark1_foreground": "surface", "mark1_background": "tertiary",
+        "mark2_foreground": "surface", "mark3_foreground": "surface", "mark3_background": "secondary",
+    }
+    values = {key: colors[role] for key, role in roles.items()}
+    values.update({f"color{i}": color for i, color in enumerate(terminal)})
+    values["mark2_background"] = terminal[13]
+    for key, value in values.items():
+        text = replace_one(rf"^({key}\s+)#[0-9A-Fa-f]{{6}}", lambda m: m[1] + value, text)
+    return text
+
+
+def prepare(config, home):
+    directory = config / "theme"
+    name = json.loads((directory / "preset.json").read_text())["preset"]
+    if not isinstance(name, str) or not re.fullmatch(r"[a-z][a-z0-9-]*", name):
+        raise ValueError("preset must be a name such as bloodsport or asiimov")
+    preset = json.loads((directory / "presets" / f"{name}.json").read_text())
+    theme = json.loads((directory / "theme.json").read_text())
+    c, terminal, wallpaper = preset["colors"], preset["terminal"], preset["wallpaper"]
+    if c.keys() != theme["colors"].keys():
+        raise ValueError("preset colors must contain the same roles as theme.json")
+    if len(terminal) != 16 or any(not isinstance(color, str) or not re.fullmatch(r"#[0-9A-Fa-f]{6}", color)
+                                 for color in [*c.values(), *terminal]):
+        raise ValueError("colors must be #RRGGBB; terminal must contain 16 colors")
+    if not isinstance(wallpaper, str) or not re.fullmatch(r"[a-z0-9-]+\.png", wallpaper):
+        raise ValueError("wallpaper must be a PNG filename")
+    wallpaper_path = home / "Pictures/wallpapers" / wallpaper
+    if not wallpaper_path.is_file():
+        raise FileNotFoundError(f"{wallpaper_path}: install wallpapers with ./dot -s -f")
+    if not (config / "lockscreen/themes/bloodsport/Main.qml").is_file():
+        raise FileNotFoundError("shared lockscreen is missing: run ./dot -s -f")
+
+    theme["name"] = name
+    theme["colors"] = c
+    theme["wallpaper"] = wallpaper
+    theme["widgetReveal"]["backdrop"]["color"] = c["surface"]
+    theme["spectrum"]["colors"] = ["outlineVariant", "primary", "tertiary"]
+    theme["lock"]["theme"] = "bloodsport"
+    css_roles = {"surface": "surface", "surface_high": "surfaceHigh", "primary": "primary",
+                 "text": "onSurface", "text_variant": "onSurfaceVariant", "tertiary": "tertiary"}
+    wofi = (config / "wofi/style.css").read_text()
+    for key, role in css_roles.items():
+        wofi = replace_one(rf"^@define-color {key}\s+#[0-9A-Fa-f]{{6}};",
+                           f"@define-color {key} {c[role]};", wofi)
+    outputs = {
+        config / "proctree/config.yaml": proctree_colors((config / "proctree/config.yaml").read_text(), c),
+        config / "kitty/theme.conf": kitty_colors((config / "kitty/theme.conf").read_text(), c, terminal),
+        config / "wofi/style.css": wofi,
+        config / "hypr/hyprpaper.conf": replace_one(
+            r"^(\s*path\s*=\s*).+$", lambda m: m[1] + "~/Pictures/wallpapers/" + wallpaper,
+            (config / "hypr/hyprpaper.conf").read_text()),
+        directory / "theme.json": json.dumps(theme, indent=2) + "\n",
+    }
+    return name, wallpaper_path, outputs
+
+
+def run(*command):
+    return subprocess.run(command, text=True, capture_output=True, check=True, timeout=15).stdout
+
+
+def signal_process(name, signal):
+    result = subprocess.run(["pkill", f"-{signal}", "-x", name], capture_output=True, text=True, timeout=5)
+    if result.returncode not in (0, 1):
+        raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
+    return result.returncode == 0
+
+
+def reload_desktop(home, wallpaper):
+    run("hyprctl", "reload")
+    monitors = json.loads(run("hyprctl", "monitors", "-j"))
+    for monitor in monitors:
+        run("hyprctl", "hyprpaper", "wallpaper", f"{monitor['name']},{wallpaper}")
+    run(str(home / ".local/bin/mako-theme"))
+    signal_process("kitty", "USR1")
+    if signal_process("proctree", "TERM"):
+        run("hyprctl", "dispatch", 'hl.dsp.exec_cmd(os.getenv("HOME") .. "/.local/bin/proctree")')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="validate and list files without changing them")
+    mode.add_argument("--files-only", action="store_true", help="write configs without reloading desktop processes")
+    args = parser.parse_args()
+    home = Path.home()
+    config = Path(os.environ.get("XDG_CONFIG_HOME") or home / ".config")
+    try:
+        name, wallpaper, outputs = prepare(config, home)
+        if args.check:
+            print(f"Preset {name}: valid\n" + "\n".join(map(str, outputs)))
+            return 0
+        if not args.files_only and not os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+            raise ValueError("run inside Hyprland, or use --files-only to apply at the next login")
+        # Write through dotfile symlinks, retaining the inodes watched by Quickshell.
+        for path, text in outputs.items():
+            if not path.is_file() or path.read_text() != text:
+                path.write_text(text)
+        print(f"Preset {name}: configs written", flush=True)
+        if not args.files_only:
+            reload_desktop(home, wallpaper)
+            print("Desktop reloaded")
+        return 0
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError) as error:
+        print(f"theme-apply: {error}", file=sys.stderr)
+        if isinstance(error, subprocess.CalledProcessError):
+            print(error.stdout + error.stderr, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

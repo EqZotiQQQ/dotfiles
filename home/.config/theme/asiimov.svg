@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Asiimov — abstract desktop wallpaper</title>
+  <desc>White armour panels, graphite seams and orange inlays. Clear dark space at the upper right for desktop widgets.</desc>
+  <defs>
+    <pattern id="grid" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" fill="none" stroke="#C3C9CC" stroke-opacity=".035"/>
+    </pattern>
+    <pattern id="vents" width="32" height="32" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
+      <path d="M0 0V32" stroke="#171A1D" stroke-width="12"/>
+    </pattern>
+  </defs>
+  <path fill="#171A1D" d="M0 0H3840V2160H0Z"/>
+  <path fill="url(#grid)" d="M0 0H3840V2160H0Z"/>
+  <path fill="#353B40" d="M0 140H550L1160 750V1470L1570 1880H3840V2160H0Z"/>
+  <path fill="#F2F3EF" d="M0 0H510L1050 540V1340L680 1710H0Z"/>
+  <path fill="#C3C9CC" d="M0 1730H700L1080 1350V550L1100 570V1380L720 1760H0Z"/>
+  <path fill="#171A1D" d="M0 270H340L810 740V1210L600 1420H0Z"/>
+  <path fill="#F47B20" d="M0 310H320L770 760V1190L580 1380H0V1260H530L650 1140V810L270 430H0Z"/>
+  <path fill="#353B40" d="M0 470H210L590 850V1110L480 1220H0Z"/>
+  <path fill="#F2F3EF" d="M0 510H190L550 870V1090L460 1180H0Z"/>
+  <path fill="#171A1D" d="M0 1600H310V1620H0ZM360 1600H510L930 1180V540L950 560V1190L520 1620H360Z"/>
+  <path fill="url(#vents)" d="M70 610H210L410 810H70Z"/>
+  <path fill="#F47B20" d="M0 1930H1030L1290 1670H1430L1150 1950H3840V2010H1120L1060 2070H0Z"/>
+  <path fill="#F2F3EF" d="M1390 2050H3840V2160H1280Z"/>
+  <path fill="#171A1D" d="M3240 2050H3280L3170 2160H3130ZM3350 2050H3390L3280 2160H3240ZM3460 2050H3500L3390 2160H3350Z"/>
+  <path fill="none" stroke="#C3C9CC" stroke-opacity=".35" stroke-width="2" d="M1190 780V1440L1580 1830H3670"/>
+  <g fill="none" stroke="#353B40" stroke-width="4">
+    <circle cx="110" cy="150" r="20"/>
+    <circle cx="880" cy="510" r="20"/>
+    <path d="M98 150H122M880 498V522"/>
+  </g>
+  <g fill="#F47B20">
+    <path d="M1210 1160H1216V1330H1210ZM3610 1790H3670V1796H3610Z"/>
+    <circle cx="1190" cy="780" r="5"/>
+  </g>
+</svg>

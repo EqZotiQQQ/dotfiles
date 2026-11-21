@@ -1,0 +1,36 @@
+{
+  "colors": {
+    "primary": "#F47B20",
+    "onPrimary": "#171A1D",
+    "primaryContainer": "#353B40",
+    "onPrimaryContainer": "#F2F3EF",
+    "secondary": "#C3C9CC",
+    "tertiary": "#FFAC62",
+    "error": "#FF7167",
+    "surface": "#171A1D",
+    "surfaceHigh": "#353B40",
+    "onSurface": "#F2F3EF",
+    "onSurfaceVariant": "#A8B0B5",
+    "outline": "#C3C9CC",
+    "outlineVariant": "#353B40"
+  },
+  "terminal": [
+    "#171A1D",
+    "#F47B20",
+    "#A6B890",
+    "#E6BC78",
+    "#8CA3B2",
+    "#B69DA8",
+    "#93B4B8",
+    "#C3C9CC",
+    "#6E787F",
+    "#FF9563",
+    "#C6D6B1",
+    "#FFD0A0",
+    "#BDCFDA",
+    "#D7BEC9",
+    "#C2DDE0",
+    "#F2F3EF"
+  ],
+  "wallpaper": "asiimov.png"
+}

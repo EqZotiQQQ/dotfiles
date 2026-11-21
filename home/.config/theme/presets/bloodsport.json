@@ -1,0 +1,36 @@
+{
+  "colors": {
+    "primary": "#D83A25",
+    "onPrimary": "#F0F0EC",
+    "primaryContainer": "#263844",
+    "onPrimaryContainer": "#F0F0EC",
+    "secondary": "#A6ADB1",
+    "tertiary": "#D8AC27",
+    "error": "#FF7865",
+    "surface": "#1C1D20",
+    "surfaceHigh": "#263844",
+    "onSurface": "#F0F0EC",
+    "onSurfaceVariant": "#A6ADB1",
+    "outline": "#A6ADB1",
+    "outlineVariant": "#263844"
+  },
+  "terminal": [
+    "#1C1D20",
+    "#D83A25",
+    "#A6AD82",
+    "#D8AC27",
+    "#718D9F",
+    "#B77E79",
+    "#8AA6AD",
+    "#A6ADB1",
+    "#778086",
+    "#FF7865",
+    "#C7CEA2",
+    "#D8AC27",
+    "#A6ADB1",
+    "#DFA39A",
+    "#BED0D4",
+    "#F0F0EC"
+  ],
+  "wallpaper": "bloodsport.png"
+}

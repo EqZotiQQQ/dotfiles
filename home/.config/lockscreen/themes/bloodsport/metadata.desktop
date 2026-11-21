@@ -1,0 +1,7 @@
+[SddmGreeterTheme]
+Name=bloodsport
+Description=Charcoal, red-orange and white geometric theme for qylock
+Type=sddm-theme
+MainScript=Main.qml
+ConfigFile=theme.conf
+QtVersion=6
