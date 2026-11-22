@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Deep Ocean — desktop wallpaper</title>
+  <desc>Bold layered geometry with a quiet dark upper-right area for desktop widgets.</desc>
+  <defs>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#54C5EB"/><stop offset="1" stop-color="#237DAD"/>
+    </linearGradient>
+  </defs>
+  <path fill="#101E29" d="M0 0H3840V2160H0Z"/>
+  <circle cx="180" cy="1280" r="1220" fill="#182F40"/>
+  <circle cx="180" cy="1280" r="1020" fill="none" stroke="#54C5EB" stroke-width="140"/>
+  <circle cx="180" cy="1280" r="880" fill="none" stroke="#EAF4F6" stroke-width="8"/>
+  <circle cx="180" cy="1280" r="750" fill="#101E29"/>
+  <path d="M-300 1910A950 950 0 0 0 1100 1040" fill="none" stroke="#FF887A" stroke-width="110"/>
+  <path d="M-120 1990A1110 1110 0 0 0 1260 1110" fill="none" stroke="#54C5EB" stroke-width="8"/>
+  <path d="M0 1440C280 1080 480 1160 770 1460S1240 1910 1950 1900S3050 1830 3840 2120V2160H0Z" fill="url(#water)"/>
+  <path d="M0 1600C310 1240 500 1320 790 1620S1390 2050 2130 2010S3170 1960 3840 2180V2160H0Z" fill="#101E29"/>
+  <path d="M0 1690C300 1350 530 1420 800 1700S1380 2110 2130 2070" fill="none" stroke="#EAF4F6" stroke-width="6"/>
+  <path d="M0 1820C360 1510 580 1590 830 1830S1320 2180 1940 2150" fill="none" stroke="#FF887A" stroke-width="28"/>
+  <g fill="#EAF4F6">
+    <path d="M180 400H300V414H180ZM180 450H260V464H180ZM180 500H220V514H180Z"/>
+    <circle cx="1240" cy="940" r="10"/>
+  </g>
+  <path d="M1430 1690H1820L1960 1830H3560" fill="none" stroke="#A6BCC8" stroke-opacity=".25" stroke-width="2"/>
+</svg>

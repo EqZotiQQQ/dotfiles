@@ -49,11 +49,12 @@ Shim над `install/main.py` (логика — там и в `install/app_settin
 
 Единый источник внешнего вида, ключи — `theme/README.md`. Читают: Quickshell (сразу), Hyprland (`hypr/theme.lua`, при
 перезагрузке конфига), `lock`, mako (через `mako-theme` → `~/.cache/mako-theme`; без этого файла mako не стартует).
-Пресеты `bloodsport` и `asiimov`: выбор — `theme/preset.json`, применение — `~/.local/bin/theme-apply`.
+Пресеты: список — `theme-apply --list`, выбор и перезагрузка — `~/.local/bin/theme-apply ИМЯ`.
+Без имени применяется сохранённый выбор из `theme/preset.json`.
 Палитры — `theme/presets/*.json`; команда обновляет цвета в theme.json, proctree, Kitty и wofi,
 обои hyprpaper и перезагружает работающие компоненты. `--check` ничего не меняет; `--files-only` — без перезапусков.
 Геометрия и остальные настройки сохраняются. Общий локскрин в `lockscreen/themes/bloodsport` читает
-цвета и `wallpaper` из theme.json. Обои — `wallpapers/{bloodsport,asiimov}.png`, исходники — `theme/*.svg`.
+цвета и `wallpaper` из theme.json. Обои — `wallpapers/<пресет>.png`, исходники — `theme/*.svg`; палитра spectrum задана в пресете.
 Остальным программам шрифты отдаёт fontconfig: `sans-serif` → Rubik, `monospace` → Iosevka.
 
 ## Quickshell (`home/.config/quickshell/`)

@@ -11,6 +11,7 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPT = REPO / "home/.local/bin/theme-apply"
+PRESETS = sorted(path.stem for path in (REPO / "home/.config/theme/presets").glob("*.json"))
 
 
 class ThemePresetTests(unittest.TestCase):
@@ -24,11 +25,11 @@ class ThemePresetTests(unittest.TestCase):
         (self.config / "hypr").mkdir()
         shutil.copy(REPO / "home/.config/hypr/hyprpaper.conf", self.config / "hypr")
         (self.home / "Pictures/wallpapers").mkdir(parents=True)
-        for name in ("bloodsport", "asiimov"):
+        for name in PRESETS:
             (self.home / "Pictures/wallpapers" / f"{name}.png").symlink_to(REPO / "wallpapers" / f"{name}.png")
         self.env = dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.config))
         self.outputs = [self.config / name for name in (
-            "theme/theme.json", "proctree/config.yaml", "kitty/theme.conf", "wofi/style.css", "hypr/hyprpaper.conf")]
+            "theme/theme.json", "proctree/config.yaml", "kitty/theme.conf", "wofi/style.css", "hypr/hyprpaper.conf", "theme/preset.json")]
 
     def select(self, name):
         (self.config / "theme/preset.json").write_text(json.dumps({"preset": name}))
@@ -54,7 +55,7 @@ class ThemePresetTests(unittest.TestCase):
         self.select("bloodsport")
         result = self.run_apply("--files-only")
         self.assertEqual(result.returncode, 0, result.stderr)
-        baseline = self.snapshot()
+        baseline = self.snapshot()[:-1]
 
         self.select("asiimov")
         result = self.run_apply("--files-only")
@@ -80,7 +81,7 @@ class ThemePresetTests(unittest.TestCase):
         self.select("bloodsport")
         result = self.run_apply("--files-only")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(self.snapshot(), baseline)
+        self.assertEqual(self.snapshot()[:-1], baseline)
 
     def test_check_is_read_only(self):
         self.select("asiimov")
@@ -90,9 +91,44 @@ class ThemePresetTests(unittest.TestCase):
         self.assertIn("Preset asiimov: valid", result.stdout)
         self.assertEqual(self.snapshot(), before)
 
+    def test_named_presets_are_saved_and_apply_to_every_consumer(self):
+        self.assertEqual(set(PRESETS), {"asiimov", "bloodsport", "vaporwave", "deep-ocean",
+                                       "forest-copper", "graphite-lime", "burgundy-gold", "arctic"})
+        selection = self.config / "theme/preset.json"
+        selection.write_text(json.dumps({"preset": "asiimov", "preset_": "bloodsport"}))
+        before = json.loads((self.config / "theme/theme.json").read_text())
+        for name in PRESETS:
+            with self.subTest(preset=name):
+                result = self.run_apply(name, "--files-only")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(selection.read_text()), {"preset": name, "preset_": "bloodsport"})
+                palette = json.loads((self.config / "theme/presets" / f"{name}.json").read_text())
+                active = json.loads((self.config / "theme/theme.json").read_text())
+                self.assertEqual(active["colors"], palette["colors"])
+                self.assertEqual(active["wallpaper"], palette["wallpaper"])
+                self.assertEqual(active["spectrum"]["colors"], palette["spectrum"])
+                for key in ("shape", "fonts", "motion", "bar", "opacity"):
+                    self.assertEqual(active[key], before[key])
+                self.assertIn(palette["wallpaper"], (self.config / "hypr/hyprpaper.conf").read_text())
+                self.assertIn(palette["colors"]["primary"], (self.config / "kitty/theme.conf").read_text())
+                snapshot = self.snapshot()
+                self.assertEqual(self.run_apply("--files-only").returncode, 0)
+                self.assertEqual(self.snapshot(), snapshot)
+
+    def test_named_check_list_and_errors_do_not_change_selection(self):
+        before = self.snapshot()
+        result = self.run_apply("--list")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), PRESETS)
+        result = self.run_apply("vaporwave", "--check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Preset vaporwave: valid", result.stdout)
+        self.assertNotEqual(self.run_apply("unknown", "--files-only").returncode, 0)
+        self.assertEqual(self.snapshot(), before)
+
     @unittest.skipUnless(importlib.util.find_spec("gi"), "PyGObject and GTK 3 are required")
     def test_wofi_background_when_css_is_loaded_from_memory(self):
-        for preset in ("asiimov", "bloodsport"):
+        for preset in PRESETS:
             with self.subTest(preset=preset):
                 self.select(preset)
                 result = self.run_apply("--files-only")
@@ -179,8 +215,8 @@ if sys.argv[1:] == ["monitors", "-j"]:
             (binary_dir / command).symlink_to(mock)
         log = self.home / "calls.jsonl"
         self.env.update(PATH=str(binary_dir), HYPRLAND_INSTANCE_SIGNATURE="test", THEME_TEST_LOG=str(log))
-        self.select("asiimov")
-        result = self.run_apply()
+        self.select("bloodsport")
+        result = self.run_apply("asiimov")
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = [json.loads(line) for line in log.read_text().splitlines()]
         self.assertIn(["hyprctl", "hyprpaper", "wallpaper",

@@ -1,0 +1,41 @@
+{
+  "colors": {
+    "primary": "#54C5EB",
+    "onPrimary": "#101E29",
+    "primaryContainer": "#233A49",
+    "onPrimaryContainer": "#EAF4F6",
+    "secondary": "#FF887A",
+    "tertiary": "#87D6F1",
+    "error": "#FF9A92",
+    "surface": "#101E29",
+    "surfaceHigh": "#233A49",
+    "onSurface": "#EAF4F6",
+    "onSurfaceVariant": "#A6BCC8",
+    "outline": "#A6BCC8",
+    "outlineVariant": "#233A49"
+  },
+  "terminal": [
+    "#101E29",
+    "#FF9A92",
+    "#A8C69F",
+    "#E3BC68",
+    "#88B4D0",
+    "#B4A7D6",
+    "#FF887A",
+    "#A6BCC8",
+    "#233A49",
+    "#FFB8B3",
+    "#C4DBBB",
+    "#F2D699",
+    "#B2D5E8",
+    "#D6CBEF",
+    "#FFACA2",
+    "#EAF4F6"
+  ],
+  "wallpaper": "deep-ocean.png",
+  "spectrum": [
+    "outlineVariant",
+    "primary",
+    "secondary"
+  ]
+}

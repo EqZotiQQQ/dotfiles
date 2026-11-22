@@ -1,0 +1,41 @@
+{
+  "colors": {
+    "primary": "#88C0D0",
+    "onPrimary": "#17212E",
+    "primaryContainer": "#2E3D50",
+    "onPrimaryContainer": "#ECEFF4",
+    "secondary": "#B4A7D6",
+    "tertiary": "#ACD3DE",
+    "error": "#EF929D",
+    "surface": "#17212E",
+    "surfaceHigh": "#2E3D50",
+    "onSurface": "#ECEFF4",
+    "onSurfaceVariant": "#ABB9CC",
+    "outline": "#ABB9CC",
+    "outlineVariant": "#2E3D50"
+  },
+  "terminal": [
+    "#17212E",
+    "#EF929D",
+    "#A8C69F",
+    "#E3BC68",
+    "#88B4D0",
+    "#B4A7D6",
+    "#B4A7D6",
+    "#ABB9CC",
+    "#2E3D50",
+    "#F4B3BA",
+    "#C4DBBB",
+    "#F2D699",
+    "#B2D5E8",
+    "#D6CBEF",
+    "#CAC1E2",
+    "#ECEFF4"
+  ],
+  "wallpaper": "arctic.png",
+  "spectrum": [
+    "outlineVariant",
+    "primary",
+    "secondary"
+  ]
+}

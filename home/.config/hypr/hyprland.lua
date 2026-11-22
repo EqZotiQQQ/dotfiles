@@ -362,9 +362,7 @@ hl.window_rule({
     float = true,
 })
 
--- Полупрозрачные (с размытием) только редакторы: VS Code (класс code на Manjaro, com.microsoft.VSCode на Ubuntu)
--- и kitty, пока в нём neovim: shell integration kitty ставит заголовком команду («nvim file», «vim file»);
--- opacity — динамический эффект, пересчитывается при смене заголовка, после выхода из nvim окно снова непрозрачное
+-- VS Code uses code on Manjaro and com.microsoft.VSCode on Ubuntu.
 hl.window_rule({
     name  = "translucent-vscode",
     match = { class = "^(code|com\\.microsoft\\.VSCode)$" },
@@ -373,10 +371,11 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name  = "translucent-neovim",
-    match = { class = "^kitty$", title = "^n?vim( .*)?$" },
+    name  = "translucent-apps",
+    -- The installed Codex desktop app exposes the XWayland class Chatgpt.
+    match = { class = "^(kitty|Chatgpt|org\\.kde\\.dolphin|md\\.obsidian\\.Obsidian)$" },
 
-    opacity = "0.9 0.80",
+    opacity = "0.9 0.8",
 })
 
 -- wofi: размытие под полупрозрачным фоном (wofi/style.css); прозрачные скруглённые углы не размываются

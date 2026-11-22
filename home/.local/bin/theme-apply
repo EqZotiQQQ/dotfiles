@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the preset selected in ~/.config/theme/preset.json."""
+"""Select a desktop preset and reload it; without a name, use theme/preset.json."""
 
 import argparse
 import json
@@ -90,9 +90,10 @@ def kitty_colors(text, colors, terminal):
     return text
 
 
-def prepare(config, home):
+def prepare(config, home, name=None):
     directory = config / "theme"
-    name = json.loads((directory / "preset.json").read_text())["preset"]
+    if name is None:
+        name = json.loads((directory / "preset.json").read_text())["preset"]
     if not isinstance(name, str) or not re.fullmatch(r"[a-z][a-z0-9-]*", name):
         raise ValueError("preset must be a name such as bloodsport or asiimov")
     preset = json.loads((directory / "presets" / f"{name}.json").read_text())
@@ -103,6 +104,12 @@ def prepare(config, home):
     if len(terminal) != 16 or any(not isinstance(color, str) or not re.fullmatch(r"#[0-9A-Fa-f]{6}", color)
                                  for color in [*c.values(), *terminal]):
         raise ValueError("colors must be #RRGGBB; terminal must contain 16 colors")
+    spectrum = preset["spectrum"]
+    if not isinstance(spectrum, list) or len(spectrum) < 2 or any(
+        not isinstance(color, str) or (color not in c and not re.fullmatch(r"#[0-9A-Fa-f]{6}", color))
+        for color in spectrum
+    ):
+        raise ValueError("spectrum must contain at least two palette roles or #RRGGBB colors")
     if not isinstance(wallpaper, str) or not re.fullmatch(r"[a-z0-9-]+\.png", wallpaper):
         raise ValueError("wallpaper must be a PNG filename")
     wallpaper_path = home / "Pictures/wallpapers" / wallpaper
@@ -115,7 +122,7 @@ def prepare(config, home):
     theme["colors"] = c
     theme["wallpaper"] = wallpaper
     theme["widgetReveal"]["backdrop"]["color"] = c["surface"]
-    theme["spectrum"]["colors"] = ["outlineVariant", "primary", "tertiary"]
+    theme["spectrum"]["colors"] = spectrum
     theme["lock"]["theme"] = "bloodsport"
     css_roles = {"surface": "surface", "surface_high": "surfaceHigh", "primary": "primary",
                  "text": "onSurface", "text_variant": "onSurfaceVariant", "tertiary": "tertiary"}
@@ -159,14 +166,25 @@ def reload_desktop(home, wallpaper):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("preset", nargs="?", help="preset name to save and apply")
     mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--list", action="store_true", help="list available presets without changing anything")
     mode.add_argument("--check", action="store_true", help="validate and list files without changing them")
     mode.add_argument("--files-only", action="store_true", help="write configs without reloading desktop processes")
     args = parser.parse_args()
     home = Path.home()
     config = Path(os.environ.get("XDG_CONFIG_HOME") or home / ".config")
     try:
-        name, wallpaper, outputs = prepare(config, home)
+        if args.list:
+            if args.preset is not None:
+                parser.error("--list cannot be combined with a preset name")
+            print("\n".join(path.stem for path in sorted((config / "theme/presets").glob("*.json"))))
+            return 0
+        name, wallpaper, outputs = prepare(config, home, args.preset)
+        if args.preset is not None:
+            selection = json.loads((config / "theme/preset.json").read_text())
+            selection["preset"] = name
+            outputs[config / "theme/preset.json"] = json.dumps(selection, indent=2) + "\n"
         if args.check:
             print(f"Preset {name}: valid\n" + "\n".join(map(str, outputs)))
             return 0

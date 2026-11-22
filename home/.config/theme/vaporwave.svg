@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Vaporwave — desktop wallpaper</title>
+  <desc>Abstract geometry with a quiet dark upper-right area for desktop widgets.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#A78BFA"/><stop offset="1" stop-color="#5EEAD4"/>
+    </linearGradient>
+    <pattern id="grid" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" fill="none" stroke="#BDB1D3" stroke-opacity=".035"/>
+    </pattern>
+  </defs>
+  <path fill="#191526" d="M0 0H3840V2160H0Z"/>
+  <path fill="url(#grid)" d="M0 0H3840V2160H0Z"/>
+  <circle cx="580" cy="1400" r="460" fill="url(#accent)"/><path d="M0 1440H1160M0 1520H1160M0 1620H1160M0 1740H1160" stroke="#191526" stroke-width="28"/><path d="M0 2160L580 1780L1160 2160M0 2050H1160M0 2130H1160" fill="none" stroke="#5EEAD4" stroke-width="3"/>
+  <path d="M1520 2010H3500L3590 1920H3750" fill="none" stroke="#BDB1D3" stroke-opacity=".25" stroke-width="2"/>
+  <path d="M3200 2070H3380M3410 2070H3550" stroke="#A78BFA" stroke-width="6"/>
+  <path d="M3580 2070H3670" stroke="#5EEAD4" stroke-width="6"/>
+</svg>

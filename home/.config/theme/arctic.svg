@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Arctic — desktop wallpaper</title>
+  <desc>Bold layered geometry with a quiet dark upper-right area for desktop widgets.</desc>
+  <path fill="#17212E" d="M0 0H3840V2160H0Z"/>
+  <path fill="#2E3D50" d="M0 0H420L1480 1320L1690 2160H0Z"/>
+  <path fill="#ECEFF4" d="M0 0H260L1040 1080L650 2160H0Z"/>
+  <path fill="#88C0D0" d="M0 0L1040 1080L520 1120Z"/>
+  <path fill="#B4A7D6" d="M0 0L520 1120L0 1730Z"/>
+  <path fill="#17212E" d="M0 1800L555 1140L1090 1100L690 2160H625L1010 1170L585 1200L0 1900Z"/>
+  <path fill="#88C0D0" d="M710 2160L1140 1110L1570 2160Z"/>
+  <path fill="#ECEFF4" d="M1140 1110L1570 2160H1180Z"/>
+  <path fill="#B4A7D6" d="M1180 2160L1140 1110L940 1910Z"/>
+  <path d="M370 80L1220 1060L1660 2090" fill="none" stroke="#88C0D0" stroke-width="7"/>
+  <path d="M520 80L1340 1030" fill="none" stroke="#B4A7D6" stroke-width="22"/>
+  <path fill="#17212E" d="M0 860L335 740L350 770L0 900ZM520 1120L720 1660L705 1700L495 1150Z"/>
+  <path d="M1840 2160L2050 1950H3840V2160Z" fill="#2E3D50"/>
+  <path d="M2100 2100L2210 1990H2330L2220 2100ZM2290 2100L2400 1990H2520L2410 2100ZM2480 2100L2590 1990H2710L2600 2100Z" fill="#ECEFF4"/>
+  <path d="M2910 2050H3840" stroke="#88C0D0" stroke-width="20"/>
+  <path d="M1750 1820H3360L3460 1720" fill="none" stroke="#ABB9CC" stroke-opacity=".25" stroke-width="2"/>
+</svg>

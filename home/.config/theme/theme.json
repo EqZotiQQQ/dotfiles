@@ -1,19 +1,19 @@
 {
-  "name": "bloodsport",
+  "name": "asiimov",
   "colors": {
-    "primary": "#D83A25",
-    "onPrimary": "#F0F0EC",
-    "primaryContainer": "#263844",
-    "onPrimaryContainer": "#F0F0EC",
-    "secondary": "#A6ADB1",
-    "tertiary": "#D8AC27",
-    "error": "#FF7865",
-    "surface": "#1C1D20",
-    "surfaceHigh": "#263844",
-    "onSurface": "#F0F0EC",
-    "onSurfaceVariant": "#A6ADB1",
-    "outline": "#A6ADB1",
-    "outlineVariant": "#263844"
+    "primary": "#F47B20",
+    "onPrimary": "#171A1D",
+    "primaryContainer": "#353B40",
+    "onPrimaryContainer": "#F2F3EF",
+    "secondary": "#C3C9CC",
+    "tertiary": "#FFAC62",
+    "error": "#FF7167",
+    "surface": "#171A1D",
+    "surfaceHigh": "#353B40",
+    "onSurface": "#F2F3EF",
+    "onSurfaceVariant": "#A8B0B5",
+    "outline": "#C3C9CC",
+    "outlineVariant": "#353B40"
   },
   "bar": {
     "position": "top",
@@ -26,7 +26,7 @@
     "fadeMs": 360,
     "gap": 20,
     "backdrop": {
-      "color": "#1C1D20",
+      "color": "#171A1D",
       "opacity": 0.85,
       "padding": 16,
       "radius": 18,
@@ -81,5 +81,5 @@
   "lock": {
     "theme": "bloodsport"
   },
-  "wallpaper": "bloodsport.png"
+  "wallpaper": "asiimov.png"
 }

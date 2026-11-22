@@ -13,7 +13,8 @@ REPO = Path(__file__).resolve().parents[1]
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is required for the lockscreen check")
 class BloodsportLockTests(unittest.TestCase):
     def test_empty_password_busy_guard_and_retry(self):
-        for preset in ("bloodsport", "asiimov"):
+        for path in sorted((REPO / "home/.config/theme/presets").glob("*.json")):
+            preset = path.stem
             with self.subTest(preset=preset):
                 self.check_lock(preset)
 

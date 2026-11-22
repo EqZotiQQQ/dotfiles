@@ -32,5 +32,10 @@
     "#BED0D4",
     "#F0F0EC"
   ],
-  "wallpaper": "bloodsport.png"
+  "wallpaper": "bloodsport.png",
+  "spectrum": [
+    "outlineVariant",
+    "primary",
+    "tertiary"
+  ]
 }

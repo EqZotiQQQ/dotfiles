@@ -1,10 +1,10 @@
 /* wofi loads CSS from memory, so relative imports cannot resolve beside this file. */
-@define-color surface #1C1D20;
-@define-color surface_high #263844;
-@define-color primary #D83A25;
-@define-color text #F0F0EC;
-@define-color text_variant #A6ADB1;
-@define-color tertiary #D8AC27;
+@define-color surface #171A1D;
+@define-color surface_high #353B40;
+@define-color primary #F47B20;
+@define-color text #F2F3EF;
+@define-color text_variant #A8B0B5;
+@define-color tertiary #FFAC62;
 
 * {
   font-family: "Iosevka", monospace;

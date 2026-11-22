@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <title>Burgundy Gold — desktop wallpaper</title>
+  <desc>Bold layered geometry with a quiet dark upper-right area for desktop widgets.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2=".5">
+      <stop stop-color="#E3BC68"/><stop offset=".5" stop-color="#F8E4A9"/><stop offset="1" stop-color="#B98A3E"/>
+    </linearGradient>
+  </defs>
+  <path fill="#24191F" d="M0 0H3840V2160H0Z"/>
+  <path fill="#512B3D" d="M0 0H320L1430 1110V2160H0Z"/>
+  <path fill="#403039" d="M0 160L1260 1420V2160H0Z"/>
+  <g fill="none" stroke="url(#gold)">
+    <path d="M-420 2160V1060L410 230L1240 1060V2160" stroke-width="42"/>
+    <path d="M-280 2160V1120L410 430L1100 1120V2160" stroke-width="12"/>
+    <path d="M-140 2160V1180L410 630L960 1180V2160" stroke-width="28"/>
+  </g>
+  <path fill="#24191F" d="M0 2160V1240L410 830L820 1240V2160Z"/>
+  <path fill="url(#gold)" d="M410 920L730 1240L410 1560L90 1240Z"/>
+  <path fill="#D99AAE" d="M410 1000L650 1240L410 1480Z"/>
+  <path fill="#24191F" d="M410 1120L530 1240L410 1360L290 1240Z"/>
+  <path d="M410 1570V2160M350 1630V2160M470 1630V2160" stroke="#E3BC68" stroke-width="12"/>
+  <path d="M1300 2160V1190L410 300" fill="none" stroke="#D99AAE" stroke-width="6"/>
+  <path fill="url(#gold)" d="M1300 2040H3840V2070H1330Z"/>
+  <path fill="#D99AAE" d="M1410 2110H3840V2160H1460Z"/>
+  <g fill="#F3E9DE">
+    <path d="M1370 1660L1390 1680L1370 1700L1350 1680ZM1370 1740L1390 1760L1370 1780L1350 1760ZM1370 1820L1390 1840L1370 1860L1350 1840Z"/>
+  </g>
+</svg>

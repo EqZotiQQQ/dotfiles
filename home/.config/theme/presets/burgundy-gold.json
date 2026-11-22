@@ -1,0 +1,41 @@
+{
+  "colors": {
+    "primary": "#E3BC68",
+    "onPrimary": "#24191F",
+    "primaryContainer": "#403039",
+    "onPrimaryContainer": "#F3E9DE",
+    "secondary": "#D99AAE",
+    "tertiary": "#EBD095",
+    "error": "#FF8E92",
+    "surface": "#24191F",
+    "surfaceHigh": "#403039",
+    "onSurface": "#F3E9DE",
+    "onSurfaceVariant": "#CAB5BC",
+    "outline": "#CAB5BC",
+    "outlineVariant": "#403039"
+  },
+  "terminal": [
+    "#24191F",
+    "#FF8E92",
+    "#A8C69F",
+    "#E3BC68",
+    "#88B4D0",
+    "#B4A7D6",
+    "#D99AAE",
+    "#CAB5BC",
+    "#403039",
+    "#FFB0B3",
+    "#C4DBBB",
+    "#F2D699",
+    "#B2D5E8",
+    "#D6CBEF",
+    "#E4B8C6",
+    "#F3E9DE"
+  ],
+  "wallpaper": "burgundy-gold.png",
+  "spectrum": [
+    "outlineVariant",
+    "primary",
+    "secondary"
+  ]
+}

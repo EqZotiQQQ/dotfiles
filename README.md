@@ -10,9 +10,10 @@ TBD
 TBD
 
 # Configuration
-Темы рабочего стола: **Asiimov** (белый, графит, оранжевый) и **Bloodsport**
-(красно-оранжевый, чёрный, белый). Выбор — `~/.config/theme/preset.json`,
-применение — `~/.local/bin/theme-apply`.
+Темы рабочего стола: **Asiimov**, **Bloodsport**, **Vaporwave**, **Deep Ocean**,
+**Forest Copper**, **Graphite Lime**, **Burgundy Gold**, **Arctic**.
+Выбор и перезагрузка одной командой — `~/.local/bin/theme-apply vaporwave`;
+список — `~/.local/bin/theme-apply --list`. Выбор сохраняется в `~/.config/theme/preset.json`.
 Пресет охватывает бар, AI Limits, proctree, spectrum, уведомления, Kitty, wofi,
 локскрин и абстрактные обои без оружия.
 [Выбор пресета, установка и проверки](home/.config/theme/README.md#выбор-пресета).
@@ -98,6 +99,29 @@ lock --fetch   # движок локскрина qylock, нужен qs
   Wayland-окружения. Запускать внутри сессии: `hyprctl dispatch 'hl.dsp.exec_cmd("qs -d")'`.
 - Qt 6.10 не принимает `long` / `short` как имена в QML (`Expected token 'identifier'`).
   Проверка всех файлов: `/usr/lib/qt6/bin/qmllint` (пакет `qt6-declarative-dev-tools`).
+
+### Превью рабочих столов
+
+Наведите курсор на плитку рабочего стола в баре на 0,4 секунды или нажмите ПКМ:
+рядом откроется превью его окон без переключения рабочего стола. Повторный ПКМ
+по той же плитке скрывает превью; оно не открывается снова от неподвижного курсора.
+Следующий ПКМ или новое наведение открывает его снова. При уходе
+курсора с плитки превью закрывается; короткое наведение отменяет открытие.
+ЛКМ по-прежнему переключает рабочий стол. Превью работает у всех четырёх краёв
+бара, захват окон выполняется только пока оно открыто.
+
+Установка и проверка из корня репозитория:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_workspace_preview.py' -v
+./dot -s -f
+pkill -x qs
+qs -d
+```
+
+Для теста нужны `qs` и модуль QtTest; он работает без Wayland-сеанса.
+Вручную проверьте задержку, ПКМ, уход до истечения 0,4 секунды и переключение
+ЛКМ на плитках обоих мониторов.
 
 ### AI Limits: Codex и Claude
 
@@ -299,7 +323,6 @@ Quickshell ищет бинарник в `~/my_projects/spectrum/build/spectrum`;
   `obsidian`, `spotify-launcher` — нет.
 
 # TODO
-transparent and blur for term
 Setup startup screens
 
 ## Codex: правила и скиллы

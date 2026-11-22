@@ -32,5 +32,10 @@
     "#C2DDE0",
     "#F2F3EF"
   ],
-  "wallpaper": "asiimov.png"
+  "wallpaper": "asiimov.png",
+  "spectrum": [
+    "outlineVariant",
+    "primary",
+    "tertiary"
+  ]
 }

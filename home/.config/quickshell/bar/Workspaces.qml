@@ -10,8 +10,25 @@ Strip {
     id: root
 
     required property HyprlandMonitor monitor
+    property Item previewTile: null
+
+    function showPreview(tile) {
+        Hyprland.refreshToplevels();
+        previewTile = tile;
+    }
+
+    onVisibleChanged: if (!visible) previewTile = null
 
     spacing: 2
+
+    LazyLoader {
+        active: root.previewTile !== null
+
+        WorkspacePreview {
+            anchor.item: root.previewTile
+            workspace: root.previewTile?.modelData ?? null
+        }
+    }
 
     WheelHandler {
         onWheel: event => Hyprland.dispatch(`hl.dsp.focus({ workspace = "m${event.angleDelta.y > 0 ? "-" : "+"}1" })`)
@@ -59,8 +76,29 @@ Strip {
 
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
-                onClicked: pill.modelData.activate()
+                onExited: if (root.previewTile === pill) root.previewTile = null
+                onClicked: event => {
+                    previewDelay.stop();
+                    if (event.button === Qt.RightButton) {
+                        if (root.previewTile === pill)
+                            root.previewTile = null;
+                        else
+                            root.showPreview(pill);
+                    } else {
+                        root.previewTile = null;
+                        pill.modelData.activate();
+                    }
+                }
+            }
+
+            Timer {
+                id: previewDelay
+
+                interval: 400
+                running: mouse.containsMouse && root.visible
+                onTriggered: root.showPreview(pill)
             }
         }
     }
